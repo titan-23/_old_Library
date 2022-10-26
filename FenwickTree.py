@@ -14,7 +14,7 @@ class FenwickTree:
 
   '''Return sum([0, r)) of a. / O(logN)'''
   def pref(self, r: int) -> int:
-    assert -1 <= r <= self._size
+    assert r <= self._size
     r += 1
     ret = 0
     while r > 0:
