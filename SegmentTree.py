@@ -113,8 +113,7 @@ class SegmentTree:
     return 0
 
   def __str__(self):
-    ret = [self._dat[i] for i in range(1<<self._log, 1<<self._log+1)]
-    return '[' + ', '.join(map(str, ret)) + ']'
+    return '[' + ', '.join(map(str, [self.__getitem__(i) for i in range(self._n)])) + ']'
 
   def show(self):
     ret = []
