@@ -1,5 +1,5 @@
 # def __init__(self, n, op=lambda x,y: x+y, default=0, V=[]):
-class SegmentTree_Range_Add_Query:
+class SegmentTreeRangeAddQuery:
 
   def __init__(self, n, op=lambda x,y: x+y, default=0, V=[]):
     "Make a new Segment Tree. / 0 <= n <= 10**8. / O(N)" # default=lambda x:0
@@ -15,8 +15,8 @@ class SegmentTree_Range_Add_Query:
         self._dat[self._size+i] = V[i]
 
 
+  '''Get a[p]. / O(logN)'''
   def get(self, p: int):
-    "Get a[p]. / O(logN)"
     assert 0 <= p <= self._size
     p += self._size
     res = self._dat[p]
@@ -26,11 +26,10 @@ class SegmentTree_Range_Add_Query:
     return res
 
   def __getitem__(self, p: int):
-    "Get a[p]. / O(logN)"
     return self.get(p)
 
+  '''Return op([l, r)). / 0 <= l <= r <= n / O(logN)'''
   def add(self, l: int, r: int, x):
-    "Return op([l, r)). / 0 <= l <= r <= n / O(logN)"
     assert 0 <= l <= r <= self._n
     l += self._size
     r += self._size
@@ -46,11 +45,14 @@ class SegmentTree_Range_Add_Query:
       r >>= 1
     return self._op(lres, rres)
 
+  '''Return op([0, n)). / O(1)'''
   def all_prod(self):
-    "Return op([0, n)). / O(1)"
     return self._dat[1]
 
   def __str__(self):
+    return '[' + ', '.join(map(str, [self.__getitem__(i) for i in range(self._n)])) + ']'
+
+  def show(self):
     ret = []
     for i in range(self._log+1):
       tmp = [' ']
