@@ -24,10 +24,10 @@ class SegmentTree:
 
   '''Change a[p] into x. / O(logN)'''
   def set(self, indx: int, key) -> None:
-    assert 0 <= indx <= self._n, f'indx={indx}, _n={self._n} <- must be 0 <= indx <= self._n'
+    assert 0 <= indx < self._n, f'indx={indx}, _n={self._n} <- must be 0 <= indx <= self._n'
     indx += self._size
     self._dat[indx] = key
-    for i in range(self._log):
+    for _ in range(self._log):
       indx >>= 1
       self._dat[indx] = self._op(self._dat[indx<<1], self._dat[indx<<1|1])
 
@@ -123,6 +123,3 @@ class SegmentTree:
         tmp.append(self._dat[2**i+j])
       ret.append(' '.join(map(str, tmp)))
     print('<SegmentTree> [\n' + '\n'.join(map(str, ret)) + '\n]')
-
-
-
