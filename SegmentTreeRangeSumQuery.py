@@ -6,25 +6,24 @@ class SegmentTreeRangeSumQuery:
       self._n = _n_or_a
       self._log     = (self._n-1).bit_length()
       self._size    = 1 << self._log
-      self._dat     = [0] * (2*self._size)
+      self._dat     = [0] * (self._size<<1)
     elif type(_n_or_a) == list:
       self._n = len(_n_or_a)
       self._log     = (self._n-1).bit_length()
       self._size    = 1 << self._log
-      self._dat     = [0] * (2*self._size)
-      for i in range(self._n):
-        self._dat[self._size+i] = _n_or_a[i]
+      self._dat     = [0] * (self._size<<1)
+      self._dat[self._size:self._size+self._n] = _n_or_a
       for i in range(self._size-1, 0, -1):
-        self._dat[i] = self._dat[2*i] + self._dat[2*i+1]
+        self._dat[i] = self._dat[i<<1] + self._dat[i<<1|1]
     else:
       raise TypeError
 
-  '''Update a[p] into x. / O(logN)'''
+  '''Change a[p] into x. / O(logN)'''
   def set(self, p: int, x):
-    assert 0 <= p <= self._n, f'p={p}, _n={self._n} <- must be 0 <= p <= self._n'
+    assert 0 <= p < self._n, f'p={p}, _n={self._n} <- must be 0 <= p <= self._n'
     p += self._size
     self._dat[p] = x
-    for i in range(self._log):
+    for _ in range(self._log):
       p >>= 1
       self._dat[p] = self._dat[p<<1] + self._dat[p<<1|1]
 
@@ -109,17 +108,15 @@ class SegmentTreeRangeSumQuery:
     return 0
 
   def __str__(self):
-    ret = [self._dat[i] for i in range(1<<self._log, 1<<self._log+1)]
-    return '[' + ', '.join(map(str, ret)) + ']'
+    return '[' + ', '.join(map(str, [self.__getitem__(i) for i in range(self._n)])) + ']'
 
   def show(self):
     ret = []
     for i in range(self._log+1):
       tmp = [' ']
-      for j in range(2**i):
-        tmp.append(self._dat[2**i+j])
+      for j in range(1<<i):
+        tmp.append(self._dat[1<<i+j])
       ret.append(' '.join(map(str, tmp)))
     print('<SegmentTree> [\n' + '\n'.join(map(str, ret)) + '\n]')
-
 
 
