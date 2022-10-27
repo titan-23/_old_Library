@@ -1,10 +1,7 @@
 import math
-alpha = 0.75
-beta = math.log2(1/alpha)
 
 
 class Node:
-  # __slots__ = ('key', 'left', 'right', 'size')
   
   def __init__(self, key):
     self.key = key
@@ -20,7 +17,8 @@ class Node:
 
 class ScapegoatTreeSet:
  
-  # __slots__ = ('node', '__iter', '__len')
+  alpha = 0.75
+  beta = math.log2(1/alpha)
  
   '''Make a new AVLTree. / O(NlogN)'''
   def __init__(self, a=[]) -> None:
@@ -32,7 +30,7 @@ class ScapegoatTreeSet:
           a.append(aa[i])
     self.node = self.__build(a)
  
-  def __build(self, a) -> None:
+  def __build(self, a: list) -> None:
     def sort(l, r):
       if l >= r:
         return None, 0
@@ -40,7 +38,7 @@ class ScapegoatTreeSet:
       root = Node(a[mid])
       root.left, sl = sort(l, mid)
       root.right, sr = sort(mid+1, r)
-      root.size = sl + sr + 1
+      root.size = sl+sr+1
       return root, sl+sr+1
     return sort(0, len(a))[0]
  
@@ -60,7 +58,7 @@ class ScapegoatTreeSet:
       root = a[mid]
       root.left, sl = sort(l, mid)
       root.right, sr = sort(mid+1, r)
-      root.size = sl + sr + 1
+      root.size = sl+sr+1
       return root, sl+sr+1
 
     a = []
@@ -72,35 +70,32 @@ class ScapegoatTreeSet:
     if self.node is None:
       self.node = Node(key)
       return True
-    node = self.node
-    path, di = [], 0
+    node, path = self.node, []
     while node is not None:
+      path.append(node)
       if key == node.key:
         return False
       elif key < node.key:
-        path.append(node)
-        di, node = di<<1 | 1, node.left
+        node = node.left
       else:
-        path.append(node)
-        di, node = di<<1,     node.right
-    if di & 1:
+        node = node.right
+    if key < path[-1].key:
       path[-1].left = Node(key)
     else:
       path[-1].right = Node(key)
-    if len(path)*beta > math.log(self.node.size):
+    if len(path)*self.beta > math.log(self.node.size):
       node_size = 1
       while path:
         pnode = path.pop()
-        di >>= 1
         pnode_size = pnode.size + 1
-        if alpha * pnode_size < node_size:
+        if self.alpha * pnode_size < node_size:
           break
         node_size = pnode_size
       new_node = self.__rebuild(pnode)
       if not path:
         self.node = new_node
         return True
-      if di & 1:
+      if new_node.key < path[-1].key:
         path[-1].left = new_node
       else:
         path[-1].right = new_node
@@ -108,11 +103,10 @@ class ScapegoatTreeSet:
       p.size += 1
     return True
  
-  '''Discard key. / O(logN)'''
+  '''Discard a key. / O(logN)'''
   def discard(self, key) -> bool:
     di = 1
-    node = self.node
-    path = []
+    node, path = self.node, []
     while node is not None:
       if key == node.key:
         break
@@ -196,12 +190,12 @@ class ScapegoatTreeSet:
  
   '''Count the number of elements < key. / O(logN)'''
   def index(self, key) -> int:
-    indx = 0
-    node = self.node
+    indx, node = 0, self.node
     while node:
       if key == node.key:
-        indx += 0 if node.left is None else node.left.size
-        break        
+        if node.left is not None:
+          indx += node.left.size
+        break
       elif key < node.key:
         node = node.left
       else:
@@ -211,8 +205,7 @@ class ScapegoatTreeSet:
 
   '''Count the number of elements <= key. / O(logN)'''
   def index_right(self, key) -> int:
-    indx = 0
-    node = self.node
+    indx, node = 0, self.node
     while node:
       if key == node.key:
         indx += 1 if node.left is None else node.left.size + 1
@@ -228,33 +221,27 @@ class ScapegoatTreeSet:
   def pop(self, p=-1):
     if p < 0:
       p += self.__len__()
-    now = 0
-    node = self.node
-    path = []
-    di = 1
+    now, di = 0, 1
+    node, path = self.node, []
     while node is not None:
       t = now if node.left is None else now + node.left.size
       if t == p:
         break
       elif t < p:
         path.append(node)
-        now = t + 1
-        di = -1
-        node = node.right
+        now, di, node = t+1, -1, node.right
       elif t > p:
         path.append((node))
-        di = 1
-        node = node.left
+        di, node = 1, node.left
     else:
-      raise IndexError(f'k={p}, len={self.__len__()}')
+      raise IndexError
     res = node.key
     if node.left is not None and node.right is not None:
       path.append(node)
-      di = 1
       lmax = node.left
+      di = 1 if lmax.right is None else -1
       while lmax.right is not None:
         path.append(lmax)
-        di = -1
         lmax = lmax.right
       node.key = lmax.key
       node = lmax
@@ -283,10 +270,10 @@ class ScapegoatTreeSet:
       if t == k:
         return node.key
       elif t < k:
-        now, node = t + 1, node.right
+        now, node = t+1, node.right
       else:
         node = node.left
-    raise IndexError(f'k={k}, len={self.__len__()}')
+    raise IndexError
 
   def __contains__(self, x):
     node = self.node
