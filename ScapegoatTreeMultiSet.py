@@ -1,10 +1,7 @@
 import math
-alpha = 0.75
-beta = math.log2(1/alpha)
 
 
 class Node:
-  # __slots__ = ('key', 'left', 'right', 'size')
   
   def __init__(self, key, val):
     self.key = key
@@ -22,7 +19,8 @@ class Node:
 
 class ScapegoatTreeMultiSet:
  
-  # __slots__ = ('node', '__iter', '__len')
+  alpha = 0.75
+  beta = math.log2(1/alpha)
  
   '''Make a new ScapegoatTreeMultiSet. / O(NlogN)'''
   def __init__(self, a=[]) -> None:
@@ -86,41 +84,35 @@ class ScapegoatTreeMultiSet:
     if self.node is None:
       self.node = Node(key, val)
       return
-    node = self.node
-    path, di = [], 0
+    node, path = self.node, []
     while node is not None:
+      path.append(node)
       if key < node.key:
-        path.append(node)
-        di = di<<1 | 1
         node = node.left
       elif key > node.key:
-        path.append(node)
-        di = di<<1
         node = node.right
       else:
         node.val += val
-        node.valsize += val
         for p in path:
           p.valsize += val
         return
-    if di & 1:
+    if key < path[-1].key:
       path[-1].left = Node(key, val)
     else:
       path[-1].right = Node(key, val)
-    if len(path)*beta > math.log(self.__len_tree()):
+    if len(path)*self.beta > math.log(self.__len_tree()):
       node_size = 1
       while path:
         pnode = path.pop()
-        di >>= 1
         pnode_size = pnode.size + 1
-        if alpha * pnode_size < node_size:
+        if self.alpha * pnode_size < node_size:
           break
         node_size = pnode_size
       new_node = self.__rebuild(pnode)
       if not path:
         self.node = new_node
         return
-      if di & 1:
+      if new_node.key < path[-1].key:
         path[-1].left = new_node
       else:
         path[-1].right = new_node
@@ -131,10 +123,8 @@ class ScapegoatTreeMultiSet:
  
   def __discard(self, key) -> bool:
     '''Discard node of key from self. / O(logN)'''
-    path = []
-    node = self.node
-    di = 1
-    cnt = 0
+    path, node = [], self.node
+    di, cnt = 1, 0
     while node is not None:
       if key < node.key:
         di = 1
