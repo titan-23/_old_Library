@@ -15,8 +15,7 @@ class SegmentTree:
       self._log  = (self._n-1).bit_length()
       self._size = 1 << self._log
       self._dat  = [self._default] * (self._size<<1)
-      for i in range(self._n):
-        self._dat[self._size+i] = _n_or_a[i]
+      self._dat[self._size:self._size+self._n] = _n_or_a
       for i in range(self._size-1, 0, -1):
         self._dat[i] = self._op(self._dat[i<<1], self._dat[i<<1|1])
     else:
@@ -123,3 +122,6 @@ class SegmentTree:
         tmp.append(self._dat[2**i+j])
       ret.append(' '.join(map(str, tmp)))
     print('<SegmentTree> [\n' + '\n'.join(map(str, ret)) + '\n]')
+
+
+
