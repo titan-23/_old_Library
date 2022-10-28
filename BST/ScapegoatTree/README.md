@@ -19,7 +19,7 @@ O(1)時間です。
 O(logN)時間です。
 
 ### st.__getitem__(x)
-x番目に小さい値(0-indexed)を返します。O(logN)時間です。
+x番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
 
 ### bool(st) / str(st) / reversed(st)
 よしなに動くはずです。
