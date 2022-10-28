@@ -1,5 +1,5 @@
 # ScapegoatTree
-ScapegoatTreeです。バグがあるかもしれません。ScapegoatTreeSet/MultiSetでは、ユーザーがScapegoatとならないことを保証しておりません。
+まがい物のScapegoatTreeです。バグがあるかもしれません。ScapegoatTreeSet/MultiSetでは、ユーザーがScapegoatとならないことを保証しておりません。
 
 ## ScapegoatTreeSet
 重複を許さない順序付き集合です。
