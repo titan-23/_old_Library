@@ -36,7 +36,7 @@ O(logN)時間です。
 ### st.index(x) / .index_right(x)
 x(より小さい/以下)の要素の数を返します。O(logN)時間です。
 
-### st.pop([x]) / .popleft()
+### st.pop(x=-1) / .popleft()
 x番目の要素を削除し、そのkeyを返します。xを省略すると末尾がpopされます。また、popleftはpop(0)と等価です。いずれもO(logN)時間です。
 v = st[x]; st.discard(v) より高速に動作します。
 
