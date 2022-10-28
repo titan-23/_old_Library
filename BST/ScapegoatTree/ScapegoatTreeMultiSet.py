@@ -205,7 +205,7 @@ class ScapegoatTreeMultiSet:
         node = node.right
       else:
         return node.val
-    raise KeyError
+    return 0
 
   def discard_all(self, key) -> None:
     self.discard(key, self.count(key))
