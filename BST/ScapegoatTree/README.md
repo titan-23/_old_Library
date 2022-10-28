@@ -4,8 +4,11 @@
 ## ScapegoatTreeSet
 重複を許さない順序付き集合です。
 
+### Node
+ノードです。キー/自身の部分木のサイズ/左の子/右の子 を保持します。
+
 ### st = ScapegoatTreeSet(a=[])
-iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。
+iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。ソート済みを仮定して内部をいじるとO(N)時間です。
 
 ### len(st)
 要素の個数を返します。O(1)時間です。
@@ -17,7 +20,7 @@ iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。
 x番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
 
 ### bool(st) / str(st) / reversed(st)
-よしなに動くはずです。
+よしなに動きます。
 
 ### st.add(x)
 xがなければxを追加しTrueを返します。xがあれば追加せずにFalseを返します。償却計算量O(logN)時間です。最悪計算量はO(N)時間です。
@@ -26,18 +29,21 @@ xがなければxを追加しTrueを返します。xがあれば追加せずにF
 xがあれば削除しTrueを返します。xがなければ何も削除せずにFalseを返します。O(logN)時間です。
 
 ### st.le(x) / .lt(x) / .ge(x) / gt(x)
-x(以下/より小さい/以上/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。いずれもO(logN)時間です。
+x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。いずれもO(logN)時間です。
 
 ### st.index(x) / .index_right(x)
 x(より小さい/以下)の要素の数を返します。O(logN)時間です。
 
 ### st.pop(x=-1) / .popleft()
-x番目の要素を削除し、そのkeyを返します。xを省略すると末尾がpopされます。また、popleft()はpop(0)と等価です。いずれもO(logN)時間です。
-st.pop(x)は、st.discard(st[x])とほぼ同じ意味ですがより高速に動作します。
+x番目の要素を削除し、その値を返します。xを省略すると末尾がpopされます。また、popleft()はpop(0)と等価です。いずれもO(logN)時間です。
+st.pop(x)は、st.discard(st[x])より高速に動作します。
 
 
 ## ScapegoatTreeMultiSet
 重複を許可する順序付き集合です。バグが多そうで怖い。正直使いたくないです。以下、おきてほしい動作を書きます。SetでできることはおそらくMultiSetでもできます。
+
+### Node
+フィールドが増えました。MLEで死にそう。
 
 ### len(st)
 重複を含めたサイズを返します。O(1)時間です。
@@ -55,7 +61,7 @@ xをcnt個追加します。cntの値に依らず、償却計算量はO(logN)時
 xをcnt個削除します。cntの値に依らず、O(logN)時間です。
 
 ### st.discard_all(x)
-xをすべて削除します。O(logN)時間です。
+xをすべて削除します。st.discard(x, cnt=st.count(x))と等価です。O(logN)時間です。
 
 ### st.index_keys(x) / .index_right_keys(x)
 x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)時間です。
@@ -64,4 +70,4 @@ x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)�
 x番目に小さいkey(0-indexed)を返します。O(logN)時間です。
 
 ### st.keys() / .values() / .items()
-yieldします。
+よしなにyieldします。
