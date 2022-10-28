@@ -1,13 +1,8 @@
 # ScapegoatTree
-まがい物のScapegoatTreeです。バグがあるかもしれません。ScapegoatTreeSet/MultiSetでは、ユーザーがScapegoatとならないことを保証しておりません。
+まがい物のScapegoatTreeです。バグがあるかもしれません。本ライブラリではユーザーすらScapegoatなのです。バグ報告お待ちしております。
 
 ## ScapegoatTreeSet
 重複を許さない順序付き集合です。
-
-### Node
-各ノードは、
-key, Nodeを頂点をする部分木のサイズ, 左の子, 右の子
-をもっています。
 
 ### st = ScapegoatTreeSet(a=[])
 iterableからScapegoatTreeSetを作ります。ソートがボトルネックとなり、O(NlogN)時間です。
@@ -18,7 +13,7 @@ O(1)時間です。
 ### x in st / x not in st
 O(logN)時間です。
 
-### st.__getitem__(x)
+### st[x]
 x番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
 
 ### bool(st) / str(st) / reversed(st)
@@ -54,10 +49,10 @@ v = st[x]; st.discard(v) より高速に動作します。
 xの要素数を返します。xが存在しないときは0を返します。O(logN)時間です。
 
 ### st.add(x, cnt=1)
-xをcnt個追加します。cntを省略すると1つのみ追加されます。cntの値に依らず、償却計算量はO(logN)時間です。
+xをcnt個追加します。cntの値に依らず、償却計算量はO(logN)時間です。
 
 ### st.discard(x, cnt=1)
-xをcnt個削除します。cntを省略すると1つのみ追加されます。cntの値に依らず、O(logN)時間です。
+xをcnt個削除します。cntの値に依らず、O(logN)時間です。
 
 ### st.discard_all(x)
 xをすべて削除します。O(logN)時間です。
