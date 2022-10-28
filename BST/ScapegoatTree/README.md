@@ -4,14 +4,14 @@
 ## ScapegoatTreeSet
 重複を許さない順序付き集合です。
 
-### st = ScapegoatTreeSet(a=[])
+### $st = ScapegoatTreeSet(a=[])$
 iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。
 
 ### len(st)
-O(1)時間です。
+要素の個数を返します。O(1)時間です。
 
 ### x in st / x not in st
-O(logN)時間です。
+存在判定です。O(logN)時間です。
 
 ### st[x]
 x番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
