@@ -5,7 +5,7 @@
 重複を許さない順序付き集合です。
 
 ### st = ScapegoatTreeSet(a=[])
-iterableからScapegoatTreeSetを作ります。ソートがボトルネックとなり、O(NlogN)時間です。
+iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。
 
 ### len(st)
 O(1)時間です。
