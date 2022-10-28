@@ -4,7 +4,7 @@
 ## ScapegoatTreeSet
 重複を許さない順序付き集合です。
 
-### $st = ScapegoatTreeSet(a=[])$
+### st = ScapegoatTreeSet(a=[])
 iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。
 
 ### len(st)
@@ -26,14 +26,14 @@ xがなければxを追加しTrueを返します。xがあれば追加せずにF
 xがあれば削除しTrueを返します。xがなければ何も削除せずにFalseを返します。O(logN)時間です。
 
 ### st.le(x) / .lt(x) / .ge(x) / gt(x)
-いずれもO(logN)時間です。存在しなければNoneを返します。
+x(以下/より小さい/以上/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。いずれもO(logN)時間です。
 
 ### st.index(x) / .index_right(x)
 x(より小さい/以下)の要素の数を返します。O(logN)時間です。
 
 ### st.pop(x=-1) / .popleft()
-x番目の要素を削除し、そのkeyを返します。xを省略すると末尾がpopされます。また、popleftはpop(0)と等価です。いずれもO(logN)時間です。
-st.pop(x) は st.discard(st[x]) とほぼ同じ意味ですが、popの方がより高速に動作します。
+x番目の要素を削除し、そのkeyを返します。xを省略すると末尾がpopされます。また、popleft()はpop(0)と等価です。いずれもO(logN)時間です。
+st.pop(x)は、st.discard(st[x])とほぼ同じ意味ですがより高速に動作します。
 
 
 ## ScapegoatTreeMultiSet
