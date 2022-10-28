@@ -348,6 +348,9 @@ class ScapegoatTreeMultiSet:
   def __getitem__(self, k):
     return self.__kth_elm_set(k)[0]
 
+  def get_key(self, k):
+    return self.__kth_elm_tree(k)[0]
+
   def __kth_elm_set(self, k) -> tuple:
     if k < 0:
       k += self.__len__()
