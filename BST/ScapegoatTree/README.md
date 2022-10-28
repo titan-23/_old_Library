@@ -50,14 +50,23 @@ v = st[x]; st.discard(v) より高速に動作します。
 ### st.len_elm()
 重複を含ないときのサイズを返します。O(1)時間です。
 
+### st.count(x)
+xの要素数を返します。xが存在しないときは0を返します。O(logN)時間です。
+
 ### st.add(x, cnt=1)
 xをcnt個追加します。cntを省略すると1つのみ追加されます。cntの値に依らず、償却計算量はO(logN)時間です。
 
 ### st.discard(x, cnt=1)
 xをcnt個削除します。cntを省略すると1つのみ追加されます。cntの値に依らず、O(logN)時間です。
 
+### st.discard_all(x)
+xをすべて削除します。O(logN)時間です。
+
 ### st.index_keys(x) / .index_right_keys(x)
 x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)時間です。
 
 ### st.get_key(x)
 x番目に小さいkey(0-indexed)を返します。O(logN)時間です。
+
+### st.keys() / .values() / .items()
+yieldします。
