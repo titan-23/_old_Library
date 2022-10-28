@@ -22,4 +22,6 @@ iterable から SortedSet を作ります。O(NlogN)時間です。
 ### st.index(x) / .index_right(x)
 
 ### st.pop([x]) / .popleft()
+x番目の要素を削除し、そのkeyを返します。xを省略すると末尾がpopされます。また、popleftはpop(0)と等価です。
+v = st[x]; st.discard(v) より高速に動作します。
 
