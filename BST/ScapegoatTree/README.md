@@ -10,7 +10,7 @@ key, Nodeを頂点をする部分木のサイズ, 左の子, 右の子
 をもっています。
 
 ### st = ScapegoatTreeSet(a=[])
-iterableからSortedSetを作ります。ソートがボトルネックとなり、O(NlogN)時間です。
+iterableからScapegoatTreeSetを作ります。ソートがボトルネックとなり、O(NlogN)時間です。
 
 ### len(st)
 O(1)時間です。
