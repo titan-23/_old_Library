@@ -37,8 +37,8 @@ x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最�
 x(より小さい/以下の)要素の数を返します。O(logN)時間です。
 
 ### ```st.pop(x=-1) / .popleft()```
-x番目の要素を削除し、その値を返します。xを省略すると末尾がpopされます。また、```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
-```st.pop(x)```は、```st.discard(st[x])```より高速に動作します。
+x番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
+```st.pop(x)```は、```v = st[x]; st.discard(v); return v```より高速に動作します。
 
 
 ____
@@ -73,7 +73,7 @@ x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)�
 x番目に小さいkey(0-indexed)を返します。O(logN)時間です。
 
 ### ```st.pop(x=-1) / .popleft()```
-v = st[x]; st.discard(v); return vと等価です。別に高速ではないです。O(logN)時間です。
+```v = st[x]; st.discard(v); return v```と等価です。別に高速ではないです。O(logN)時間です。
 
 ### ```st.keys() / .values() / .items()```
 よしなにyieldします。
