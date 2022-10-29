@@ -20,7 +20,7 @@ class ScapegoatTreeSet:
   alpha = 0.75
   beta = math.log2(1/alpha)
  
-  '''Make a new AVLTree. / O(NlogN)'''
+  '''Make a new ScapegoatTreeSet. / O(NlogN)'''
   def __init__(self, a=[]) -> None:
     if a:
       aa = sorted(a)
