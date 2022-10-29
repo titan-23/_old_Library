@@ -6,9 +6,6 @@ _____
 ## [ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)
 重複を許さない順序付き集合です。
 
-### ```Node```
-ノードです。キー/自身の部分木のサイズ/左の子/右の子 を保持します。
-
 ### ```st = ScapegoatTreeSet(a=[])```
 iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。ソート済みを仮定して内部をいじるとO(N)時間です。
 
@@ -44,9 +41,6 @@ x番目の要素を削除し、その値を返します。```popleft()```は```p
 ____
 ## [ScapegoatTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py)
 重複を許可する順序付き集合です。多重集合とも。バグが多そうで怖い。正直使いたくないです。以下、おきてほしい動作を書きます。SetでできることはおそらくMultiSetでもできます。
-
-### ```Node```
-フィールドが増えました。MLEで死にそう。
 
 ### ```len(st)```
 重複を含めたサイズを返します。O(1)時間です。
