@@ -1,6 +1,6 @@
 # ScapegoatTree
 まがい物のScapegoatTreeです。バグがあるかもしれません。本ライブラリでは♰ユーザーすらScapegoat♰なのです。バグ報告お待ちしております。  
-載る条件は、任意の他要素との比較が可能であることです。
+載る条件は、任意の他要素との比較が可能であることです。以下、```x```で表します。
 
 _____
 ## [ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)
@@ -15,8 +15,8 @@ iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。ソート
 ### ```x in st / x not in st```
 存在判定です。O(logN)時間です。
 
-### ```st[x]```
-x番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
+### ```st[k]```
+k番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
 
 ### ```bool(st) / str(st) / reversed(st)```
 よしなに動きます。
@@ -33,9 +33,9 @@ x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最�
 ### ```st.index(x) / .index_right(x)```
 x(より小さい/以下の)要素の数を返します。O(logN)時間です。
 
-### ```st.pop(x=-1) / .popleft()```
-x番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
-```st.pop(x)```は、```v = st[x]; st.discard(v); return v```より高速に動作します。
+### ```st.pop(k=-1) / .popleft()```
+k番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
+```st.pop(k)```は、```x = st[k]; st.discard(x); return x```より高速に動作します。
 
 
 ____
@@ -63,11 +63,11 @@ xをすべて削除します。```st.discard(x, val=st.count(x))```と等価で�
 ### ```st.index_keys(x) / .index_right_keys(x)```
 x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)時間です。
 
-### ```st.get_key(x)```
-x番目に小さいkey(0-indexed)を返します。O(logN)時間です。
+### ```st.get_key(k)```
+k番目に小さいkey(0-indexed)を返します。O(logN)時間です。
 
-### ```st.pop(x=-1) / .popleft()```
-```v = st[x]; st.discard(v); return v```と等価です。別に高速ではないです。O(logN)時間です。
+### ```st.pop(k=-1) / .popleft()```
+```x = st[k]; st.discard(x); return x```と等価です。別に高速ではないです。O(logN)時間です。
 
 ### ```st.keys() / .values() / .items()```
 よしなにyieldします。
