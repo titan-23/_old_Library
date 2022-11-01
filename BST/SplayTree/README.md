@@ -26,7 +26,7 @@ indx番目を取得できます。
 setitemできます。
 
 ### ```st.prod(l, r)```
-セグ木的なアレです。区間[l, r)にopを適用した結果を返します。opの2項演算は交換法則が成り立ってないと厳しそう。
+セグ木的なアレです。区間[l, r)にopを適用した結果を返します。
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
