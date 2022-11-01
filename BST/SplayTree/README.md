@@ -16,5 +16,6 @@ st.pop(indx)で、indx番目を削除しその値を返します。
 ### __setitem__
 setitemできます。
 
+_____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
 setとしてのSplayTreeです。未完成です。よしなに。
