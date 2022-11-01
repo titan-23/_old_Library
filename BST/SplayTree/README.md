@@ -16,8 +16,11 @@ x, y = st.split(indx)で、indx番目で左右に分けたSplayTreeをつくりx
 ### ```st.insert(indx, key)```
 indxにkeyをinsesrtできます。
 
-### ```st.pop(indx)```
-indx番目を削除しその値を返します。
+### ```st.append(key) / .appendleft(key)```
+末尾/先頭にkeyを追加します。
+
+### ```st.pop(indx=-1) / .popleft()```
+indx番目/先頭を削除しその値を返します。
 
 ### ```st[indx]```
 indx番目を取得できます。
