@@ -1,6 +1,7 @@
 # SplayTree
 
-## SplayTree
+_____
+## [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
 列を扱えるSplayTreeです。以下の操作が償却計算量？O(logN)でできます。よしなに。
 ### merge
 st.merge(other)で、stにotherをmergeできます。
@@ -15,5 +16,5 @@ st.pop(indx)で、indx番目を削除しその値を返します。
 ### __setitem__
 setitemできます。
 
-## SplayTreeSet
+## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
 setとしてのSplayTreeです。未完成です。よしなに。
