@@ -11,7 +11,7 @@ _____
 stにotherをmergeできます。
 
 ### ```st.split(indx)```
-x, y = st.split(indx)で、indx番目で左右に分けたSplayTreeをつくりx, yに代入できます。stは破壊されます。indx番目がどっちに行くかくは忘れました。
+x, y = st.split(indx)で、indx番目で左右に分けたSplayTreeをつくりx, yに代入できます。stは破壊されます。(xの長さがindx。)
 
 ### ```st.insert(indx, key)```
 indxにkeyをinsesrtできます。
@@ -24,6 +24,12 @@ indx番目/先頭を削除しその値を返します。
 
 ### ```st[indx]```
 indx番目を取得できます。
+
+###　```st[start:stop]```
+スライスします。O(logN)です。
+
+### ```st[start:stop:step]```
+スライスしますが、O(N)です。
 
 ### ```st[indx] = key```
 setitemできます。
