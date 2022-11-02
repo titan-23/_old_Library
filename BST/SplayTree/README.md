@@ -25,7 +25,7 @@ indx番目/先頭を削除しその値を返します。
 ### ```st[indx]```
 indx番目を取得できます。
 
-###　```st[start:stop]```
+### ```st[start:stop]```
 スライスします。O(logN)です。
 
 ### ```st[start:stop:step]```
