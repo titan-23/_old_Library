@@ -2,10 +2,10 @@ class Node:
 
   def __init__(self, key):
     self.key = key
+    self.data = key
     self.size = 1
     self.left = None
     self.right = None
-    self.data = key
 
   def __str__(self):
     if self.left is None and self.right is None:
@@ -41,39 +41,26 @@ class SplayTree:
       node.size += node.right.size
       node.data = self.op(node.data, node.right.data)
 
-  def _splay(self, node, path, di) -> Node:
+  def _splay(self, path, di) -> Node:
+    # assert len(path) > 0
     while len(path) > 1:
-      node = path.pop()
-      pnode = path.pop()
-      ndi = di & 1
-      pdi = di >> 1 & 1
+      node, pnode = path.pop(), path.pop()
+      ndi, pdi = di&1, di>>1&1
       di >>= 2
       if ndi == pdi:
-        if ndi == 1:
-          pnode.left = node.right
-          node.right = pnode
-          tmp = node.left
-          node.left = tmp.right
-          tmp.right = node
+        if ndi:
+          tmp, node.left = node.left, node.left.right
+          tmp.right, pnode.left, node.right = node, node.right, pnode
         else:
-          pnode.right = node.left
-          node.left = pnode
-          tmp = node.right
-          node.right = tmp.left
-          tmp.left = node
+          tmp, node.right = node.right, node.right.left
+          tmp.left, pnode.right, node.left = node, node.left, pnode
       else:
-        if ndi == 1:
-          tmp = node.left
-          pnode.right = tmp.left
-          tmp.left = pnode
-          node.left = tmp.right
-          tmp.right = node
+        if ndi:
+          tmp, node.left = node.left, node.left.right
+          pnode.right, tmp.right, tmp.left = tmp.left, node, pnode
         else:
-          tmp = node.right
-          pnode.left = tmp.right
-          tmp.right = pnode
-          node.right = tmp.left
-          tmp.left = node
+          tmp, node.right = node.right, node.right.left
+          pnode.left, tmp.left, tmp.right = tmp.right, node, pnode
       self._update(pnode)
       self._update(node)
       self._update(tmp)
@@ -83,18 +70,14 @@ class SplayTree:
         path[-1].left = tmp
       else:
         path[-1].right = tmp
-    if not path:
-      return node
     gnode = path.pop()
     if di & 1:
       node = gnode.left
-      gnode.left = node.right
-      node.right = gnode
+      gnode.left, node.right = node.right, gnode
       self._update(node.right)
     else:
       node = gnode.right
-      gnode.right = node.left
-      node.left = gnode
+      gnode.right, node.left = node.left, gnode
       self._update(node.left)
     self._update(node)
     return node
@@ -107,16 +90,16 @@ class SplayTree:
     while node is not None:
       t = now if node.left is None else now + node.left.size
       if t == k:
-        self.node = self._splay(self.node, path, di)
+        if len(path) > 0:
+          self.node = self._splay(path, di)
         return
-      elif t < k:
-        path.append(node)
-        di, node = di<<1, node.right
-        now = t + 1
-      else:
+      elif t > k:
         path.append(node)
         di, node = di<<1|1, node.left
-    raise IndexError(f'k={k}, len={self.__len__()}')
+      else:
+        path.append(node)
+        di, node, now = di<<1, node.right, t+1
+    raise IndexError
 
   def _get_min_splay(self, node) -> Node:
     if node is None or node.left is None:
@@ -125,7 +108,7 @@ class SplayTree:
     while node.left is not None:
       path.append(node)
       node = node.left
-    return self._splay(node, path, (1<<len(path))-1)
+    return self._splay(path, (1<<len(path))-1)
 
   def _get_max_splay(self, node) -> Node:
     if node is None or node.right is None:
@@ -134,40 +117,46 @@ class SplayTree:
     while node.right is not None:
       path.append(node)
       node = node.right
-    return self._splay(node, path, 0)
+    return self._splay(path, 0)
 
   def merge(self, other) -> None:
+    if self.node is None:
+      self.node = other.node
+      return
+    if other.node is None:
+      return
     self.node = self._get_max_splay(self.node)
-    if self.node:
-      self.node.right = other._get_min_splay(other.node)
-    else:
-      self.node = other._get_min_splay(other.node)
+    self.node.right = other.node
     self._update(self.node)
 
-  def split(self, indx, inc=False) -> tuple:
+  def split(self, indx) -> tuple:
     if indx >= self.__len__():
       return self, SplayTree(node=None)
     self._set_kth_elm_splay(indx)
-    if inc:
-      right = SplayTree(node=self.node.right, op=self.op)
-      self.node.right = None
-      left = self
-      self._update(left.node)
-    else:
-      left = SplayTree(node=self.node.left, op=self.op)
-      self.node.left = None
-      right = self
-      self._update(right.node)
+    left = SplayTree(node=self.node.left, op=self.op)
+    self.node.left, right = None, self
+    self._update(right.node)
     return left, right
 
   def prod(self, l: int, r: int):
-    left, right = self.split(r-1, inc=True)
-    lleft, lright = left.split(l)
-    res = lright.node.data
-    lleft.merge(lright)
-    lleft.merge(right)
-    self.node = lleft.node
+    # assert l < r
+    left, right = self.split(r)
+    if l == 0:
+      res = left.node.data
+    else:
+      left._set_kth_elm_splay(l-1)
+      res = left.node.right.data
+    if right.node is None:
+      right.node = left.node
+    else:
+      right.node.left = left.node
+      self._update(right.node)
+    self.node = right.node
     return res
+
+  def all_prod(self):
+    assert self.node is not None
+    return self.node.data
 
   def insert(self, indx: int, key):
     node = Node(key)
@@ -210,8 +199,7 @@ class SplayTree:
       self.node = self.node.left
     else:
       node = self._get_max_splay(self.node.left)
-      node.right = self._get_max_splay(self.node.right)
-      self.node = node
+      node.right, self.node = self.node.right, node
     self._update(self.node)
     return res
 
