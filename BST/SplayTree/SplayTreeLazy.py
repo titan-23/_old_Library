@@ -314,7 +314,7 @@ class SplayTreeLazy:
     return self.node is not None
 
   def __repr__(self):
-    return 'SplayTree ' + str(self)
+    return 'SplayTreeLazy ' + str(self)
 
 
 def op(s, t):
@@ -326,4 +326,3 @@ def mapping(f, s):
 def composition(f, g):
   # composition(f, g): 既にあるgにfを合成する
   return
-
