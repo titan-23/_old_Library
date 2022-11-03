@@ -167,10 +167,10 @@ class SplayTreeLazy:
 
   def split(self, indx) -> tuple:
     if indx >= self.__len__():
-      return self, SplayTree(node=None, op=self.op, mapping=self.mapping, composition=self.composition)
+      return self, SplayTreeLazy([], self.op, self.mapping, self.composition, node=None)
     self._set_kth_elm_splay(indx)
     self._propagate(self.node)
-    left = SplayTree(node=self.node.left, op=self.op, mapping=self.mapping, composition=self.composition)
+    left = SplayTreeLazy([], self.op, self.mapping, self.composition, node=self.node.left)
     self.node.left, right = None, self
     self._update(right.node)
     return left, right
@@ -267,7 +267,7 @@ class SplayTreeLazy:
     return res
 
   def copy(self):
-    return SplayTree(self, op=self.op, mapping=self.mapping, composition=self.composition)
+    return SplayTreeLazy(self, self.op, self.mapping, self.composition)
 
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
@@ -281,7 +281,7 @@ class SplayTreeLazy:
     elif type(item) is slice:
       s = self.copy()
       if item.step is not None:
-        s = SplayTree(list(s)[item], op=self.op, mapping=self.mapping, composition=self.composition)
+        s = SplayTreeLazy(list(s)[item], self.op, self.mapping, self.composition)
       else:
         start = item.start if item.start is not None else 0
         stop  = item.stop if item.stop is not None else s.__len__()
