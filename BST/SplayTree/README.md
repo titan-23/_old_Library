@@ -13,7 +13,7 @@ _____
 
 _____
 ## [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
-列を扱えるSplayTreeです。半群がのるはずです。以下の操作が償却計算量O(logN)でできます。生後3日目くらいの幼木です。よしなに。
+列を扱えるSplayTreeです。半群がのるはずです。以下の操作が償却計算量O(logN)でできます。
 
 ### ```st = SplayTree(a, op=myfunc)```
 列aをSplayTreeにします。O(N)です。opは2項演算する関数です。
@@ -53,4 +53,4 @@ copyできます。O(N)です。
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
-setとしてのSplayTreeです。未完成です。よしなに。
+setとしてのSplayTreeです。未完成です。
