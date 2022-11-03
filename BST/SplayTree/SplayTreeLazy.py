@@ -21,7 +21,6 @@ class SplayTreeLazy:
     self.op = op
     self.mapping = mapping
     self.composition = composition
-    # composition(f, g): 既にあるgにfを合成する
     if _a:
       self.node = self._build(list(_a))
  
@@ -317,4 +316,14 @@ class SplayTreeLazy:
   def __repr__(self):
     return 'SplayTree ' + str(self)
 
+
+def op(s, t):
+  return
+
+def mapping(f, s):
+  return
+
+def composition(f, g):
+  # composition(f, g): 既にあるgにfを合成する
+  return
 
