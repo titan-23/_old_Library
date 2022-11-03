@@ -2,7 +2,7 @@
 
 _____
 ## [SplayTreeLazy](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeLazy.py)
-遅延評価ができるそうな。ただのSplayTreeに無いメソッドを書きます。
+遅延評価ができるそうな。ただのSplayTreeには無いメソッドを書きます。
 
 ### ```st = SplayTree(a, op, mapping, composition)```
 遅延セグ木のアレです。時間計算量O(N)です。
