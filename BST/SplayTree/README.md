@@ -7,7 +7,7 @@ _____
 ### ```st = SplayTree(a, op, mapping, composition)```
 遅延セグ木のアレです。時間計算量O(N)です。
 
-### ```st.apply(l, r, f)
+### ```st.apply(l, r, f)```
 区間[l, r)に関数fを適用します。時間計算量O(logN)です。
 
 
