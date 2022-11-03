@@ -1,6 +1,17 @@
 # SplayTree
 
 _____
+## [SplayTreeLazy](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeLazy.py)
+遅延評価ができるそうな。ただのSplayTreeに無いメソッドを書きます。
+
+### ```st = SplayTree(a, op, mapping, composition)```
+遅延セグ木のアレです。時間計算量O(N)です。
+
+### ```st.apply(l, r, f)
+区間[l, r)に関数fを適用します。時間計算量O(logN)です。
+
+
+_____
 ## [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
 列を扱えるSplayTreeです。以下の操作が償却計算量O(logN)でできます。生後3日目くらいの幼木です。よしなに。
 
