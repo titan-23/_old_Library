@@ -15,7 +15,7 @@ class Node:
     return f'key:{self.key, self.data, self.lazy, self.rev, self.size},\n left:{self.left},\n right:{self.right}\n'
 
 
-class SplayTreeLazy:
+class LazySplayTree:
 
   def __init__(self, _a=[], op=None, mapping=None, composition=None, node=None) -> None:
     self.node = node
@@ -155,9 +155,9 @@ class SplayTreeLazy:
 
   def split(self, indx) -> tuple:
     if indx >= self.__len__():
-      return self, SplayTreeLazy([], self.op, self.mapping, self.composition)
+      return self, LazySplayTree([], self.op, self.mapping, self.composition)
     self._set_kth_elm_splay(indx)
-    left = SplayTreeLazy([], self.op, self.mapping, self.composition, node=self.node.left)
+    left = LazySplayTree([], self.op, self.mapping, self.composition, node=self.node.left)
     self.node.left, right = None, self
     self._update(right.node)
     return left, right
@@ -268,7 +268,7 @@ class SplayTreeLazy:
     return res
 
   def copy(self):
-    return SplayTreeLazy(self, self.op, self.mapping, self.composition)
+    return LazySplayTree(self, self.op, self.mapping, self.composition)
 
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
@@ -283,7 +283,7 @@ class SplayTreeLazy:
     elif type(item) is slice:
       s = self.copy()
       if item.step is not None:
-        s = SplayTreeLazy(list(s)[item], self.op, self.mapping, self.composition)
+        s = LazySplayTree(list(s)[item], self.op, self.mapping, self.composition)
       else:
         start = item.start if item.start is not None else 0
         stop  = item.stop if item.stop is not None else s.__len__()
@@ -317,7 +317,7 @@ class SplayTreeLazy:
     return self.node is not None
 
   def __repr__(self):
-    return 'SplayTreeLazy ' + str(self)
+    return 'LazySplayTree ' + str(self)
 
 
 def op(s, t):
