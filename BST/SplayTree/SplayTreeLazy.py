@@ -35,43 +35,34 @@ class SplayTreeLazy:
       return node
     return sort(0, len(a))
 
-  def _propagate_rev(self, node) -> None:
+  def _propagate(self, node) -> None:
     if node is None: return
     if node.rev:
       node.left, node.right = node.right, node.left
-    if node.left is not None:
-      if node.rev:
+      if node.left is not None:
         node.left.rev ^= 1
-    if node.right is not None:
-      if node.rev:
+      if node.right is not None:
         node.right.rev ^= 1
-    node.rev = 0
-
-  def _propagate(self, node, rev=True) -> None:
-    if node is None: return
-    if node.left is not None:
-      if node.lazy is not None:
+      node.rev = 0
+    if node.lazy is not None:
+      if node.left is not None:
         node.left.data = self.mapping(node.lazy, node.left.data)
         node.left.key = self.mapping(node.lazy, node.left.key)  
         if node.left.lazy is None:
           node.left.lazy = node.lazy
         else:
           node.left.lazy = self.composition(node.lazy, node.left.lazy)
-    if node.right is not None:
-      if node.lazy is not None:
+      if node.right is not None:
         node.right.data = self.mapping(node.lazy, node.right.data)
         node.right.key = self.mapping(node.lazy, node.right.key)
         if node.right.lazy is None:
           node.right.lazy = node.lazy
         else:
           node.right.lazy = self.composition(node.lazy, node.right.lazy)
-    node.lazy = None
-    if rev:
-      self._propagate_rev(node)
+      node.lazy = None
 
   def _update(self, node) -> None:
     if node is None: return
-    self._propagate(node)
     node.size, node.data = 1, node.key
     if node.left is not None:
       node.size += node.left.size
@@ -86,10 +77,6 @@ class SplayTreeLazy:
       node, pnode = path.pop(), path.pop()
       ndi, pdi = di&1, di>>1&1
       di >>= 2
-      self._propagate(pnode, rev=False)
-      self._propagate(node, rev=False)
-      self._propagate(node.left, rev=False)
-      self._propagate(node.right, rev=False)
       if ndi == pdi:
         if ndi:
           tmp, node.left = node.left, node.left.right
@@ -114,9 +101,6 @@ class SplayTreeLazy:
       else:
         path[-1].right = tmp
     gnode = path.pop()
-    self._propagate(gnode, rev=False)
-    self._propagate(gnode.left, rev=False)
-    self._propagate(gnode.right, rev=False)
     if di & 1:
       node = gnode.left
       gnode.left, node.right = node.right, gnode
@@ -133,7 +117,6 @@ class SplayTreeLazy:
       k += self.__len__()
     now, di = 0, 0
     node, path = self.node, []
-    self._propagate(node)
     while node is not None:
       self._propagate(node)
       t = now if node.left is None else now + node.left.size
@@ -149,28 +132,15 @@ class SplayTreeLazy:
         di, node, now = di<<1, node.right, t+1
     raise IndexError
 
-  def _get_min_splay(self, node) -> Node:
-    self._propagate(node)
-    if node is None or node.left is None:
-      return node
-    path = []
-    while node is not None:
-      path.append(node)
-      node = node.left
-      self._propagate(node)
-    path.pop()    
-    return self._splay(path, (1<<len(path))-1)
-
   def _get_max_splay(self, node) -> Node:
     self._propagate(node)
     if node is None or node.right is None:
       return node
     path = []
-    while node is not None:
+    while node.right is not None:
       path.append(node)
       node = node.right
       self._propagate(node)
-    path.pop()
     return self._splay(path, 0)
 
   def merge(self, other) -> None:
@@ -185,9 +155,8 @@ class SplayTreeLazy:
 
   def split(self, indx) -> tuple:
     if indx >= self.__len__():
-      return self, SplayTreeLazy([], self.op, self.mapping, self.composition, node=None)
+      return self, SplayTreeLazy([], self.op, self.mapping, self.composition)
     self._set_kth_elm_splay(indx)
-    self._propagate(self.node)
     left = SplayTreeLazy([], self.op, self.mapping, self.composition, node=self.node.left)
     self.node.left, right = None, self
     self._update(right.node)
@@ -200,15 +169,12 @@ class SplayTreeLazy:
     else:
       left._set_kth_elm_splay(l-1)
       left.node.right.rev ^= 1
-      self._propagate(left.node.right)
     if right.node is None:
       right.node = left.node
     else:
       right.node.left = left.node
     self._update(right.node)
     self.node = right.node
-    # print(self.node)
-    # print(self.__getitem__(0))
 
   def apply(self, l: int, r: int, f):
     # assert l < r
@@ -235,7 +201,6 @@ class SplayTreeLazy:
       right.node.left = left.node
       self._update(right.node)
     self.node = right.node
-    self._update(self.node)
 
   def prod(self, l: int, r: int):
     # assert l < r
@@ -291,7 +256,6 @@ class SplayTreeLazy:
     if indx < 0:
       indx += self.__len__()
     self._set_kth_elm_splay(indx)
-    # print(self.node)
     res = self.node.key
     if self.node.left is None:
       self.node = self.node.right
@@ -309,6 +273,7 @@ class SplayTreeLazy:
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
     self.node.key = key
+    # self._propagate(self.node)
     self._update(self.node)
 
   def __getitem__(self, item):
@@ -363,3 +328,5 @@ def mapping(f, s):
 
 def composition(f, g):
   return
+
+
