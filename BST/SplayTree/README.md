@@ -2,14 +2,13 @@
 
 _____
 ## [SplayTreeLazy](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeLazy.py)
-遅延伝播反転可能平衡二分木です。ただのSplayTreeには無いメソッドを書きます。  
-追記：バグってます。
+遅延伝播反転可能平衡二分木です。アホの定数倍をしています。SplayTree.pyでできる操作に追加して、以下の操作がができます。
 
 ### ```st = SplayTree(a, op, mapping, composition)```
 遅延セグ木のアレです。時間計算量O(N)です。
 
 ### ```st.reverse(l, r)```
-区間[l, r)を反転します。reverse()メソッドを一度でも使用するならopは可換性が求められます(可換性がない場合、嘘の動作をします)。時間計算量O(N)です。
+区間[l, r)を反転します。reverse()メソッドを一度でも使用するならopは可換性が求められます(可換性がない場合、嘘の動作をします)。時間計算量O(logN)です。
 
 ### ```st.apply(l, r, f)```
 区間[l, r)にfを適用します。時間計算量O(logN)です。
