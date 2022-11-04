@@ -356,36 +356,10 @@ class SplayTreeLazy:
 
 
 def op(s, t):
-  return s[0]+t[0]%mod, s[1]+t[1]
+  return
 
 def mapping(f, s):
-  return (f[0]*s[0]+f[1]*s[1])%mod, s[1]
+  return
 
 def composition(f, g):
-  return (f[0]*g[0])%mod, (f[0]*g[1]+f[1])%mod
-
-
-if __name__ == "__main__":
-  import sys
-  input = lambda: sys.stdin.readline().rstrip()
-  mod = 998244353
-
-  n, q = map(int, input().split())
-  A = list(map(int, input().split()))
-  V = [(a, 1) for a in A]
-  splay = SplayTreeLazy(V, op, mapping, composition)
-  for _ in range(q):
-    t, *qu = map(int, input().split())
-    if t == 0:
-      splay.insert(qu[0], (qu[1], 1))
-    elif t == 1:
-      splay.pop(qu[0])
-    elif t == 2:
-      splay.reverse(qu[0], qu[1])
-    elif t == 3:
-      l, r, b, c = qu
-      splay.apply(l, r, (b, c))
-    else:
-      l, r = qu
-      print(splay.prod(l, r)[0] % mod)
-
+  return
