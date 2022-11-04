@@ -2,7 +2,7 @@
 
 _____
 ## [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
-遅延伝播反転可能平衡二分木です。アホの定数倍をしています。SplayTree.pyでできる操作に加えて以下の操作がができます。
+遅延伝播反転可能平衡二分木です。アホの定数倍をしています(定数倍が大きい方向にアホです)。SplayTree.pyでできる操作に加えて以下の操作がができます。
 
 ### ```st = LazySplayTree(a, op, mapping, composition)```
 列aからLazySplayTreeを構築します。その他引数は遅延セグ木のアレです。時間計算量O(N)です。
