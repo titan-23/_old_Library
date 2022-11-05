@@ -1,4 +1,4 @@
-https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py
+# https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py
 
 
 class Node:
