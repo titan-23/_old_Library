@@ -56,9 +56,44 @@ copyできます。O(N)です。
 区間[l, r)にopを適用した結果を返します。単位元を取得していないので、l < rが必要です。
 
 ### ```st.show(sep=' ')```
-printします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
+昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
 
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
-集合としてのSplayTreeです。未完成です。
+集合としてのSplayTreeです。全機能をverifyしたわけではないのでコンテスト中の利用は控えると吉です。  
+
+### ```st = SplayTreeSet(a=[])```
+iterableからSplayTreeSetを作ります。O(NlogN)時間です。ソート済みを仮定して内部をいじるとO(N)時間です。
+
+### ```len(st)```
+要素の個数を返します。O(1)時間です。
+
+### ```x in st / x not in st```
+存在判定です。O(logN)時間です。
+
+### ```st[k]```
+k番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
+
+### ```bool(st) / str(st) / reversed(st)```
+よしなに動きます。
+
+### ```st.add(x)```
+xがなければxを追加しTrueを返します。xがあれば追加せずにFalseを返します。償却計算量O(logN)時間です。最悪計算量はO(N)時間です。
+
+### ```st.discard(x)```
+xがあれば削除しTrueを返します。xがなければ何も削除せずにFalseを返します。O(logN)時間です。
+
+### ```st.le(x) / .lt(x) / .ge(x) / gt(x)```
+x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。いずれもO(logN)時間です。
+
+### ```st.index(x) / .index_right(x)```
+x(より小さい/以下の)要素の数を返します。O(logN)時間です。
+
+### ```st.pop(k=-1) / .popleft()```
+k番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
+```st.pop(k)```は、```x = st[k]; st.discard(x); return x```より高速に動作します。
+
+### ```st.show(sep=' ')```
+昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
+
