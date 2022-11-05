@@ -1,3 +1,6 @@
+# https://github.com/titanium-22/Library/edit/main/BST/ScapegoatTree/ScapegoatTreeSet.py
+
+
 import math
 
 
@@ -260,6 +263,18 @@ class ScapegoatTreeSet:
   '''Return and Remove min element. / O(logN)'''
   def popleft(self):
     return self.pop(0)
+
+  def show(self, sep=' '):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      print(node.key, end=sep)
+      if node.right is not None:
+        rec(node.right)
+    if self.node is not None:
+      rec(self.node)
 
   def __kth_elm(self, k):
     if k < 0:
