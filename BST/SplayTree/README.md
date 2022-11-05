@@ -61,4 +61,4 @@ printします。内部でsys.setrecursionlimit(len(self))をしているので�
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
-setとしてのSplayTreeです。未完成です。
+集合としてのSplayTreeです。未完成です。
