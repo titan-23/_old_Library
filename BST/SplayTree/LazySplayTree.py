@@ -1,3 +1,6 @@
+https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py
+
+
 class Node:
 
   def __init__(self, key):
