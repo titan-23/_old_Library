@@ -1,7 +1,7 @@
 # https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py
 
 
-impprt sys
+import sys
 
 
 class Node:
