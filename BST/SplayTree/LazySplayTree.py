@@ -17,7 +17,7 @@ class Node:
 
 class LazySplayTree:
 
-  def __init__(self, _a=[], op=None, mapping=None, composition=None, node=None) -> None:
+  def __init__(self, _a=[], op=lambda x,y:None, mapping=None, composition=None, node=None) -> None:
     self.node = node
     self.op = op
     self.mapping = mapping
@@ -100,7 +100,7 @@ class LazySplayTree:
         path[-1].left = tmp
       else:
         path[-1].right = tmp
-    gnode = path.pop()
+    gnode = path[0]
     if di & 1:
       node = gnode.left
       gnode.left, node.right = node.right, gnode
@@ -131,6 +131,17 @@ class LazySplayTree:
         path.append(node)
         di, node, now = di<<1, node.right, t+1
     raise IndexError
+
+  def _get_min_splay(self, node) -> Node:
+    self._propagate(node)
+    if node is None or node.left is None:
+      return node
+    path = []
+    while node.left is not None:
+      path.append(node)
+      node = node.left
+      self._propagate(node)
+    return self._splay(path, (1<<len(path))-1)
 
   def _get_max_splay(self, node) -> Node:
     self._propagate(node)
@@ -244,15 +255,29 @@ class LazySplayTree:
     self._update(self.node)
 
   def append(self, key):
-    self.insert(self.__len__(), key)
+    node = self._get_max_splay(self.node)
+    self.node = Node(key)
+    self.node.left = node
+    self._update(self.node)
 
   def appendleft(self, key):
-    self.insert(0, key)
+    node = self._get_min_splay(self.node)
+    self.node = Node(key)
+    self.node.right = node
+    self._update(self.node)
 
   def popleft(self):
-    return self.pop(0)
+    node = self._get_min_splay(self.node)
+    self._propagate(node)
+    self.node = node.right
+    return node.key
 
   def pop(self, indx: int =-1):
+    if indx == -1:
+      node = self._get_max_splay(self.node)
+      self._propagate(node)
+      self.node = node.left
+      return node.key
     if indx < 0:
       indx += self.__len__()
     self._set_kth_elm_splay(indx)
@@ -269,6 +294,18 @@ class LazySplayTree:
 
   def copy(self):
     return LazySplayTree(self, self.op, self.mapping, self.composition)
+
+  def show(self, sep=' '):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)  
+      print(node.key, end=sep)
+      if node.right is not None:
+        rec(node.right)
+    if self.node is not None:
+      rec(self.node)
 
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
