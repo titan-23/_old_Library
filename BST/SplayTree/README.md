@@ -2,16 +2,17 @@
 
 _____
 ## [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
-遅延伝播反転可能平衡二分木です。アホの定数倍をしています(定数倍が大きい方向にアホです)。SplayTree.pyでできる操作に加えて以下の操作がができます。
+遅延伝播反転可能平衡二分木です。アホの定数倍をしています(定数倍が大きい方向にアホです)。SplayTree.pyでできる操作に加えて以下の操作がができます。  
+※恒等写像はいりません(内部で恒等写像をNoneとして場合分けしています)。
 
 ### ```st = LazySplayTree(a, op, mapping, composition)```
 列aからLazySplayTreeを構築します。その他引数は遅延セグ木のアレです。時間計算量O(N)です。
 
 ### ```st.reverse(l, r)```
-区間[l, r)を反転します。reverse()メソッドを一度でも使用するならopには可換性が求められます(可換性がない場合、嘘の動作をします)。時間計算量O(logN)です。
+区間[l, r)を反転します。reverse()メソッドを一度でも使用するならopには可換性が求められます(可換性がない場合、嘘の動作をします)。時間計算量(償却)O(logN)です。
 
 ### ```st.apply(l, r, f)```
-区間[l, r)にfを適用します。時間計算量O(logN)です。
+区間[l, r)にfを適用します。時間計算量(償却)O(logN)です。
 
 
 _____
@@ -19,7 +20,7 @@ _____
 列を扱えるSplayTreeです。半群がのるはずです。以下の操作が償却計算量O(logN)でできます。
 
 ### ```st = SplayTree(a, op)```
-列aをSplayTreeにします。O(N)です。
+列aからSplayTreeを構築します。O(N)です。
 
 ### ```st.merge(other)```
 stにotherをmergeできます。
@@ -52,7 +53,7 @@ setitemできます。
 copyできます。O(N)です。
 
 ### ```st.prod(l, r)```
-セグ木的なアレです。区間[l, r)にopを適用した結果を返します。
+区間[l, r)にopを適用した結果を返します。単位元を取得していないので、l < rが条件です。
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
