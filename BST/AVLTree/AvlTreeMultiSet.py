@@ -1,3 +1,6 @@
+# https://github.com/titanium-22/Library/edit/main/BST/AVLTree/AvlTreeMultiSet.py
+
+
 class Node:
   # __slots__ = ('key', 'val', 'size', 'valsize', 'left', 'right', 'balance')
   
@@ -403,6 +406,19 @@ class AVLTreeMultiSet:
     for i in range(self.__len_tree()):
       yield self.__kth_elm_tree(i)[1]
 
+  def show(self, sep=' '):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      for _ in range(node.val):
+        print(node.key, end=sep)
+      if node.right is not None:
+        rec(node.right)
+    if self.node is not None:
+      rec(self.node)
+
   def __getitem__(self, k):
     return self.__kth_elm_set(k)[0]
 
@@ -477,7 +493,7 @@ class AVLTreeMultiSet:
   def __str__(self):
     return '{' + ', '.join(map(lambda x: ', '.join([str(x[0])]*x[1]), self.items())) + '}'
 
-  def show(self):
+  def show_items(self):
     return '{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.items())) + '}'
 
   def __str__(self):
