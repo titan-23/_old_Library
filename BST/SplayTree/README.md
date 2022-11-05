@@ -53,7 +53,7 @@ setitemできます。
 copyできます。O(N)です。
 
 ### ```st.prod(l, r)```
-区間[l, r)にopを適用した結果を返します。単位元を取得していないので、l < rが条件です。
+区間[l, r)にopを適用した結果を返します。単位元を取得していないので、l < rが必要です。
 
 _____
 ## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
