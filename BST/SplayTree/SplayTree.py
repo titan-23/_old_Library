@@ -1,6 +1,9 @@
 # https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py
 
 
+impprt sys
+
+
 class Node:
 
   def __init__(self, key):
