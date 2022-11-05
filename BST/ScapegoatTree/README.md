@@ -37,6 +37,8 @@ x(より小さい/以下の)要素の数を返します。O(logN)時間です。
 k番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
 ```st.pop(k)```は、```x = st[k]; st.discard(x); return x```より高速に動作します。
 
+### ```st.show(sep=' ')```
+昇順にprintします。O(N)です。
 
 ____
 ## [ScapegoatTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py)
@@ -68,6 +70,9 @@ k番目に小さいkey(0-indexed)を返します。O(logN)時間です。
 
 ### ```st.pop(k=-1) / .popleft()```
 ```x = st[k]; st.discard(x); return x```と等価です。別に高速ではないです。O(logN)時間です。
+
+### ```st.show(sep=' ')```
+昇順にprintします。O(N)です。
 
 ### ```st.keys() / .values() / .items()```
 よしなにyieldします。
