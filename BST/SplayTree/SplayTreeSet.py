@@ -1,6 +1,6 @@
 https://github.com/titanium-22/Library/edit/main/BST/SplayTree/SplayTreeSet.py
 
-
+  
 class Node:
 
   def __init__(self, key):
@@ -18,6 +18,7 @@ class Node:
 class SplayTreeSet:
 
   def __init__(self, a=[]) -> None:
+    a = list(a)
     if a:
       aa = sorted(a)
       a = [aa[0]]
@@ -358,5 +359,4 @@ class SplayTreeSet:
 
   def __repr__(self):
     return 'SplayTreeSet ' + str(self)
-
 
