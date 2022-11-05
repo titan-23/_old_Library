@@ -24,323 +24,339 @@ class SplayTreeSet:
       for i in range(1, len(aa)):
         if aa[i] != a[-1]:
           a.append(aa[i])
-    self.node = self.__build(a)
- 
-  def __build(self, a: list) -> None:
-    def sort(l, r):
-      if l >= r:
-        return None, 0
-      mid = (l + r) >> 1
-      root = Node(a[mid])
-      root.left, sl = sort(l, mid)
-      root.right, sr = sort(mid+1, r)
-      root.size = sl+sr+1
-      return root, sl+sr+1
-    return sort(0, len(a))[0]
+    self.node = self._build(a)
 
-  def __update(self, node):
+  def _build(self, a: list) -> None:
+    def sort(l, r):
+      if l >= r: return None
+      mid = (l + r) >> 1
+      node = Node(a[mid])
+      node.left, node.right = sort(l, mid), sort(mid+1, r)
+      self._update(node)
+      return node
+    return sort(0, len(a))
+
+  def _update(self, node):
     if node is None: return
     node.size = 1 + (node.left.size if node.left else 0) + (node.right.size if node.right else 0)
 
-  def __splay(self, node, path, di):
+  def _splay(self, path, di) -> Node:
+    # assert len(path) > 0
     while len(path) > 1:
-      node = path.pop()
-      pnode = path.pop()
-      ndi = di & 1
-      pdi = di >> 1 & 1
+      node, pnode = path.pop(), path.pop()
+      ndi, pdi = di&1, di>>1&1
       di >>= 2
-
       if ndi == pdi:
-        if ndi == 1:
-          pnode.left = node.right
-          node.right = pnode
-          tmp = node.left
-          node.left = tmp.right
-          tmp.right = node
-          self.__update(tmp.right.right)
-          self.__update(tmp.right)
-          self.__update(tmp)
+        if ndi:
+          tmp, node.left = node.left, node.left.right
+          tmp.right, pnode.left, node.right = node, node.right, pnode
         else:
-          pnode.right = node.left
-          node.left = pnode
-          tmp = node.right
-          node.right = tmp.left
-          tmp.left = node
-          self.__update(tmp.left.left)
-          self.__update(tmp.left)
-          self.__update(tmp)
+          tmp, node.right = node.right, node.right.left
+          tmp.left, pnode.right, node.left = node, node.left, pnode
       else:
-        if ndi == 1:
-          tmp = node.left
-          pnode.right = tmp.left
-          tmp.left = pnode
-          node.left = tmp.right
-          tmp.right = node
-          self.__update(tmp.left)
-          self.__update(tmp.right)
-          self.__update(tmp)
+        if ndi:
+          tmp, node.left = node.left, node.left.right
+          pnode.right, tmp.right, tmp.left = tmp.left, node, pnode
         else:
-          tmp = node.right
-          pnode.left = tmp.right
-          tmp.right = pnode
-          node.right = tmp.left
-          tmp.left = node
-          self.__update(tmp.left)
-          self.__update(tmp.right)
-          self.__update(tmp)
+          tmp, node.right = node.right, node.right.left
+          pnode.left, tmp.left, tmp.right = tmp.right, node, pnode
+      self._update(pnode)
+      self._update(node)
+      self._update(tmp)
       if not path:
         return tmp
       if di & 1:
         path[-1].left = tmp
       else:
         path[-1].right = tmp
-
-    if not path:
-      return node
-    gnode = path.pop()
+    gnode = path[0]
     if di & 1:
       node = gnode.left
-      gnode.left = node.right
-      node.right = gnode
-      self.__update(node.right)
-      self.__update(node)
+      gnode.left, node.right = node.right, gnode
+      self._update(node.right)
     else:
       node = gnode.right
-      gnode.right = node.left
-      node.left = gnode
-      self.__update(node.left)
-      self.__update(node)
+      gnode.right, node.left = node.left, gnode
+      self._update(node.left)
+    self._update(node)
     return node
 
-  def __search_splay(self, key):
+  def _set_search_splay(self, key) -> None:
     node = self.node
-    if node is None:
+    if node is None or node.key == key:
       return
-    path = []
-    di = 0
+    path, di = [], 0
     while node is not None:
       if node.key == key:
-        self.node = self.__splay(node, path, di)
-        return
+        break
       elif key < node.key:
         path.append(node)
-        di = di << 1 | 1
-        node = node.left
+        di, node = di<<1|1, node.left
       else:
-        di = di << 1
         path.append(node)
-        node = node.right
-    node = path.pop()
-    di >>= 1
-    if not path:
-      self.node = node
-      return
-    self.node = self.__splay(self.node, path, di)
-    return
+        di, node = di<<1, node.right
+    else:
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
 
-  def add(self, key):
+  def _set_kth_elm_splay(self, k: int) -> None:
+    now, di = 0, 0
+    node, path = self.node, []
+    while node is not None:
+      t = now if node.left is None else now + node.left.size
+      if t == k:
+        if len(path) > 0:
+          self.node = self._splay(path, di)
+        return
+      elif t > k:
+        path.append(node)
+        di, node = di<<1|1, node.left
+      else:
+        path.append(node)
+        di, node, now = di<<1, node.right, t+1
+    raise IndexError
+
+  def _get_min_splay(self, node) -> Node:
+    if node is None or node.left is None:
+      return node
+    path = []
+    while node.left is not None:
+      path.append(node)
+      node = node.left
+    return self._splay(path, (1<<len(path))-1)
+
+  def _get_max_splay(self, node) -> Node:
+    if node is None or node.right is None:
+      return node
+    path = []
+    while node.right is not None:
+      path.append(node)
+      node = node.right
+    return self._splay(path, 0)
+
+  '''Add a key. / O(logN)'''
+  def add(self, key) -> bool:
     if self.node is None:
       self.node = Node(key)
       return True
-    self.__search_splay(key)
+    self._set_search_splay(key)
     if self.node.key == key:
       return False
     node = Node(key)
     if key < self.node.key:
-      node.right = self.node
-      node.left = self.node.left
+      node.right, node.left = self.node, self.node.left
       self.node.left = None
-      self.__update(node.right)
+      self._update(node.right)
     else:
-      node.left = self.node
-      node.right = self.node.right
+      node.left, node.right = self.node, self.node.right
       self.node.right = None
-      self.__update(node.left)
+      self._update(node.left)
     self.node = node
-    self.__update(self.node)
+    self._update(self.node)
     return True
 
-  def __search_min_splay(self, node):
-    path = []
-    root = node
-    while node is not None:
-      path.append(node)
-      node = node.left
-    if not path:
-      return root
-    if len(path) == 1:
-      return root
-    node = path.pop()
-    if not path:
-      return node
-    return self.__splay(root, path, (1<<len(path))-1)
-
+  '''Discard a key. / O(logN)'''
   def discard(self, key):
-    if self.node is None:
-      return False
-    self.__search_splay(key)
-    if self.node.key != key:
-      return False
+    if self.node is None: return False
+    self._set_search_splay(key)
+    if self.node.key != key: return False
     if self.node.left is None:
       self.node = self.node.right
     elif self.node.right is None:
       self.node = self.node.left
     else:
-      node = self.__search_min_splay(self.node.right)
+      node = self._get_min_splay(self.node.right)
       node.left = self.node.left
       self.node = node
-      self.__update(self.node.left)
-    self.__update(self.node)
+      self._update(self.node.left)
     return True
-
-  def __contains__(self, key):
-    self.__search_splay(key)
-    return self.node is not None and self.node.key == key
-
-  def __kth_elm(self, k):
-    if k < 0:
-      k += self.__len__()
-    now = 0
-    node = self.node
-    path = []
-    di = 0
-    while node is not None:
-      t = now if node.left is None else now + node.left.size
-      if t == k:
-        self.node = self.__splay(self.node, path, di)
-        return self.node.key
-      elif t < k:
-        di = di << 1
-        path.append(node)
-        now = t + 1
-        node = node.right
-      else:
-        di = di << 1 | 1
-        path.append(node)
-        node = node.left
-    raise IndexError(f'k={k}, len={self.__len__()}')
-
-  def __getitem__(self, indx):
-    return self.__kth_elm(indx)
-
-  def __len__(self):
-    return 0 if self.node is None else self.node.size
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
   def le(self, key):
-    path = []
-    res = None
-    di = 0
+    path, di, res = [], 0, None
     node = self.node
-    if node is None:
-      return None
+    if node is None: return None
     while node is not None:
       if node.key == key:
-        self.node = self.__splay(self.node, path, di)
-        return key
+        res = key
+        break
       elif key < node.key:
-        di = di << 1 | 1
         path.append(node)
-        node = node.left
+        di, node = di<<1|1, node.left
       else:
-        di = di << 1
         path.append(node)
-        res = node.key
-        node = node.right
-    node = path.pop()
-    di >>= 1
-    if not path:
-      self.node = node
+        di, res, node = di<<1, node.key, node.right
     else:
-      self.node = self.__splay(self.node, path, di)
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
     return res
 
   '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
   def lt(self, key):
-    path = []
-    res = None
-    di = 0
+    path, di, res = [], 0, None
     node = self.node
-    if node is None:
-      return None
+    if node is None: return None
     while node is not None:
       if node.key == key:
         break
       elif key < node.key:
-        di = di << 1 | 1
         path.append(node)
-        node = node.left
+        di, node = di<<1|1, node.left
       else:
-        di = di << 1
         path.append(node)
-        res = node.key
-        node = node.right
-    node = path.pop()
-    di >>= 1
-    if not path:
-      self.node = node
+        di, res, node = di<<1, node.key, node.right
     else:
-      self.node = self.__splay(self.node, path, di)
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
     return res
 
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
   def ge(self, key):
-    path = []
-    res = None
-    di = 0
+    path, di, res = [], 0, None
     node = self.node
-    if node is None:
-      return None
+    if node is None: return None
     while node is not None:
       if node.key == key:
-        self.node = self.__splay(self.node, path, di)
-        return key
-      elif key < node.key:
-        di = di << 1 | 1
-        path.append(node)
         res = node.key
-        node = node.left
-      else:
-        di = di << 1
+        break
+      elif key < node.key:
         path.append(node)
-        node = node.right
-    node = path.pop()
-    di >>= 1
-    if not path:
-      self.node = node
+        di, res, node = di<<1|1, node.key, node.left
+      else:
+        path.append(node)
+        di, node = di<<1, node.right
     else:
-      self.node = self.__splay(self.node, path, di)
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
     return res
 
   '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
   def gt(self, key):
-    path = []
-    res = None
-    di = 0
+    path, di, res = [], 0, None
     node = self.node
-    if node is None:
-      return None
+    if node is None: return None
     while node is not None:
       if node.key == key:
         break
       elif key < node.key:
-        di = di << 1 | 1
         path.append(node)
-        res = node.key
-        node = node.left
+        di, res, node = di<<1|1, node.key, node.left
       else:
-        di = di << 1
         path.append(node)
-        node = node.right
-    node = path.pop()
-    di >>= 1
-    if not path:
-      self.node = node
+        di, node = di<<1, node.right
     else:
-      self.node = self.__splay(self.node, path, di)
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
     return res
+
+  '''Count the number of elements < key. / O(logN)'''
+  def index(self, key) -> int:
+    self._set_search_splay(key)
+    if self.node.left is None:
+      res = 0
+    else:
+      res = self.node.left.size
+    return res
+
+  '''Count the number of elements <= key. / O(logN)'''
+  def index_right(self, key) -> int:
+    self._set_search_splay(key)
+    if self.node.left is None:
+      res = 0
+    else:
+      res = self.node.left.size
+    return res + (self.node.key == key)
+
+  '''Return and Remove max element or a[p]. / O(logN)'''
+  def pop(self, p=-1):
+    if p == -1:
+      node = self._get_max_splay(self.node)
+      self.node = node.left
+      return node.key
+    if p < 0:
+      p += self.__len__()
+    self._set_kth_elm_splay(p)
+    res = self.node.key
+    if self.node.left is None:
+      self.node = self.node.right
+    elif self.node.right is None:
+      self.node = self.node.left
+    else:
+      node = self._get_min_splay(self.node.right)
+      node.left = self.node.left
+      self.node = node
+      self._update(self.node.left)
+    return res
+
+  '''Return and Remove min element. / O(logN)'''
+  def popleft(self):
+    node = self._get_min_splay(self.node)
+    self.node = node.right
+    return node.key
+
+  '''Print self. / O(N)'''
+  def show(self, sep=' '):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      print(node.key, end=sep)
+      if node.right is not None:
+        rec(node.right)
+    if self.node is not None:
+      rec(self.node)
+
+  def __iter__(self):
+    self.__iter = 0
+    return self
+
+  def __next__(self):
+    if self.__iter == self.__len__():
+      raise StopIteration
+    res = self.__getitem__(self.__iter)
+    self.__iter += 1
+    return res
+
+  def __reversed__(self):
+    for i in range(self.__len__()):
+      yield self.__getitem__(-i-1)
+
+  def __contains__(self, key):
+    self._set_search_splay(key)
+    return self.node is not None and self.node.key == key
+
+  def __getitem__(self, indx):
+    if indx < 0:
+      indx += self.__len__()
+    self._set_kth_elm_splay(indx)
+    return self.node.key
+
+  def __len__(self):
+    return 0 if self.node is None else self.node.size
+
+  def __bool__(self):
+    return self.node is not None
 
   def __str__(self):
     return '{' + ', '.join(map(str, [self.__getitem__(i) for i in range(self.__len__())])) + '}'
+
+  def __repr__(self):
+    return 'SplayTreeSet ' + str(self)
 
 
