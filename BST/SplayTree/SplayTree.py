@@ -21,7 +21,7 @@ class Node:
 
 class SplayTree:
 
-  def __init__(self, _a=[], node=None, op=lambda x,y: min(x, y)) -> None:
+  def __init__(self, _a=[], node=None, op=lambda x,y: None) -> None:
     self.node = node
     self.op = op
     if _a:
