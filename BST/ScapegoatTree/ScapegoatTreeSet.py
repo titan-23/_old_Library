@@ -1,6 +1,7 @@
 # https://github.com/titanium-22/Library/edit/main/BST/ScapegoatTree/ScapegoatTreeSet.py
 
 
+import sys
 import math
 
 
