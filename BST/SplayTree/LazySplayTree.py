@@ -51,20 +51,21 @@ class LazySplayTree:
         node.right.rev ^= 1
       node.rev = 0
     if node.lazy is not None:
+      lazy = node.lazy
       if node.left is not None:
-        node.left.data = self.mapping(node.lazy, node.left.data)
-        node.left.key = self.mapping(node.lazy, node.left.key)  
+        node.left.data = self.mapping(lazy, node.left.data)
+        node.left.key = self.mapping(lazy, node.left.key)  
         if node.left.lazy is None:
-          node.left.lazy = node.lazy
+          node.left.lazy = lazy
         else:
-          node.left.lazy = self.composition(node.lazy, node.left.lazy)
+          node.left.lazy = self.composition(lazy, node.left.lazy)
       if node.right is not None:
-        node.right.data = self.mapping(node.lazy, node.right.data)
-        node.right.key = self.mapping(node.lazy, node.right.key)
+        node.right.data = self.mapping(lazy, node.right.data)
+        node.right.key = self.mapping(lazy, node.right.key)
         if node.right.lazy is None:
-          node.right.lazy = node.lazy
+          node.right.lazy = lazy
         else:
-          node.right.lazy = self.composition(node.lazy, node.right.lazy)
+          node.right.lazy = self.composition(lazy, node.right.lazy)
       node.lazy = None
 
   def _update(self, node) -> None:
@@ -199,18 +200,13 @@ class LazySplayTree:
     if l == 0:
       left.node.key = self.mapping(f, left.node.key)
       left.node.data = self.mapping(f, left.node.data)
-      if left.node.lazy is None:
-        left.node.lazy = f
-      else:
-        left.node.lazy = self.composition(f, left.node.lazy)
+      left.node.lazy = f if left.node.lazy is None else self.composition(f, left.node.lazy)
     else:
       left._set_kth_elm_splay(l-1)
-      left.node.right.key = self.mapping(f, left.node.right.key)
-      left.node.right.data = self.mapping(f, left.node.right.data)
-      if left.node.right.lazy is None:
-        left.node.right.lazy = f
-      else:
-        left.node.right.lazy = self.composition(f, left.node.right.lazy)
+      node = left.node.right
+      node.key = self.mapping(f, node.key)
+      node.data = self.mapping(f, node.data)
+      node.lazy = f if node.lazy is None else self.composition(f, node.lazy)
       self._update(left.node)
     if right.node is None:
       right.node = left.node
