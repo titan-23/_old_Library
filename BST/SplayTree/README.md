@@ -1,4 +1,5 @@
-# SplayTree
+# SplayTree  
+最終更新：2022/11/05
 
 _____
 ## [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
