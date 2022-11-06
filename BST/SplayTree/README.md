@@ -1,8 +1,7 @@
-# SplayTree  
 最終更新：2022/11/05
 
 _____
-## [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
+# [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
 遅延伝播反転可能平衡二分木です。アホの定数倍をしています(定数倍が大きい方向にアホです)。SplayTree.pyでできる操作に加えて以下の操作がができます。  
 ※恒等写像はいりません(内部で恒等写像をNoneとして場合分けしています)。
 
@@ -17,7 +16,7 @@ _____
 
 
 _____
-## [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
+# [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
 列を扱えるSplayTreeです。半群がのるはずです。以下の操作が償却計算量O(logN)でできます。
 
 ### ```st = SplayTree(a, op)```
@@ -61,7 +60,7 @@ copyできます。O(N)です。
 
 
 _____
-## [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
+# [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
 集合としてのSplayTreeです。全機能をverifyしたわけではないのでコンテスト中の利用は控えると吉です。計算量を明示していないものは、償却計算量O(logN)です。
 
 ### ```st = SplayTreeSet(a=[])```
