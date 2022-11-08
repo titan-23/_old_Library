@@ -1,6 +1,6 @@
 最終更新：2022/11/08
 
-※計算量を明示していないものは償却計算量O(logN)です。
+※計算量を明示していないものはすべてO(logN)の計算量です。
 
 _____
 # [LazyAVLTree](https://github.com/titanium-22/Library/blob/main/BST/AVLTree/LazyAVLTree.py)
