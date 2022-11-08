@@ -11,8 +11,8 @@ class Node:
 
   def __str__(self):
     if self.left is None and self.right is None:
-      return f'key:{self.key>>32, self.size, (self.data>>32 if self.data is not None else 0), self.lazy, self.rev}\n'
-    return f'key:{self.key>>32, self.size, (self.data>>32 if self.data is not None else 0), self.lazy, self.rev},\n left:{self.left},\n right:{self.right}\n'
+      return f'key:{self.key, self.size, self.data, self.lazy, self.rev}\n'
+    return f'key:{self.key, self.size, self.data, self.lazy, self.rev},\n left:{self.left},\n right:{self.right}\n'
 
 
 class LazyAVLTree:
