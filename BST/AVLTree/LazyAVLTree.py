@@ -37,7 +37,8 @@ class LazyAVLTree:
       if l == r: return None
       mid = (l + r) >> 1
       node = Node(a[mid])
-      node.left, node.right = sort(l, mid), sort(mid+1, r)
+      node.left = sort(l, mid)
+      node.right = sort(mid+1, r)
       self._update(node)
       return node
     self.node = sort(0, len(a))
@@ -78,67 +79,81 @@ class LazyAVLTree:
         node.height = node.right.height
     node.height += 1
 
-  def _balance(self, node: Node) -> Node:
-    # nodeをpropagateしない！
-    if node is None: return None
-
-    def rotate_right(node: Node) -> Node:
-      u = node.left
-      self._propagate(u)
-      node.left = u.right
-      u.right = node
-      return u
-
-    def rotate_left(node: Node) -> Node:
-      u = node.right
-      self._propagate(u)
-      node.right = u.left
-      u.left = node
-      return u
-
-    b = (0 if node.left is None else node.left.height) - (0 if node.right is None else node.right.height)
-    if b == 2:
-      self._propagate(node.left)
-      if (0 if node.left.left is None else node.left.left.height) - (0 if node.left.right is None else node.left.right.height) == -1:
-        node.left = rotate_left(node.left)
-        node = rotate_right(node)
-        self._update(node.left)
-      else:
-        node = rotate_right(node)
-      self._update(node.right)
-      self._update(node)
-    elif b == -2:
-      self._propagate(node.right)
-      if (0 if node.right.left is None else node.right.left.height) - (0 if node.right.right is None else node.right.right.height) == 1:
-        node.right = rotate_right(node.right)
-        node = rotate_left(node)
-        self._update(node.right)
-      else:
-        node = rotate_left(node)
-      self._update(node.left)
-      self._update(node)
-    return node
-
   def _merge_with_root(self, l: Node, root: Node, r: Node) -> Node:
-    diff = (0 if l is None else l.height) - (0 if r is None else r.height)
+    diff = (0 if r is None else -r.height) if l is None else (l.height if r is None else l.height-r.height) 
     if diff > 1:
       self._propagate(l)
       l.right = self._merge_with_root(l.right, root, r)
       self._update(l)
-      return self._balance(l)
+      b = -l.right.height if l.left is None else l.left.height-l.right.height
+      assert abs(b) <= 2
+      if b == -2:
+        return self._balance_right(l)
+      if b == 2:
+        return self._balance_left(l)
+      return l
     elif diff < -1:
       self._propagate(r)
       r.left = self._merge_with_root(l, root, r.left)
       self._update(r)
-      return self._balance(r)
+      b = r.left.height if r.right is None else r.left.height-r.right.height
+      assert abs(b) <= 2
+      if b == 2:
+       return self._balance_left(r)
+      if b == -2:
+        return self._balance_right(r)
+      return r
     else:
       root.left = l
       root.right = r
       self._update(root)
       return root
 
+  def _balance_left(self, node: Node) -> Node:
+    # left is large
+    assert node.lazy is None and node.rev == 0
+    assert node is not None
+    assert node.left.height - (0 if node.right is None else node.right.height) == 2
+    self._propagate(node.left)
+    if node.left.left is None or node.left.left.height+2 == node.left.height:
+      u = node.left.right
+      self._propagate(u)
+      node.left.right = u.left
+      u.left = node.left
+      node.left = u.right
+      u.right = node
+      self._update(u.left)
+    else:
+      u = node.left
+      node.left = u.right
+      u.right = node
+    self._update(u.right)
+    self._update(u)
+    return u
+  
+  def _balance_right(self, node: Node) -> Node:
+    # right is large
+    assert node.lazy is None and node.rev == 0
+    assert node is not None
+    assert  -node.right.height if node.left is None else node.left.height -node.right.height == -2
+    self._propagate(node.right)
+    if node.right.right is None or node.right.right.height+2 == node.right.height:
+      u = node.right.left
+      self._propagate(u)
+      node.right.left = u.right
+      u.right = node.right
+      node.right = u.left
+      u.left = node
+      self._update(u.right)
+    else:
+      u = node.right
+      node.right = u.left
+      u.left = node
+    self._update(u.left)
+    self._update(u)
+    return u
+
   def _pop_max(self, node) -> tuple:
-    if self.node is None: return None, None
     self._propagate(node)
     path = []
     while node.right is not None:
@@ -146,19 +161,25 @@ class LazyAVLTree:
       node = node.right
       self._propagate(node)
     mx = node
-    if path:
-      path[-1].right = node.left
-      path.append(node.left)
-      while path:
-        node = path.pop()
-        if path:
-          path[-1].right = self._balance(node)
-          self._update(path[-1])
-    else:
-      node = node.left
+    path.append(node.left)
+    for _ in range(len(path)-1):
+      node = path.pop()
+      if node is None:
+        path[-1].right = node
+        self._update(path[-1])
+        continue
+      b = (0 if node.right is None else -node.right.height) if node.left is None else (node.left.height if node.right is None else node.left.height-node.right.height)
+      assert abs(b) <= 2
+      if b == 2:
+        path[-1].right = self._balance_left(node)
+      elif b == -2:
+        path[-1].right = self._balance_right(node)
+      else:
+        path[-1].right = node
+      self._update(path[-1])
     mx.left = None
     self._update(mx)
-    return node, mx
+    return path[0], mx
 
   def _merge_node(self, l: Node, r: Node) -> Node:
     if l is None: return r
@@ -176,14 +197,14 @@ class LazyAVLTree:
     r = node.right
     node.left = None
     node.right = None
-    lsize = 0 if l is None else l.size
-    if p == lsize:
+    tmp = p if l is None else p-l.size
+    if tmp == 0:
       return l, self._merge_with_root(None, node, r)
-    elif p < lsize:
+    elif tmp < 0:
       s, t = self._split_node(l, p)
       return s, self._merge_with_root(t, node, r)
     else:
-      s, t = self._split_node(r, p-lsize-1)
+      s, t = self._split_node(r, tmp-1)
       return self._merge_with_root(l, node, s), t
 
   def split(self, p: int) -> tuple:
@@ -226,14 +247,12 @@ class LazyAVLTree:
   def _kth_elm(self, k):
     if k < 0:
       k += self.__len__()
-    now = 0
-    node = self.node
+    now, node = 0, self.node
     while node is not None:
       self._propagate(node)
       t = now if node.left is None else now + node.left.size
       if t < k:
-        now = t + 1
-        node = node.right
+        now, node = t+1, node.right
       elif t > k:
         node = node.left
       else:
