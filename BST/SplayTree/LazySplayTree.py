@@ -9,10 +9,10 @@ class Node:
   def __init__(self, key):
     self.key = key
     self.data = key
-    self.size = 1
+    self.lazy = None
     self.left = None
     self.right = None
-    self.lazy = None
+    self.size = 1
     self.rev = 0
 
   def __str__(self):
@@ -33,16 +33,16 @@ class LazySplayTree:
  
   def _build(self, a: list) -> None:
     def sort(l, r):
-      if l >= r: return None
+      if l == r: return None
       mid = (l + r) >> 1
       node = Node(a[mid])
-      node.left, node.right = sort(l, mid), sort(mid+1, r)
+      node.left = sort(l, mid)
+      node.right = sort(mid+1, r)
       self._update(node)
       return node
     return sort(0, len(a))
 
   def _propagate(self, node) -> None:
-    if node is None: return
     if node.rev:
       node.left, node.right = node.right, node.left
       if node.left is not None:
@@ -63,35 +63,47 @@ class LazySplayTree:
       node.lazy = None
 
   def _update(self, node) -> None:
-    if node is None: return
-    node.size, node.data = 1, node.key
-    if node.left is not None:
-      node.size += node.left.size
-      node.data = self.op(node.left.data, node.data)
+    if node.left is None:
+      node.size = 1
+      node.data = node.key
+    else:
+      node.size = 1 + node.left.size
+      node.data = self.op(node.left.data, node.key)
     if node.right is not None:
       node.size += node.right.size
       node.data = self.op(node.data, node.right.data)
 
   def _splay(self, path, di) -> Node:
-    # assert len(path) > 0
     while len(path) > 1:
       node, pnode = path.pop(), path.pop()
       ndi, pdi = di&1, di>>1&1
       di >>= 2
       if ndi == pdi:
         if ndi:
-          tmp, node.left = node.left, node.left.right
-          tmp.right, pnode.left, node.right = node, node.right, pnode
+          tmp = node.left
+          node.left = node.left.right
+          tmp.right = node
+          pnode.left = node.right
+          node.right = pnode
         else:
-          tmp, node.right = node.right, node.right.left
-          tmp.left, pnode.right, node.left = node, node.left, pnode
+          tmp = node.right
+          node.right = node.right.left
+          tmp.left = node
+          pnode.right = node.left
+          node.left = pnode
       else:
         if ndi:
-          tmp, node.left = node.left, node.left.right
-          pnode.right, tmp.right, tmp.left = tmp.left, node, pnode
+          tmp = node.left
+          node.left = node.left.right
+          pnode.right = tmp.left
+          tmp.right = node
+          tmp.left = pnode
         else:
-          tmp, node.right = node.right, node.right.left
-          pnode.left, tmp.left, tmp.right = tmp.right, node, pnode
+          tmp = node.right
+          node.right = node.right.left
+          pnode.left = tmp.right
+          tmp.left = node
+          tmp.right = pnode
       self._update(pnode)
       self._update(node)
       self._update(tmp)
@@ -104,11 +116,13 @@ class LazySplayTree:
     gnode = path[0]
     if di & 1:
       node = gnode.left
-      gnode.left, node.right = node.right, gnode
+      gnode.left = node.right
+      node.right = gnode
       self._update(node.right)
     else:
       node = gnode.right
-      gnode.right, node.left = node.left, gnode
+      gnode.right = node.left
+      node.left = gnode
       self._update(node.left)
     self._update(node)
     return node
@@ -122,7 +136,7 @@ class LazySplayTree:
       self._propagate(node)
       t = now if node.left is None else now + node.left.size
       if t == k:
-        if len(path) > 0:
+        if path:
           self.node = self._splay(path, di)
         return
       elif t > k:
@@ -175,6 +189,7 @@ class LazySplayTree:
     return left, right
 
   def reverse(self, l: int, r: int):
+    if l >= r: return
     left, right = self.split(r)
     if l == 0:
       left.node.rev ^= 1
@@ -189,15 +204,17 @@ class LazySplayTree:
     self.node = right.node
 
   def apply(self, l: int, r: int, f):
-    # assert l < r
+    if l >= r: return
     left, right = self.split(r)
     if l == 0:
-      left.node.key, left.node.data = self.mapping(f, left.node.key), self.mapping(f, left.node.data)
+      left.node.key = self.mapping(f, left.node.key)
+      left.node.data = self.mapping(f, left.node.data)
       left.node.lazy = f if left.node.lazy is None else self.composition(f, left.node.lazy)
     else:
       left._set_kth_elm_splay(l-1)
       node = left.node.right
-      node.key, node.data = self.mapping(f, node.key), self.mapping(f, node.data)
+      node.key = self.mapping(f, node.key)
+      node.data = self.mapping(f, node.data)
       node.lazy = f if node.lazy is None else self.composition(f, node.lazy)
       self._update(left.node)
     if right.node is None:
@@ -224,7 +241,6 @@ class LazySplayTree:
     return res
 
   def all_prod(self):
-    assert self.node is not None
     return self.node.data
 
   def insert(self, indx: int, key):
@@ -282,8 +298,9 @@ class LazySplayTree:
       self.node = self.node.left
     else:
       node = self._get_max_splay(self.node.left)
-      node.right, self.node = self.node.right, node
-    self._update(self.node)
+      node.right = self.node.right
+      self.node = node
+      self._update(self.node)
     return res
 
   def copy(self):
@@ -300,6 +317,20 @@ class LazySplayTree:
         rec(node.right)
     if self.node is not None:
       rec(self.node)
+
+  def to_l(self):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)  
+      a.append(node.key)
+      if node.right is not None:
+        rec(node.right)
+    a = []
+    if self.node is not None:
+      rec(self.node)
+    return a
 
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
@@ -342,7 +373,7 @@ class LazySplayTree:
     return 0 if self.node is None else self.node.size
 
   def __str__(self):
-    return '[' + ', '.join(map(str, self)) + ']'
+    return '[' + ', '.join(map(str, self.to_l())) + ']'
 
   def __bool__(self):
     return self.node is not None
@@ -359,5 +390,4 @@ def mapping(f, s):
 
 def composition(f, g):
   return
-
 
