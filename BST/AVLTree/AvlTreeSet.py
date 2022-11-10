@@ -1,7 +1,4 @@
-# https://github.com/titanium-22/Library/edit/main/BST/AVLTree/AvlTreeSet.py
-
-
-import sys
+# https://github.com/titanium-22/Library/blob/main/BST/AVLTree/AvlTreeSet.py
 
 
 class Node:
