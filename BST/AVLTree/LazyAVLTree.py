@@ -1,6 +1,4 @@
 # https://github.com/titanium-22/Library/blob/main/BST/AVLTree/LazyAVLTree.py
-
-
 class Node:
 
   def __init__(self, key):
@@ -15,8 +13,8 @@ class Node:
 
   def __str__(self):
     if self.left is None and self.right is None:
-      return f'key:{self.key, self.size, self.data, self.lazy, self.rev}\n'
-    return f'key:{self.key, self.size, self.data, self.lazy, self.rev},\n left:{self.left},\n right:{self.right}\n'
+      return f'key:{self.key, self.height, self.size, self.data, self.lazy, self.rev}\n'
+    return f'key:{self.key, self.height, self.size, self.data, self.lazy, self.rev},\n left:{self.left},\n right:{self.right}\n'
 
 
 class LazyAVLTree:
@@ -79,41 +77,25 @@ class LazyAVLTree:
         node.height = node.right.height
     node.height += 1
 
-  def _merge_with_root(self, l: Node, root: Node, r: Node) -> Node:
-    diff = (0 if r is None else -r.height) if l is None else (l.height if r is None else l.height-r.height) 
-    if diff > 1:
-      self._propagate(l)
-      l.right = self._merge_with_root(l.right, root, r)
-      self._update(l)
-      b = -l.right.height if l.left is None else l.left.height-l.right.height
-      assert abs(b) <= 2
-      if b == -2:
-        return self._balance_right(l)
-      if b == 2:
-        return self._balance_left(l)
-      return l
-    elif diff < -1:
-      self._propagate(r)
-      r.left = self._merge_with_root(l, root, r.left)
-      self._update(r)
-      b = r.left.height if r.right is None else r.left.height-r.right.height
-      assert abs(b) <= 2
-      if b == 2:
-       return self._balance_left(r)
-      if b == -2:
-        return self._balance_right(r)
-      return r
-    else:
-      root.left = l
-      root.right = r
-      self._update(root)
-      return root
+  def is_avl(self, node):
+    return
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      assert abs((0 if node.left is None else node.left.height) - (0 if node.right is None else node.right.height)) <= 1
+      if node.right is not None:
+        rec(node.right)
+    if node is not None:
+      rec(node)
+
+  def _get_balance(self, node):
+    return (0 if node.right is None else -node.right.height) if node.left is None else (node.left.height if node.right is None else node.left.height-node.right.height)
 
   def _balance_left(self, node: Node) -> Node:
     # left is large
-    assert node.lazy is None and node.rev == 0
-    assert node is not None
-    assert node.left.height - (0 if node.right is None else node.right.height) == 2
+    # assert node.lazy is None and node.rev == 0
+    # assert node is not None
+    # assert node.left.height - (0 if node.right is None else node.right.height) == 2
     self._propagate(node.left)
     if node.left.left is None or node.left.left.height+2 == node.left.height:
       u = node.left.right
@@ -130,12 +112,12 @@ class LazyAVLTree:
     self._update(u.right)
     self._update(u)
     return u
-  
+
   def _balance_right(self, node: Node) -> Node:
     # right is large
-    assert node.lazy is None and node.rev == 0
-    assert node is not None
-    assert  -node.right.height if node.left is None else node.left.height -node.right.height == -2
+    # assert node.lazy is None and node.rev == 0
+    # assert node is not None
+    # assert  -node.right.height if node.left is None else node.left.height -node.right.height == -2
     self._propagate(node.right)
     if node.right.right is None or node.right.right.height+2 == node.right.height:
       u = node.right.left
@@ -153,59 +135,152 @@ class LazyAVLTree:
     self._update(u)
     return u
 
-  def _pop_max(self, node) -> tuple:
+  def _merge_with_root(self, l: Node, root: Node, r: Node) -> Node:
+    diff = (0 if r is None else -r.height) if l is None else (l.height if r is None else l.height-r.height) 
+    if diff > 1:
+      self._propagate(l)
+      l.right = self._merge_with_root(l.right, root, r)
+      self._update(l)
+      if -l.right.height if l.left is None else l.left.height-l.right.height == -2:
+        return self._balance_right(l)
+      return l
+    elif diff < -1:
+      self._propagate(r)
+      r.left = self._merge_with_root(l, root, r.left)
+      self._update(r)
+      if r.left.height if r.right is None else r.left.height-r.right.height == 2:
+        return self._balance_left(r)
+      return r
+    else:
+      root.left = l
+      root.right = r
+      self._update(root)
+      return root
+
+  def _merge_fast_l(self, node, r):
+    path, root = [], node
+    rh = r.height
     self._propagate(node)
-    path = []
     while node.right is not None:
       path.append(node)
       node = node.right
       self._propagate(node)
-    mx = node
     path.append(node.left)
+    flag, root = True, node
+    root.right = r
     for _ in range(len(path)-1):
       node = path.pop()
       if node is None:
-        path[-1].right = node
+        path[-1].right = None
         self._update(path[-1])
         continue
-      b = (0 if node.right is None else -node.right.height) if node.left is None else (node.left.height if node.right is None else node.left.height-node.right.height)
-      assert abs(b) <= 2
-      if b == 2:
-        path[-1].right = self._balance_left(node)
-      elif b == -2:
-        path[-1].right = self._balance_right(node)
-      else:
-        path[-1].right = node
+      b = self._get_balance(node)
+      path[-1].right = self._balance_left(node) if b == 2 else self._balance_right(node) if b == -2 else node
+      if flag and rh <= path[-1].right.height:
+        flag = False
+        root.left = path[-1].right
+        self._update(root)
+        b = -rh if root.left is None else root.left.height-rh
+        path[-1].right = self._balance_left(root) if b == 2 else self._balance_right(root) if b == -2 else root
       self._update(path[-1])
-    mx.left = None
-    self._update(mx)
-    return path[0], mx
+    node = path[0]
+    if node is not None:
+      self._update(node)
+      b = self._get_balance(node)
+      node = self._balance_left(node) if b == 2 else self._balance_right(node) if b == -2 else node
+    if flag:
+      root.left = node
+      self._update(root)
+      b = -rh if root.left is None else root.left.height-rh
+      node = self._balance_left(root) if b == 2 else self._balance_right(root) if b == -2 else root
+    return node
+
+  def _merge_fast_r(self, l, node):
+    path, root = [], node
+    lh = l.height
+    self._propagate(node)
+    while node.left is not None:
+      path.append(node)
+      node = node.left
+      self._propagate(node)
+    path.append(node.right)
+    flag, root = True, node
+    root.left = l
+    for _ in range(len(path)-1):
+      node = path.pop()
+      if node is None:
+        path[-1].left = None
+        self._update(path[-1])
+        continue
+      b = self._get_balance(node)
+      path[-1].left = self._balance_left(node) if b == 2 else self._balance_right(node) if b == -2 else node
+      if flag and lh <= path[-1].left.height:
+        flag = False
+        root.right = path[-1].left
+        self._update(root)
+        b = lh if root.right is None else lh-root.right.height
+        path[-1].left = self._balance_left(root) if b == 2 else self._balance_right(root) if b == -2 else root
+      self._update(path[-1])
+    node = path[0]
+    if node is not None:
+      self._update(node)
+      b = self._get_balance(node)
+      node = self._balance_left(node) if b == 2 else self._balance_right(node) if b == -2 else node
+    if flag:
+      root.right = node
+      self._update(root)
+      b = lh if root.right is None else lh-root.right.height
+      node = self._balance_left(root) if b == 2 else self._balance_right(root) if b == -2 else root
+    return node
 
   def _merge_node(self, l: Node, r: Node) -> Node:
     if l is None: return r
     if r is None: return l
     l, tmp = self._pop_max(l)
     return self._merge_with_root(l, tmp, r)
+    # return self._merge_fast_l(l, r) if l.height > r.height else self._merge_fast_r(l, r)
 
   def merge(self, other) -> None:
     self.node = self._merge_node(self.node, other.node)
 
+  def _pop_max(self, node) -> tuple:
+    self._propagate(node)
+    path = []
+    mx = node
+    while node.right is not None:
+      path.append(node)
+      mx = node.right
+      node = node.right
+      self._propagate(node)
+    path.append(node.left)
+    for _ in range(len(path)-1):
+      node = path.pop()
+      if node is None:
+        path[-1].right = None
+        self._update(path[-1])
+        continue
+      b = self._get_balance(node)
+      path[-1].right = self._balance_left(node) if b == 2 else self._balance_right(node) if b == -2 else node
+      self._update(path[-1])
+    if path[0] is not None:
+      b = self._get_balance(path[0])
+      path[0] = self._balance_left(path[0]) if b == 2 else self._balance_right(path[0]) if b == -2 else path[0]
+    mx.left = None
+    self._update(mx)
+    return path[0], mx
+
   def _split_node(self, node: Node, p: int) -> tuple:
     if node is None: return None, None
     self._propagate(node)
-    l = node.left
-    r = node.right
-    node.left = None
-    node.right = None
-    tmp = p if l is None else p-l.size
+    tmp = p if node.left is None else p-node.left.size
     if tmp == 0:
-      return l, self._merge_with_root(None, node, r)
+      return node.left, self._merge_with_root(None, node, node.right)
     elif tmp < 0:
-      s, t = self._split_node(l, p)
-      return s, self._merge_with_root(t, node, r)
+      s, t = self._split_node(node.left, p)
+      return s, self._merge_with_root(t, node, node.right)
     else:
-      s, t = self._split_node(r, tmp-1)
-      return self._merge_with_root(l, node, s), t
+      s, t = self._split_node(node.right, tmp-1)
+      return self._merge_with_root(node.left, node, s), t
 
   def split(self, p: int) -> tuple:
     l, r = self._split_node(self.node, p)
@@ -219,6 +294,7 @@ class LazyAVLTree:
     s, t = self._split_node(self.node, i+1)
     s, tmp = self._pop_max(s)
     self.node = self._merge_node(s, t)
+    self.is_avl(self.node)
     return tmp.key
 
   def apply(self, l: int, r: int, f):
@@ -229,6 +305,7 @@ class LazyAVLTree:
     s.data = self.mapping(f, s.data)
     s.lazy = f if s.lazy is None else self.composition(f, s.lazy)
     self.node = self._merge_node(self._merge_node(r, s), t)
+    self.is_avl(self.node)
 
   def reverse(self, l: int, r: int):
     if l >= r: return
@@ -236,12 +313,14 @@ class LazyAVLTree:
     r, s = self._split_node(s, l)
     s.rev ^= 1
     self.node = self._merge_node(self._merge_node(r, s), t)
+    self.is_avl(self.node)
 
   def prod(self, l: int, r: int):
     s, t = self._split_node(self.node, r)
     r, s = self._split_node(s, l)
     res = s.data
     self.node = self._merge_node(self._merge_node(r, s), t)
+    self.is_avl(self.node)
     return res
 
   def _kth_elm(self, k):
