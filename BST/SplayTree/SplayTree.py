@@ -186,12 +186,18 @@ class SplayTree:
     self._update(self.node)
 
   def append(self, key):
+    if self.node is None:
+      self.node = Node(key)
+      return
     node = self._get_max_splay(self.node)
     self.node = Node(key)
     self.node.left = node
     self._update(self.node)
 
   def appendleft(self, key):
+    if self.node is None:
+      self.node = Node(key)
+      return
     node = self._get_min_splay(self.node)
     self.node = Node(key)
     self.node.right = node
@@ -235,6 +241,20 @@ class SplayTree:
         rec(node.right)
     if self.node is not None:
       rec(self.node)
+
+  def to_l(self):
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)  
+      a.append(node.key)
+      if node.right is not None:
+        rec(node.right)
+    a = []
+    if self.node is not None:
+      rec(self.node)
+    return a
 
   def __setitem__(self, indx: int, key):
     self._set_kth_elm_splay(indx)
