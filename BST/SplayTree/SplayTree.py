@@ -321,3 +321,6 @@ class SplayTree:
     return 'SplayTree ' + str(self)
 
 
+def op(s, t):
+  return
+
