@@ -25,48 +25,62 @@ class SplayTree:
     self.node = node
     self.op = op
     if _a:
-      self.node = self._build(list(_a))
+      self._build(list(_a))
  
   def _build(self, a: list) -> None:
     def sort(l, r):
-      if l >= r: return None
+      if l == r: return None
       mid = (l + r) >> 1
       node = Node(a[mid])
-      node.left, node.right = sort(l, mid), sort(mid+1, r)
+      node.left = sort(l, mid)
+      node.right = sort(mid+1, r)
       self._update(node)
       return node
-    return sort(0, len(a))
+    self.node = sort(0, len(a))
 
   def _update(self, node) -> None:
     if node is None: return
-    node.size, node.data = 1, node.key
-    if node.left is not None:
-      node.size += node.left.size
-      node.data = self.op(node.left.data, node.data)
+    if node.left is None:
+      node.size = 1
+      node.data = node.key
+    else:
+      node.size = 1 + node.left.size
+      node.data = self.op(node.left.data, node.key)
     if node.right is not None:
       node.size += node.right.size
       node.data = self.op(node.data, node.right.data)
 
   def _splay(self, path, di) -> Node:
-    # assert len(path) > 0
     while len(path) > 1:
       node, pnode = path.pop(), path.pop()
       ndi, pdi = di&1, di>>1&1
       di >>= 2
       if ndi == pdi:
         if ndi:
-          tmp, node.left = node.left, node.left.right
-          tmp.right, pnode.left, node.right = node, node.right, pnode
+          tmp = node.left
+          node.left = node.left.right
+          tmp.right = node
+          pnode.left = node.right
+          node.right = pnode
         else:
-          tmp, node.right = node.right, node.right.left
-          tmp.left, pnode.right, node.left = node, node.left, pnode
+          tmp = node.right
+          node.right = node.right.left
+          tmp.left = node
+          pnode.right = node.left
+          node.left = pnode
       else:
         if ndi:
-          tmp, node.left = node.left, node.left.right
-          pnode.right, tmp.right, tmp.left = tmp.left, node, pnode
+          tmp = node.left
+          node.left = node.left.right
+          pnode.right = tmp.left
+          tmp.right = node
+          tmp.left = pnode
         else:
-          tmp, node.right = node.right, node.right.left
-          pnode.left, tmp.left, tmp.right = tmp.right, node, pnode
+          tmp = node.right
+          node.right = node.right.left
+          pnode.left = tmp.right
+          tmp.left = node
+          tmp.right = pnode
       self._update(pnode)
       self._update(node)
       self._update(tmp)
@@ -79,11 +93,13 @@ class SplayTree:
     gnode = path[0]
     if di & 1:
       node = gnode.left
-      gnode.left, node.right = node.right, gnode
+      gnode.left = node.right
+      node.right = gnode
       self._update(node.right)
     else:
       node = gnode.right
-      gnode.right, node.left = node.left, gnode
+      gnode.right = node.left
+      node.left = gnode
       self._update(node.left)
     self._update(node)
     return node
