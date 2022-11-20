@@ -56,8 +56,10 @@ copyできます。O(N)です。
 区間[l, r)にopを適用した結果を返します。単位元を取得していないので、l < rが必要です。
 
 ### ```st.show(sep=' ')```
-昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
+昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。O(N)です。
 
+### ```st.to_l()```
+リストに変換しま。内部でsys.setrecursionlimit(len(self))をしているので安心です。O(N)です。
 
 _____
 # [SplayTreeSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py)
