@@ -29,7 +29,7 @@ class LazySplayTree:
     self.mapping = mapping
     self.composition = composition
     if _a:
-      self.node = self._build(list(_a))
+      self._build(list(_a))
  
   def _build(self, a: list) -> None:
     def sort(l, r):
@@ -40,7 +40,7 @@ class LazySplayTree:
       node.right = sort(mid+1, r)
       self._update(node)
       return node
-    return sort(0, len(a))
+    self.node = sort(0, len(a))
 
   def _propagate(self, node) -> None:
     if node.rev:
@@ -224,6 +224,12 @@ class LazySplayTree:
       self._update(right.node)
     self.node = right.node
 
+  def all_apply(self, f):
+    # self._propagate(self.node)
+    self.node.key = self.mapping(f, self.node.key)
+    self.node.data = self.mapping(f, self.node.data)
+    self.node.lazy = f if self.node.lazy is None else self.composition(f, self.node.lazy)
+
   def prod(self, l: int, r: int):
     # assert l < r
     left, right = self.split(r)
@@ -265,12 +271,18 @@ class LazySplayTree:
     self._update(self.node)
 
   def append(self, key):
+    if self.node is None:
+      self.node = Node(key)
+      return
     node = self._get_max_splay(self.node)
     self.node = Node(key)
     self.node.left = node
     self._update(self.node)
 
   def appendleft(self, key):
+    if self.node is None:
+      self.node = Node(key)
+      return
     node = self._get_min_splay(self.node)
     self.node = Node(key)
     self.node.right = node
