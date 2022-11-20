@@ -1,5 +1,7 @@
 最終更新：2022/11/20
 
+・長さゼロのスプレー木に対してappend/appendleftをしたときのバグを修正しました。
+
 _____
 # [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
 遅延伝播反転可能平衡二分木です。アホの定数倍をしています(定数倍が大きい方向にアホです)。[SplayTree.py](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)でできる操作に加えて以下の操作がができます。  
