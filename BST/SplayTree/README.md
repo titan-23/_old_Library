@@ -1,6 +1,6 @@
 最終更新：2022/11/20
 
-・長さゼロのスプレー木に対してappend/appendleftをしたときのバグを修正しました。
+・長さゼロのスプレー木に対してappend/appendleftをしたときのバグを修正しました。本番でこのバグに遭遇することを想像するとぞっとします。
 
 _____
 # [LazySplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/LazySplayTree.py)
