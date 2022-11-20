@@ -14,6 +14,8 @@ _____
 ### ```st.apply(l, r, f)```
 区間[l, r)にfを適用します。時間計算量(償却)O(logN)です。
 
+### ```st.all_apply(f)```
+区間[0, N)にfを適用します。時間計算量O(1)です。
 
 _____
 # [SplayTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py)
