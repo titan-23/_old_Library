@@ -1,4 +1,4 @@
-# https://github.com/titanium-22/Library/blob/main/UnionFind.py
+# https://github.com/titanium-22/Library/blob/main/UnionFind/UnionFind.py
 
 
 from collections import defaultdict
