@@ -72,8 +72,8 @@ class UnionFind:
       group_members[self._find(member)].append(member)
     return group_members
 
-  '''relax. / O(Nα(N))'''
-  def relax(self) -> None:
+  '''Compress path. / O(Nα(N))'''
+  def compress_path(self) -> None:
     for i in range(self._n):
       self._find(i)
 
