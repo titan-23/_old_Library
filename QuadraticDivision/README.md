@@ -3,7 +3,7 @@
 ・バグがあるかもしれません。もう少し整備するつもりです。
 
 _____
-# [LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/LazyQuadraticDivisionv.py)
+# [LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/LazyQuadraticDivision.py)
 計算量がO(√N)になった遅延セグ木です。定数倍は軽いのでそこまで遅くはないはずです。  
 
 
