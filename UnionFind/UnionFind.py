@@ -57,8 +57,11 @@ class UnionFind:
         seen.add(vv)
     return seen
 
+  def root(self, x: int) -> int:
+    return self._find(x)
+
   '''Return all roots. / O(N)'''
-  def roots(self) -> list:
+  def all_roots(self) -> list:
     return [i for i, x in enumerate(self._parents) if x < 0]
 
   '''Return the number of groups. / O(1)'''
@@ -66,7 +69,7 @@ class UnionFind:
     return self._group_numbers
 
   '''Return all_group_members. / O(Nα(N))'''
-  def all_group_members(self) -> list:
+  def all_group_members(self):
     group_members = defaultdict(list)
     for member in range(self._n):
       group_members[self._find(member)].append(member)
