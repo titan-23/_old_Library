@@ -1,9 +1,11 @@
 最終更新：2022/11/22
 
+・バグがあるかもしれません。もう少し整備するつもりです。
+
 _____
 # [LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/LazyQuadraticDivisionv.py)
-遅延評価ができます。内部で平方分割を利用しています。  
-※恒等写像はいりません(内部で恒等写像をNoneとして場合分けしています)。
+計算量がO(√N)になった遅延セグ木です。定数倍は軽いのでそこまで遅くはないはずです。  
+
 
 ### ```qd = LazyQuadraticDivision(n_or_a, op, mapping, composition, e)```
 列aからLazyQuadraticDivisionを構築します。その他引数は遅延セグ木のアレです。時間計算量O(N)です。  
@@ -25,5 +27,5 @@ setitemできます。時間計算量O(√N)です。
 区間[l, r)にopを適用した結果を返します。時間計算量O(√N)です。
 
 ### ```qd.all_prod()```
-区間[0, n)にopを適用した結果を返します。時間計算量O(√N)です。
+区間[0, N)にopを適用した結果を返します。時間計算量O(√N)です。
 
