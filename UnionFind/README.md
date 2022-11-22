@@ -1,6 +1,7 @@
 最終更新：2022/11/22
 
 ・アップロードしました。
+・定数倍は劣りますが、内部をdefaultdictで管理するバージョンも作りたいです。
 
 _____
 # [UnionFind](https://github.com/titanium-22/Library/blob/main/UnionFind/UnionFind.py)
