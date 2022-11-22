@@ -85,7 +85,8 @@ class LazyQuadraticDivision:
     k = indx // self.size
     self._propagate(k)
     self.data[k][indx-k*self.size] = key
- 
+    self.bucket_data[k] = reduce(self.op, self.data[k])
+
   def __str__(self):
     return '[' + ', '.join(map(str, [self.__getitem__(i) for i in range(self.n)])) + ']'
 
