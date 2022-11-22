@@ -18,10 +18,10 @@ n_or_aをintにすると、n個のeからなる配列からLazyQuadraticDivision
 ### ```qd[indx]```
 indx番目を取得できます。時間計算量O(√N)です。
 
-### ```st[indx] = key```
+### ```qd[indx] = key```
 setitemできます。時間計算量O(√N)です。
 
-### ```st.prod(l, r)```
+### ```qd.prod(l, r)```
 区間[l, r)にopを適用した結果を返します。時間計算量O(√N)です。
 
 ### ```qd.all_prod()```
