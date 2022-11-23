@@ -1,8 +1,10 @@
 最終更新：2022/11/22
 
-・アップロードしました。  
-・定数倍は劣りますが、内部をdefaultdictで管理するバージョンも作りたいです。
+・アップロードしました。
 
+更新予定  
+・定数倍は劣りますが、内部をdefaultdictで管理するバージョンも作りたいです。
+・rootをなくし、findにしてはどうか。
 _____
 # [UnionFind](https://github.com/titanium-22/Library/blob/main/UnionFind/UnionFind.py)
 UnionFindです。素集合データ構造です。  
