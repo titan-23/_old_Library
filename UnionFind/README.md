@@ -6,7 +6,7 @@
 
 更新予定  
 - 内部をdefaultdictで管理するバージョンも作りたいです。  
-
+defaultdictの方が怪しい
 _____
 # [UnionFind](https://github.com/titanium-22/Library/blob/main/UnionFind/UnionFind.py)
 UnionFindです。素集合データ構造です。 
