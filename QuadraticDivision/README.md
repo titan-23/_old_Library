@@ -4,7 +4,7 @@
 
 _____
 # [LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/LazyQuadraticDivision.py)
-計算量がO(√N)になった遅延セグ木です。定数倍は軽いのでそこまで遅くはないはずです。  
+計算量がO(√N)になった遅延セグ木です。定数倍が軽いのでそこまで遅くはないはずです。  
 
 
 ### ```qd = LazyQuadraticDivision(n_or_a, op, mapping, composition, e)```
