@@ -14,7 +14,7 @@ class UnionFind:
     self._parents = [-1] * n
     self._G = [[] for _ in range(n)]
 
-  '''Return root of x compressing path. / O(α(N))'''
+  '''Return root of x, compressing path. / O(α(N))'''
   def root(self, x: int) -> int:
     a = x
     while self._parents[a] >= 0:
