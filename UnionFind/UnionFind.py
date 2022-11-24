@@ -48,7 +48,7 @@ class UnionFind:
     return self.root(x) == self.root(y)
 
   '''Return set(the members of x). / O(size(x))'''
-  def members(self, x: int) -> Set:
+  def members(self, x: int) -> Set[int]:
     seen = set([x])
     todo = [x]
     while todo:
