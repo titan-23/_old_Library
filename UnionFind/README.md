@@ -15,37 +15,38 @@ UnionFindです。素集合データ構造です。
 
 ### ```uf = UnionFind(n)```
 n個の要素からなるUnionFindを構築します。時間計算量O(N)です。
-- n: int
+- n: int, 0 < n
 - 戻り値の型: None
 
 ### ```uf.root(x)```
 要素xを含む集合の代表元を返します。
-- x: int
+- x: int, 0 ≤ x < n
 - 戻り値の型: int
 
 ### ```uf.unite(x, y)```
 要素xを含む集合と要素yを含む集合を併合します。時間計算量O(α(N))です。
-- x: int, y: int
+- x: int, 0 ≤ x < n
+- y: int, 0 ≤ y < n
 - 戻り値の型: None
 
 ### ```uf.same(x, y)```
 要素xと要素yが同じ集合に属するならTrueを、そうでないならFalseを返します。時間計算量O(α(N))です。
-- x: int, y: int
+- x: int, 0 ≤ x < n
+- y: int, 0 ≤ y < n
 - 戻り値の型: bool
 
 ### ```uf.size(x)```
 要素xを含む集合の要素数を返します。時間計算量O(α(N))です。
-- x: int
+- x: int, 0 ≤ x < n
 - 戻り値の型: int
 
 ### ```uf.members(x)```
 要素xを含む集合の要素をsetで返します。時間計算量O(size(x))です(！)。
-- x: int
+- x: int, 0 ≤ x < n
 - 戻り値の型: Set[int]
 
-### ```uf.all_roots(x)```
+### ```uf.all_roots()```
 全ての集合の代表元からなるリストを返します。時間計算量O(N)です。
-- x: int
 - 戻り値の型: List[int]
 
 ### ```uf.group_count()```
@@ -63,4 +64,3 @@ keyに代表元、valueにkeyを代表元とする集合のリストをもつdef
 ### ```str(uf)```
 よしなにします。時間計算量O(Nα(N))です。
 - 戻り値の型: str
-
