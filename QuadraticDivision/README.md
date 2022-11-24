@@ -9,7 +9,7 @@ _____
 
 ### ```qd = LazyQuadraticDivision(n_or_a, op, mapping, composition, e)```
 列aからLazyQuadraticDivisionを構築します。その他引数は遅延セグ木のアレです。時間計算量O(N)です。  
-n_or_aをintにすると、n個のeからなる配列からLazyQuadraticDivisionを構築します。
+n_or_aをintにすると、n個のeからなる配列でLazyQuadraticDivisionを構築します。
 
 ### ```qd.apply(l, r, f)```
 区間[l, r)にfを適用します。時間計算量O(√N)です。
