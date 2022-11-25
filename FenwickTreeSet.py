@@ -4,10 +4,10 @@
 class FenwickTreeSet:
   
   # Build a new FenwickTreeSet. / O(len(A) log(len(A)))
-  def __init__(self, used: set, a=[], _multi=False):
-    # used: used values(distinct)(needed); a: init values
+  def __init__(self, _used: set, _a=[], _multi=False):
+    # used: used values(distinct); a: init values
 
-    _used = sorted(used)
+    _used = sorted(_used)
     self._len = 0
     self._size = len(_used)
 
