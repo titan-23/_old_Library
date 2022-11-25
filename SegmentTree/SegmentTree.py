@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 class SegmentTree(Generic[T]):
 
-  '''Build a new Tegment Tree. / O(N)'''
+  '''Build a new SegmentTree. / O(N)'''
   def __init__(self, _n_or_a: Union[int, Iterable[T]], _op: Callable[[T, T], T], _e: T) -> None:
     self._op = _op
     self._e = _e
