@@ -45,7 +45,8 @@ class SegmentTree(Generic[S]):
     assert 0 <= l <= r <= self._n
     l += self._size
     r += self._size
-    lres, rres = self._e, self._e
+    lres = self._e
+    rres = self._e
     while l < r:
       if l & 1:
         lres = self._op(lres, self._data[l])
@@ -63,24 +64,23 @@ class SegmentTree(Generic[S]):
 
   '''Find the largest index R s.t. f([l, R)) == True. / O(logN)'''
   def max_right(self, l: int, f: Callable[[S], bool]) -> int:
-    # f(seg.prod(l, r)) == True 区間[l, r)が満たして欲しい条件
     assert 0 <= l <= self._n
     assert f(self._e)
     if l == self._n:
       return self._n 
     l += self._size
-    tmp = self._e
+    s = self._e
     while True:
       while l & 1 == 0:
         l >>= 1
-      if not f(self._op(tmp, self._data[l])):
+      if not f(self._op(s, self._data[l])):
         while l < self._size:
           l <<= 1
-          if f(self._op(tmp, self._data[l])):
-            tmp = self._op(tmp, self._data[l])
+          if f(self._op(s, self._data[l])):
+            s = self._op(s, self._data[l])
             l |= 1
         return l - self._size
-      tmp = self._op(tmp, self._data[l])
+      s = self._op(s, self._data[l])
       l += 1
       if l & -l == l:
         break
@@ -93,22 +93,26 @@ class SegmentTree(Generic[S]):
     if r == 0:
       return 0 
     r += self._size
-    tmp = self._e
+    s = self._e
     while True:
       r -= 1
       while r > 1 and r & 1:
         r >>= 1
-      if not f(self._op(self._data[r], tmp)):
+      if not f(self._op(self._data[r], s)):
         while r < self._size:
           r = r << 1 | 1
-          if f(self._op(self._data[r], tmp)):
-            tmp = self._op(self._data[r], tmp)
+          if f(self._op(self._data[r], s)):
+            s = self._op(self._data[r], s)
             r ^= 1
         return r + 1 - self._size
-      tmp = self._op(self._data[r], tmp)
+      s = self._op(self._data[r], s)
       if r & -r == r:
         break 
     return 0
+
+  '''Debug. / O(N)'''
+  def show(self) -> None:
+    print('<SegmentTree> [\n' + '\n'.join(['  ' + ' '.join(map(str, [self._data[(1<<i)+j] for j in range(1<<i)])) for i in range(self._log+1)]) + '\n]')
 
   def __getitem__(self, key: int) -> S:
     return self.get(key)
@@ -116,16 +120,15 @@ class SegmentTree(Generic[S]):
   def __setitem__(self, key: int, val: S) -> None:
     self.set(key, val)
 
-  def __str__(self):
+  def __str__(self) -> str:
     return '[' + ', '.join(map(str, [self.get(i) for i in range(self._n)])) + ']'
 
-  def show(self):
-    ret = ['  ' + ' '.join(map(str, [self._data[(1<<i)+j] for j in range(1<<i)])) for i in range(self._log+1)]
-    print('<SegmentTree> [\n' + '\n'.join(ret) + '\n]')
+  def __repr__(self) -> str:
+    return 'SegmentTree ' + str(self)
 
 
 def op(s: S, t: S) -> S:
   return
-
+ 
 e: S = None
 
