@@ -1,9 +1,9 @@
 最終更新：2022/11/25
 
-- 型アノテーションをつけました。
+- SegmentTree.pyに型アノテーションをつけました。
 
 更新予定  
-
+- 遅延セグ木もアップロードしたい。
 
 _____
 # [SegmentTree](https://github.com/titanium-22/Library/blob/main/SegmentTree/SegmentTree.py)
