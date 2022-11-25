@@ -2,13 +2,13 @@
 
 
 from typing import Generic, Iterable, TypeVar, Callable, Union
-S = TypeVar("S")
+T = TypeVar("T")
 
 
-class SegmentTree(Generic[S]):
+class SegmentTree(Generic[T]):
 
-  '''Build a new Segment Tree. / O(N)'''
-  def __init__(self, _n_or_a: Union[int, Iterable[S]], _op: Callable[[S, S], S], _e: S) -> None:
+  '''Build a new Tegment Tree. / O(N)'''
+  def __init__(self, _n_or_a: Union[int, Iterable[T]], _op: Callable[[T, T], T], _e: T) -> None:
     self._op = _op
     self._e = _e
     if isinstance(_n_or_a, int):
@@ -27,7 +27,7 @@ class SegmentTree(Generic[S]):
         self._data[i] = self._op(self._data[i<<1], self._data[i<<1|1])
 
   '''Change a[p] into x. / O(logN)'''
-  def set(self, key: int, val: S) -> None:
+  def set(self, key: int, val: T) -> None:
     assert 0 <= key < self._n
     key += self._size
     self._data[key] = val
@@ -36,12 +36,12 @@ class SegmentTree(Generic[S]):
       self._data[key] = self._op(self._data[key<<1], self._data[key<<1|1])
 
   '''Return a[key]. / O(1)'''
-  def get(self, key: int) -> S:
+  def get(self, key: int) -> T:
     assert 0 <= key < self._n
     return self._data[key+self._size]
 
   '''Return op([l, r)). / O(logN)'''
-  def prod(self, l: int, r: int) -> S:
+  def prod(self, l: int, r: int) -> T:
     assert 0 <= l <= r <= self._n
     l += self._size
     r += self._size
@@ -59,11 +59,11 @@ class SegmentTree(Generic[S]):
     return self._op(lres, rres)
 
   '''Return op([0, n)). / O(1)'''
-  def all_prod(self) -> S:
+  def all_prod(self) -> T:
     return self._data[1]
 
   '''Find the largest index R s.t. f([l, R)) == True. / O(logN)'''
-  def max_right(self, l: int, f: Callable[[S], bool]) -> int:
+  def max_right(self, l: int, f: Callable[[T], bool]) -> int:
     assert 0 <= l <= self._n
     assert f(self._e)
     if l == self._n:
@@ -87,7 +87,7 @@ class SegmentTree(Generic[S]):
     return self._n
 
   '''Find the smallest index L s.t. f([L, r)) == True. / O(logN)'''
-  def min_left(self, r: int, f: Callable[[S], bool]) -> int:
+  def min_left(self, r: int, f: Callable[[T], bool]) -> int:
     assert 0 <= r <= self._n 
     assert f(self._e)
     if r == 0:
@@ -114,10 +114,10 @@ class SegmentTree(Generic[S]):
   def show(self) -> None:
     print('<SegmentTree> [\n' + '\n'.join(['  ' + ' '.join(map(str, [self._data[(1<<i)+j] for j in range(1<<i)])) for i in range(self._log+1)]) + '\n]')
 
-  def __getitem__(self, key: int) -> S:
+  def __getitem__(self, key: int) -> T:
     return self.get(key)
 
-  def __setitem__(self, key: int, val: S) -> None:
+  def __setitem__(self, key: int, val: T) -> None:
     self.set(key, val)
 
   def __str__(self) -> str:
@@ -127,8 +127,8 @@ class SegmentTree(Generic[S]):
     return 'SegmentTree ' + str(self)
 
 
-def op(s: S, t: S) -> S:
+def op(s, t):
   return
  
-e: S = None
+e = None
 
