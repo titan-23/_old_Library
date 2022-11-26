@@ -103,3 +103,6 @@ st.pop(-1) / popleft()は、indexを取得しそれをdiscardするよりもほ�
 ### ```st.show(sep=' ')```
 昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
 
+_____
+# [SplayTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeMultiSet.py)
+多重集合としてのSplayTreeです。
