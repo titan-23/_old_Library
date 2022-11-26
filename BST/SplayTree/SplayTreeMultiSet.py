@@ -409,8 +409,8 @@ class SplayTreeMultiSet(Generic[T]):
 
   '''Return List of self. / O(N)'''
   def to_l(self) -> List[T]:
-    if sys.getrecursionlimit() < self.__len__():
-      sys.setrecursionlimit(self.__len__()+1)
+    if sys.getrecursionlimit() < self.len_elm():
+      sys.setrecursionlimit(self.len_elm()+1)
     def rec(node):
       if node.left is not None:
         rec(node.left)
@@ -480,6 +480,6 @@ class SplayTreeMultiSet(Generic[T]):
     return '{' + ', '.join(map(str, self.to_l())) + '}'
 
   def __repr__(self):
-    return 'SplayTreeSet ' + str(self)
+    return 'SplayTreeMultiSet ' + str(self)
 
 
