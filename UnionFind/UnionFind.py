@@ -69,7 +69,7 @@ class UnionFind:
     return self._group_numbers
 
   '''Return all_group_members. / O(Nα(N))'''
-  def all_group_members(self) -> defaultdict[int, List[int]]:
+  def all_group_members(self) -> defaultdict:
     group_members = defaultdict(list)
     for member in range(self._n):
       group_members[self.root(member)].append(member)
