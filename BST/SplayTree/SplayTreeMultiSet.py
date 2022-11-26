@@ -159,8 +159,8 @@ class SplayTreeMultiSet(Generic[T]):
 
   def _set_kth_elm_tree_splay(self, k: int) -> None:
     if k < 0:
-      k += self.__len__()
-    # assert 0 <= k < self.__len__()
+      k += self.len_elm()
+    # assert 0 <= k < self.len_elm()
     now = 0
     di = 0
     node = self.node
@@ -467,8 +467,6 @@ class SplayTreeMultiSet(Generic[T]):
     return self.node is not None and self.node.key == key
 
   def __getitem__(self, p) -> T:
-    if p < 0:
-      p += self.__len__()
     self._set_kth_elm_splay(p)
     return self.node.key
 
