@@ -98,7 +98,6 @@ x(より小さい/以下の)要素の数を返します。
 
 ### ```st.pop(k=-1) / .popleft()```
 k番目の要素を削除し、その値を返します。   
-st.pop(-1) / popleft()は、indexを取得しそれをdiscardするよりもほんの少しだけ効率的に動作します。
 
 ### ```st.show(sep=' ')```
 昇順にprintします。内部でsys.setrecursionlimit(len(self))をしているので安心です。
