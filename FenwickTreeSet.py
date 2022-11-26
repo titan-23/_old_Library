@@ -19,9 +19,9 @@ class FenwickTreeSet:
 
     self._cnt = [0] * self._size
 
-    if a:
+    if _a:
       a_ = [0] * self._size
-      for v in a:
+      for v in _a:
         i = self._to_zaatsu[v]
         if _multi:
           self._len += 1
@@ -61,7 +61,7 @@ class FenwickTreeSet:
     self._fw.add(i, -1)
     return True
 
-  '''Return the number of key. / O(logN)'''
+  '''Return the number of key. / O(1)'''
   def count(self, key) -> int:
     return self._cnt[self._to_zaatsu[key]]
 
@@ -120,10 +120,10 @@ class FenwickTreeSet:
   def popleft(self):
     return self.pop(0)
 
-  def __getitem__(self, x):
-    if x < 0:
-      x += self._len
-    return self._to_origin[self._fw.bisect_right(x)]
+  def __getitem__(self, p):
+    if p < 0:
+      p += self._len
+    return self._to_origin[self._fw.bisect_right(p)]
 
   def __repr__(self):
     return 'FenwickTreeSet ' + str(self)
