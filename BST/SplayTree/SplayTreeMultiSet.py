@@ -240,7 +240,7 @@ class SplayTreeMultiSet(Generic[T]):
     else:
       node = self._get_min_splay(self.node.right)
       node.left = self.node.left
-      self._update(node.left)
+      self._update(node)
       self.node = node
     return True
 
