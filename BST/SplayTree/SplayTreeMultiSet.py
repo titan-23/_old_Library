@@ -33,17 +33,27 @@ class SplayTreeMultiSet(Generic[T]):
     def sort(l: int, r: int):
       if l == r: return None
       mid = (l + r) >> 1
-      node = Node(a[mid])
+      node = Node(a[mid][0], a[mid][1])
       node.left = sort(l, mid)
       node.right = sort(mid+1, r)
       self._update(node)
       return node
-    aa = sorted(a)
-    a = [aa[0]]
-    for i in range(1, len(aa)):
-      if aa[i] != a[-1]:
-        a.append(aa[i])
+    a = self._rle(sorted(a))
     self.node = sort(0, len(a))
+
+  def _rle(self, a: list) -> list:
+    n = len(a)
+    if n == 0:
+      return []
+    now = a[0]
+    ret = [[now, 1]]
+    for i in a[1:]:
+      if i == now:
+        ret[-1][1] += 1
+        continue
+      ret.append([i, 1])
+      now = i
+    return ret
 
   def _update(self, node: Node) -> None:
     node.size = 1
@@ -382,30 +392,14 @@ class SplayTreeMultiSet(Generic[T]):
 
   '''Return and Remove max element or a[p]. / O(logN)'''
   def pop(self, p: int=-1) -> T:
-    if p == -1:
-      node = self._get_max_splay(self.node)
-      self.node = node.left
-      return node.key
-    if p < 0:
-      p += self.__len__()
     self._set_kth_elm_splay(p)
     res = self.node.key
-    if self.node.left is None:
-      self.node = self.node.right
-    elif self.node.right is None:
-      self.node = self.node.left
-    else:
-      node = self._get_min_splay(self.node.right)
-      node.left = self.node.left
-      self.node = node
-      self._update(self.node.left)
+    self.discard(res)
     return res
 
   '''Return and Remove min element. / O(logN)'''
   def popleft(self) -> T:
-    node = self._get_min_splay(self.node)
-    self.node = node.right
-    return node.key
+    return self.pop(0)
 
   '''Return List of self. / O(N)'''
   def to_l(self) -> List[T]:
@@ -481,5 +475,4 @@ class SplayTreeMultiSet(Generic[T]):
 
   def __repr__(self):
     return 'SplayTreeMultiSet ' + str(self)
-
 
