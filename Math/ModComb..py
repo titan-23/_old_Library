@@ -1,3 +1,6 @@
+# https://github.com/titanium-22/Library/blob/main/Math/ModComb..py
+
+
 class ModComb:
   
   def __init__(self, limit: int, mod: int):
