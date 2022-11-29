@@ -42,9 +42,9 @@ class SplayTreeMultiSet(Generic[T]):
     self.node = sort(0, len(a))
 
   def _rle(self, a: list) -> list:
-    n = len(a)
-    if n == 0:
-      return []
+    n = 
+
+
     now = a[0]
     ret = [[now, 1]]
     for i in a[1:]:
