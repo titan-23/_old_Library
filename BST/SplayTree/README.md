@@ -44,12 +44,6 @@ indx番目/先頭を削除しその値を返します。st.pop(len(st))/st.pop(0
 ### ```st[indx]```
 indx番目を取得できます。
 
-### ```st[start:stop]```
-スライスします。splitです。
-
-### ```st[start:stop:step]```
-スライスします。O(N)です。
-
 ### ```st[indx] = key```
 setitemできます。
 
