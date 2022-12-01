@@ -1,75 +1,78 @@
+最終更新：2022/12/01
+
+・色々修正しました。
+
+# ScapegoatTree
+ScapegoatTreeです。  
+ノードを追加したとき、「大きく偏る」部分木があれば、その部分木をO(部分木のサイズ)時間かけてならします。これにより、軽いが多くの処理をする回転動作がなくなり、嬉しいことがあるかもしれません。  
+以下、計算量を明示していないものは計算量O(logN)とします(Nはそのときどきのサイズではないですが、些細な問題です(?))。
 
 _____
-## [ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)
-重複を許さない順序付き集合です。
+# [ScapegoatTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTree.py)
+集合としてのSplayTreeです。任意の他要素と比較可能な要素が載ります。  
+全機能をverifyしたわけではないのでコンテスト中の利用は控えると吉です。
 
-### ```st = ScapegoatTreeSet(a=[])```
-iterableからScapegoatTreeSetを作ります。O(NlogN)時間です。ソート済みを仮定して内部をいじるとO(N)時間です。
+### ```st = ScapegoatTree(a: Iterable[T]])```
+aからScapegoatTreeを作ります。O(NlogN)時間です。ソート済みを仮定して内部をいじるとO(N)時間です。
 
 ### ```len(st)```
 要素の個数を返します。O(1)時間です。
 
 ### ```x in st / x not in st```
-存在判定です。O(logN)時間です。
+存在判定です。
 
-### ```st[k]```
-k番目に小さい値(0-indexed)を返します。負の添え字に対応しています。O(logN)時間です。
+### ```st[k] -> T```
+k番目に小さい値(0-indexed)を返します。負の添え字に対応しています。
 
 ### ```bool(st) / str(st) / reversed(st)```
 よしなに動きます。
 
-### ```st.add(x)```
-xがなければxを追加しTrueを返します。xがあれば追加せずにFalseを返します。償却計算量O(logN)時間です。最悪計算量はO(N)時間です。
+### ```st.add(x) -> bool```
+xがなければxを追加しTrueを返します。xがあれば追加せずにFalseを返します。償却計算量O(logN)です。
 
-### ```st.discard(x)```
-xがあれば削除しTrueを返します。xがなければ何も削除せずにFalseを返します。O(logN)時間です。
+### ```st.discard(x) -> bool```
+xがあれば削除しTrueを返します。xがなければ何も削除せずにFalseを返します。
 
-### ```st.le(x) / .lt(x) / .ge(x) / gt(x)```
-x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。いずれもO(logN)時間です。
+### ```st.le(x) / .lt(x) / .ge(x) / gt(x) -> Union[T, None]```
+x(以下の/より小さい/以上の/より大きい)値で(最大/最大/最小/最小)の値を返します。存在しなければNoneを返します。
 
-### ```st.index(x) / .index_right(x)```
-x(より小さい/以下の)要素の数を返します。O(logN)時間です。
+### ```st.index(x) / .index_right(x) -> int```
+x(より小さい/以下の)要素の数を返します。
 
-### ```st.pop(k=-1) / .popleft()```
-k番目の要素を削除し、その値を返します。```popleft()```は```pop(0)```と等価です。いずれもO(logN)時間です。  
-```st.pop(k)```は、```x = st[k]; st.discard(x); return x```より高速に動作します。
+### ```st.pop(k=-1) / .popleft() -> T```
+k番目の要素を削除し、その値を返します。
 
-### ```st.show(sep=' ')```
-昇順にprintします。O(N)です。
+### ```st.clear() -> None```
+stを工場出荷状態に戻します。O(1)です。
 
-____
-## [ScapegoatTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py)
-重複を許可する順序付き集合です。多重集合とも。バグが多そうで怖い。正直使いたくないです。以下、おきてほしい動作を書きます。SetでできることはおそらくMultiSetでもできます。
+### ```st.to_l() -> List[T]```
+リストに変換します。内部でsys.setrecursionlimit(len(self))をしているので安心です。O(N)です。
 
-### ```len(st)```
-重複を含めたサイズを返します。O(1)時間です。
+_____
+# [ScapegoatTreeTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTreeTreeMultiSet.py)
+多重集合としてのSplayTreeです。[ScapegoatTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTree.py)でできる操作に加えて以下の操作がができます。  
 
-### ```st.len_elm()```
-重複を含ないときのサイズを返します。O(1)時間です。
+### ```st.add(key, val) -> None```
+keyをval個追加します。償却計算量O(logN)です。
 
-### ```st.count(x)```
-xの要素数を返します。xが存在しないときは0を返します。O(logN)時間です。
+### ```st.discard(key, val) -> bool```
+keyをval個削除します。valがkeyの数より大きいときは、keyを全て削除します。  
+keyが無いときFalseを、そうでないときTrueを返します。
 
-### ```st.add(x, val=1)```
-xをval個追加します。valの値に依らず、償却計算量はO(logN)時間です。
+### ```st.discard_all(key) -> None```
+keyを全て削除します。st.discard(key, st.count(key))と等価です。
 
-### ```st.discard(x, val=1)```
-xをval個削除します。valの値に依らず、O(logN)時間です。
+### ```st.count(key) -> int```
+stに含まれるkeyの数を返します。
 
-### ```st.discard_all(x)```
-xをすべて削除します。```st.discard(x, val=st.count(x))```と等価です。O(logN)時間です。
+### ```st.to_l_items() -> List[Tulpe[T, int]]```
+stをリストに変換します。各要素は(key, st.count(key))です。
 
-### ```st.index_keys(x) / .index_right_keys(x)```
-x(より小さい/以下)の要素の数(重複無し)を返します。O(logN)時間です。
+### ```st.get_elm(k) -> T```
+stの重複を除いたときの、小さい方からk番目のkeyを返します。
 
-### ```st.get_key(k)```
-k番目に小さいkey(0-indexed)を返します。O(logN)時間です。
+### ```st.len_elm() -> int```
+stの要素の種類数を返します。
 
-### ```st.pop(k=-1) / .popleft()```
-```x = st[k]; st.discard(x); return x```と等価です。別に高速ではないです。O(logN)時間です。
-
-### ```st.show(sep=' ')```
-昇順にprintします。O(N)です。
-
-### ```st.keys() / .values() / .items()```
-よしなにyieldします。
+### ```st.show() -> None```
+よしなにprintします。
