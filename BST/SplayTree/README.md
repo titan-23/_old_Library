@@ -121,6 +121,9 @@ keyを全て削除します。st.discard(key, st.count(key))と等価です。
 ### ```st.count(key) -> int```
 stに含まれるkeyの数を返します。
 
+### ```st.index_keys(x) / .index_right_keys(x) -> int```
+x(より小さい/以下の)要素の種類数を返します。
+
 ### ```st.to_l_items() -> List[Tulpe[T, int]]```
 stをリストに変換します。各要素は(key, st.count(key))です。
 
