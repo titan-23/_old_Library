@@ -8,8 +8,8 @@ ScapegoatTreeです。
 以下、計算量を明示していないものは計算量O(logN)とします(Nはそのときどきのサイズではないですが、些細な問題です(?))。
 
 _____
-# [ScapegoatTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTree.py)
-集合としてのSplayTreeです。任意の他要素と比較可能な要素が載ります。  
+# [ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)
+集合としてのScapegoatTreeです。任意の他要素と比較可能な要素が載ります。  
 全機能をverifyしたわけではないのでコンテスト中の利用は控えると吉です。
 
 ### ```st = ScapegoatTree(a: Iterable[T]])```
@@ -49,8 +49,8 @@ stを工場出荷状態に戻します。O(1)です。
 リストに変換します。内部でsys.setrecursionlimit(len(self))をしているので安心です。O(N)です。
 
 _____
-# [ScapegoatTreeTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTreeTreeMultiSet.py)
-多重集合としてのSplayTreeです。[ScapegoatTree](https://github.com/titanium-22/Library/blob/main/BST/SplayTree/ScapegoatTree.py)でできる操作に加えて以下の操作がができます。  
+# [ScapegoatTreeMultiSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py)
+多重集合としてのScapegoatTreeです。[ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)でできる操作に加えて以下の操作がができます。  
 
 ### ```st.add(key, val) -> None```
 keyをval個追加します。償却計算量O(logN)です。
