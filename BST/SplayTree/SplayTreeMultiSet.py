@@ -396,6 +396,22 @@ class SplayTreeMultiSet(Generic[T]):
       res += self.node.val
     return res
 
+  def index_keys(self, key: T) -> int:
+    if self.node is None: return 0
+    self._set_search_splay(key)
+    res = 0 if self.node.left is None else self.node.left.size
+    if self.node.key < key:
+      res += 1
+    return res
+
+  def index_right_keys(self, key: T) -> int:
+    if self.node is None: return 0
+    self._set_search_splay(key)
+    res = 0 if self.node.left is None else self.node.left.size
+    if self.node.key <= key:
+      res += 1
+    return res
+
   '''Return and Remove max element or a[p]. / O(logN)'''
   def pop(self, k: int=-1) -> T:
     self._set_kth_elm_splay(k)
@@ -407,7 +423,6 @@ class SplayTreeMultiSet(Generic[T]):
   def popleft(self) -> T:
     return self.pop(0)
 
-  '''Return List of self. / O(N)'''
   def to_l(self) -> List[T]:
     a = []
     if self.node is None:
@@ -461,7 +476,7 @@ class SplayTreeMultiSet(Generic[T]):
     return 0 if self.node is None else self.node.size
 
   def show(self) -> None:
-    print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.items())) + '}')
+    print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.to_l_items())) + '}')
 
   def __iter__(self):
     self.__iter = 0
