@@ -1,6 +1,3 @@
-# ScapegoatTree
-まがい物のScapegoatTreeです。バグがあるかもしれません。本ライブラリでは♰ユーザーすらScapegoat♰なのです。バグ報告お待ちしております。  
-載る条件は、任意の他要素との比較が可能であることです。以下、```x```で表します。
 
 _____
 ## [ScapegoatTreeSet](https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeSet.py)
