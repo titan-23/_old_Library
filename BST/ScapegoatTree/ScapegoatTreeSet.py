@@ -5,6 +5,7 @@ import math
 from typing import Union, List, TypeVar, Generic, Iterable, Tuple
 T = TypeVar("T")
 
+
 class Node:
   
   def __init__(self, key):
@@ -47,13 +48,13 @@ class ScapegoatTreeSet(Generic[T]):
     self.node = sort(0, len(a))[0]
  
   def _rebuild(self, node: Node) -> Node:
-    def get(node):
+    def get(node: Node) -> None:
       if node.left is not None:
         get(node.left)
       a.append(node)
       if node.right is not None:
         get(node.right)
-    def sort(l, r):
+    def sort(l: int, r: int) -> Tuple[Node, int]:
       if l >= r:
         return None, 0
       mid = (l + r) >> 1
@@ -141,7 +142,7 @@ class ScapegoatTreeSet(Generic[T]):
     for p in path:
       p.size -= 1
     return True
- 
+
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
   def le(self, key: T) -> Union[T, None]:
     res = None
@@ -156,7 +157,7 @@ class ScapegoatTreeSet(Generic[T]):
         res = node.key
         node = node.right
     return res
- 
+
   '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
   def lt(self, key: T) -> Union[T, None]:
     res = None
@@ -170,7 +171,7 @@ class ScapegoatTreeSet(Generic[T]):
         res = node.key
         node = node.right
     return res
- 
+
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
   def ge(self, key: T) -> Union[T, None]:
     res = None
@@ -185,7 +186,7 @@ class ScapegoatTreeSet(Generic[T]):
       else:
         node = node.right
     return res
- 
+
   '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
   def gt(self, key: T) -> Union[T, None]:
     res = None
@@ -199,7 +200,7 @@ class ScapegoatTreeSet(Generic[T]):
       else:
         node = node.right
     return res
- 
+
   '''Count the number of elements < key. / O(logN)'''
   def index(self, key: T) -> int:
     k = 0
