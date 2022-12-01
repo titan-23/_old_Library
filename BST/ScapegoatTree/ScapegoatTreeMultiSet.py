@@ -216,7 +216,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
         while path:
           path.pop().valsize -= val
     if node.val == 1:
-      self._discard(key: T)
+      self._discard(key)
     else:
       node.val -= val
       while path:
@@ -235,7 +235,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
     return 0
 
   def discard_all(self, key: T) -> None:
-    self.discard(key, self.count(key: T))
+    self.discard(key, self.count(key))
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
   def le(self, key: T) -> Union[T, None]:
