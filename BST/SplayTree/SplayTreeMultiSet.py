@@ -256,7 +256,7 @@ class SplayTreeMultiSet(Generic[T]):
       self.node = node
     return True
 
-  def discar_all(self, key: T) -> bool:
+  def discard_all(self, key: T) -> bool:
     return self.discar(key, self.count(key))
 
   def count(self, key: T) -> int:
