@@ -68,10 +68,12 @@ btをindxでsplitします。
 
 ### ```bst.count(key)```
 
+### ```bst.index_keys(key) / index_right_keys(key)```
+
 ### ```bst.to_l_items()```
 
 ### ```bst.keys() / values() / items()```
 
 ### ```bst.len_elm()```
 
-##3 ```bst.show()```
+### ```bst.show()```
