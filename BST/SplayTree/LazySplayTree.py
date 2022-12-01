@@ -2,7 +2,7 @@
 
 
 import sys
-from typing import Generic, List, TypeVar, Tuple, Callable
+from typing import Generic, List, TypeVar, Tuple, Callable, Iterable
 T = TypeVar("T")
 F = TypeVar("F")
 
@@ -26,7 +26,7 @@ class Node:
 
 class LazySplayTree(Generic[T, F]):
 
-  def __init__(self, a: List[T]=[], op: Callable[[T, T], T]=lambda x,y:None, mapping: Callable[[F, T], T]=None, composition: Callable[[F, F], F]=None, e: T=None, node: Node=None) -> None:
+  def __init__(self, a: Iterable[T]=[], op: Callable[[T, T], T]=lambda x,y:None, mapping: Callable[[F, T], T]=None, composition: Callable[[F, F], F]=None, e: T=None, node: Node=None) -> None:
     self.node = node
     self.op = op
     self.mapping = mapping
