@@ -43,7 +43,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
       now = i
     return ret
  
-  def _build(self, a: Iterable[T]) -> Node:
+  def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Tuple[Node, int, int]:
       if l >= r:
         return None, 0, 0
@@ -55,7 +55,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
       root.valsize = vl+vr+a[mid][1]
       return root, root.size, root.valsize
     a = self._rle(sorted(a))
-    return sort(0, len(a))[0]
+    self.node = sort(0, len(a))[0]
  
   def _rebuild(self, node: Node) -> Node:
     def get(node: Node) -> None:
