@@ -9,19 +9,23 @@ btにotherをマージします。mergeした後にotherを使うとマズイで
 ### ```bt.split(indx)```
 btをindxでsplitします。
 
-### ```bt.insert(indx, key)```
-
-### ```bt.pop(indx=-1) / .popleft()```
-
-### ```bt[indx]```
-
-### ```bt[indx] = key```
-
-### ```bt.copy()```
-
 ### ```bt.prod(l, r)```
 
 ### ```bt.all_prod()```
+
+### ```bt.insert(indx, key)```
+
+### ```bt.append(key) / appendleft(key)```
+
+### ```bt.pop(k=-1) / .popleft()```
+
+### ```bt[k]```
+
+### ```bt[k] = key```
+
+### ```bt.copy()```
+
+### ```bt.clear()```
 
 ### ```bt.to_l()```
 
@@ -35,8 +39,6 @@ btをindxでsplitします。
 
 
 # 集合としてのBinarySearchTree
-
-### ```len(bst)```
 
 ### ```x in bst / x not in bst```
 
@@ -52,4 +54,24 @@ btをindxでsplitします。
 
 ### ```bst.pop(k=-1) / .popleft()```
 
+### ```bst.clear()```
+
 ### ```bst.to_l()```
+
+## MultiSet
+
+### ```bst.add(key, val=1)```
+
+### ```bst.discard(key, val=1)```
+
+### ```bst.dicard_all()```
+
+### ```bst.count(key)```
+
+### ```bst.to_l_items()```
+
+### ```bst.keys() / values() / items()```
+
+### ```bst.len_elm()```
+
+##3 ```bst.show()```
