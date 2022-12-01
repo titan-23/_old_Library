@@ -2,7 +2,7 @@
 
 
 import sys
-from typing import Union, Generic, Iterable, List, TypeVar
+from typing import Union, Generic, Iterable, List, TypeVar, Tuple
 T = TypeVar("T")
 
 
@@ -31,20 +31,18 @@ class SplayTreeMultiSet(Generic[T]):
 
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int):
-      if l == r: return None
       mid = (l + r) >> 1
       node = Node(a[mid][0], a[mid][1])
-      node.left = sort(l, mid)
-      node.right = sort(mid+1, r)
+      if l != mid:
+        node.left = sort(l, mid)
+      if mid+1 != r:
+        node.right = sort(mid+1, r)
       self._update(node)
       return node
     a = self._rle(sorted(a))
     self.node = sort(0, len(a))
 
   def _rle(self, a: list) -> list:
-    n = 
-
-
     now = a[0]
     ret = [[now, 1]]
     for i in a[1:]:
@@ -56,14 +54,20 @@ class SplayTreeMultiSet(Generic[T]):
     return ret
 
   def _update(self, node: Node) -> None:
-    node.size = 1
-    node.valsize = node.val
-    if node.left is not None:
-      node.size += node.left.size
-      node.valsize += node.left.valsize
-    if node.right is not None:
-      node.size += node.right.size
-      node.valsize += node.right.valsize
+    if node.left is None:
+      if node.right is None:
+        node.size = 1
+        node.valsize = node.val
+      else:
+        node.size = 1 + node.right.size
+        node.valsize = node.val + node.right.valsize
+    else:
+      if node.right is None:
+        node.size = 1 + node.left.size
+        node.valsize = node.val + node.left.valsize
+      else:
+        node.size = 1 + node.left.size + node.right.size
+        node.valsize = node.val + node.left.valsize + node.right.valsize
 
   def _splay(self, path: List[Node], di: int) -> Node:
     for _ in range(len(path)>>1):
@@ -110,86 +114,86 @@ class SplayTreeMultiSet(Generic[T]):
       node = gnode.left
       gnode.left = node.right
       node.right = gnode
-      self._update(node.right)
     else:
       node = gnode.right
       gnode.right = node.left
       node.left = gnode
-      self._update(node.left)
+    self._update(gnode)
     self._update(node)
     return node
 
   def _set_search_splay(self, key: T) -> None:
     node = self.node
-    if node is None or node.key == key: return
+    if node is None or node.key == key:
+      return
     path = []
     di = 0
-    while node is not None:
+    while True:
       if node.key == key:
         break
       elif key < node.key:
+        if node.left is None:
+          break
         path.append(node)
-        di = di << 1 | 1
+        di <<= 1
+        di |= 1
         node = node.left
       else:
+        if node.right is None:
+          break
         path.append(node)
         di <<= 1
         node = node.right
-    else:
-      if path:
-        path.pop()
-        di >>= 1
     if path:
       self.node = self._splay(path, di)
 
   def _set_kth_elm_splay(self, k: int) -> None:
     if k < 0:
       k += self.__len__()
-    # assert 0 <= k < self.__len__()
-    now = 0
+    assert 0 <= k < self.__len__()
     di = 0
     node = self.node
     path = []
     while True:
-      s = now if node.left is None else now + node.left.valsize
-      t = s + node.val
-      if s <= k < t:
+      t = node.val if node.left is None else node.val + node.left.valsize
+      if t-node.val <= k < t:
         if path:
           self.node = self._splay(path, di)
         break
       elif t > k:
         path.append(node)
-        di = di<<1|1
+        di <<= 1
+        di |= 1
         node = node.left
       else:
         path.append(node)
         di <<= 1
         node = node.right
-        now = t
+        k -= t
 
   def _set_kth_elm_tree_splay(self, k: int) -> None:
     if k < 0:
       k += self.len_elm()
-    # assert 0 <= k < self.len_elm()
-    now = 0
+    assert 0 <= k < self.len_elm()
     di = 0
     node = self.node
     path = []
     while True:
-      t = now if node.left is None else now + node.left.size
+      t = 0 if node.left is None else node.left.size
       if t == k:
         if path:
           self.node = self._splay(path, di)
-        break
+        return
       elif t > k:
         path.append(node)
-        di = di<<1|1
+        di <<= 1
+        di |= 1
         node = node.left
       else:
         path.append(node)
         di <<= 1
         node = node.right
-        now = t + 1
+        k -= t + 1
 
   def _get_min_splay(self, node: Node) -> Node:
     if node is None or node.left is None:
@@ -209,7 +213,6 @@ class SplayTreeMultiSet(Generic[T]):
       node = node.right
     return self._splay(path, 0)
 
-  '''Add a key. / O(logN)'''
   def add(self, key: T, val: int=1) -> None:
     if self.node is None:
       self.node = Node(key, val)
@@ -234,7 +237,6 @@ class SplayTreeMultiSet(Generic[T]):
     self.node = node
     return
 
-  '''Discard a key. / O(logN)'''
   def discard(self, key: T, val: int=1) -> bool:
     if self.node is None: return False
     self._set_search_splay(key)
@@ -269,23 +271,24 @@ class SplayTreeMultiSet(Generic[T]):
     path = []
     di = 0
     res = None
-    while node is not None:
+    while True:
       if node.key == key:
         res = key
         break
       elif key < node.key:
-        path.append(node)
-        di = di << 1 | 1
-        node = node.left
-      else:
+        if node.left is None:
+          break
         path.append(node)
         di <<= 1
+        di |= 1
+        node = node.left
+      else:
         res = node.key
+        if node.right is None:
+          break
+        path.append(node)
+        di <<= 1
         node = node.right
-    else:
-      if path:
-        path.pop()
-        di >>= 1
     if path:
       self.node = self._splay(path, di)
     return res
@@ -297,22 +300,23 @@ class SplayTreeMultiSet(Generic[T]):
     path = []
     di = 0
     res = None
-    while node is not None:
+    while True:
       if node.key == key:
         break
       elif key < node.key:
-        path.append(node)
-        di = di << 1 | 1
-        node = node.left
-      else:
+        if node.left is None:
+          break
         path.append(node)
         di <<= 1
+        di |= 1
+        node = node.left
+      else:
         res = node.key
+        if node.right is None:
+          break
+        path.append(node)
+        di <<= 1
         node = node.right
-    else:
-      if path:
-        path.pop()
-        di >>= 1
     if path:
       self.node = self._splay(path, di)
     return res
@@ -324,23 +328,24 @@ class SplayTreeMultiSet(Generic[T]):
     path = []
     di = 0
     res = None
-    while node is not None:
+    while True:
       if node.key == key:
         res = node.key
         break
       elif key < node.key:
-        path.append(node)
-        di = di << 1 | 1
         res = node.key
+        if node.left is None:
+          break
+        path.append(node)
+        di <<= 1
+        di |= 1
         node = node.left
       else:
+        if node.right is None:
+          break
         path.append(node)
         di <<= 1
         node = node.right
-    else:
-      if path:
-        path.pop()
-        di >>= 1
     if path:
       self.node = self._splay(path, di)
     return res
@@ -352,22 +357,23 @@ class SplayTreeMultiSet(Generic[T]):
     path = []
     di = 0
     res = None
-    while node is not None:
+    while True:
       if node.key == key:
         break
       elif key < node.key:
-        path.append(node)
-        di = di << 1 | 1
         res = node.key
+        if node.left is None:
+          break
+        path.append(node)
+        di <<= 1
+        di |= 1
         node = node.left
       else:
+        if node.right is None:
+          break
         path.append(node)
         di <<= 1
         node = node.right
-    else:
-      if path:
-        path.pop()
-        di >>= 1
     if path:
       self.node = self._splay(path, di)
     return res
@@ -391,8 +397,8 @@ class SplayTreeMultiSet(Generic[T]):
     return res
 
   '''Return and Remove max element or a[p]. / O(logN)'''
-  def pop(self, p: int=-1) -> T:
-    self._set_kth_elm_splay(p)
+  def pop(self, k: int=-1) -> T:
+    self._set_kth_elm_splay(k)
     res = self.node.key
     self.discard(res)
     return res
@@ -403,6 +409,9 @@ class SplayTreeMultiSet(Generic[T]):
 
   '''Return List of self. / O(N)'''
   def to_l(self) -> List[T]:
+    a = []
+    if self.node is None:
+      return a
     if sys.getrecursionlimit() < self.len_elm():
       sys.setrecursionlimit(self.len_elm()+1)
     def rec(node):
@@ -411,13 +420,26 @@ class SplayTreeMultiSet(Generic[T]):
       a.extend([node.key]*node.val)
       if node.right is not None:
         rec(node.right)
-    a = []
-    if self.node is not None:
-      rec(self.node)
+    rec(self.node)
     return a
 
-  def get_elm(self, p: int) -> T:
-    self._set_kth_elm_tree_splay(p)
+  def to_l_items(self) -> List[Tuple[T, int]]:
+    a = []
+    if self.node is None:
+      return a
+    if sys.getrecursionlimit() < self.len_elm():
+      sys.setrecursionlimit(self.len_elm()+1)
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      a.append((node.key, node.val))
+      if node.right is not None:
+        rec(node.right)
+    rec(self.node)
+    return a
+
+  def get_elm(self, k: int) -> T:
+    self._set_kth_elm_tree_splay(k)
     return self.node.key
 
   def items(self):
@@ -438,7 +460,7 @@ class SplayTreeMultiSet(Generic[T]):
   def len_elm(self) -> int:
     return 0 if self.node is None else self.node.size
 
-  def show_items(self) -> None:
+  def show(self) -> None:
     print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.items())) + '}')
 
   def __iter__(self):
@@ -475,4 +497,5 @@ class SplayTreeMultiSet(Generic[T]):
 
   def __repr__(self):
     return 'SplayTreeMultiSet ' + str(self)
+
 
