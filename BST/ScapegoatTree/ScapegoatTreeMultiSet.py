@@ -1,8 +1,9 @@
-# https://github.com/titanium-22/Library/edit/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py
+# https://github.com/titanium-22/Library/blob/main/BST/ScapegoatTree/ScapegoatTreeMultiSet.py
 
 
-import sys
 import math
+from typing import Union, List, TypeVar, Generic, Iterable, Tuple
+T = TypeVar("T")
 
 
 class Node:
@@ -21,22 +22,17 @@ class Node:
     return f'key:{self.key, self.val, self.size, self.valsize},\n left:{self.left},\n right:{self.right}\n'
 
 
-class ScapegoatTreeMultiSet:
+class ScapegoatTreeMultiSet(Generic[T]):
  
   alpha = 0.75
   beta = math.log2(1/alpha)
  
-  '''Make a new ScapegoatTreeMultiSet. / O(NlogN)'''
-  def __init__(self, a=[]) -> None:
+  def __init__(self, a: Iterable[T]=[]) -> None:
+    self.node = None
     if a:
-      aa = sorted(a)
-      a = self.__rle(aa)
-    self.node = self.__build(a)
+      self._build(a)
 
-  def __rle(self, li: list) -> list:
-    n = len(li)
-    if n == 0:
-      return []
+  def _rle(self, li: List[T]) -> List[Tuple[T, int]]:
     now = li[0]
     ret = [[now, 1]]
     for i in li[1:]:
@@ -47,8 +43,8 @@ class ScapegoatTreeMultiSet:
       now = i
     return ret
  
-  def __build(self, a: list) -> Node:
-    def sort(l, r):
+  def _build(self, a: Iterable[T]) -> Node:
+    def sort(l: int, r: int) -> Tuple[Node, int, int]:
       if l >= r:
         return None, 0, 0
       mid = (l + r) >> 1
@@ -58,18 +54,17 @@ class ScapegoatTreeMultiSet:
       root.size = sl+sr+1
       root.valsize = vl+vr+a[mid][1]
       return root, root.size, root.valsize
+    a = self._rle(sorted(a))
     return sort(0, len(a))[0]
  
-  def __rebuild(self, node: Node) -> Node:
-    a = []
-    def get(node):
+  def _rebuild(self, node: Node) -> Node:
+    def get(node: Node) -> None:
       if node.left is not None:
         get(node.left)
       a.append(node)
       if node.right is not None:
         get(node.right)
- 
-    def sort(l, r):
+    def sort(l: int, r: int) -> Tuple[Node, int, int]:
       if l >= r:
         return None, 0, 0
       mid = (l + r) >> 1
@@ -79,15 +74,46 @@ class ScapegoatTreeMultiSet:
       root.size = sl+sr+1
       root.valsize = vl+vr+root.val
       return root, root.size, root.valsize
+    a = []
     get(node)
     return sort(0, len(a))[0]
  
-  '''add a key. / O(logN)'''
+  def _kth_elm(self, k: int) -> Tuple[T, int]:
+    if k < 0:
+      k += self.__len__()
+    assert 0 <= k < self.__len__()
+    node = self.node
+    while True:
+      t = node.val if node.left is None else node.val + node.left.valsize
+      if t-node.val <= k < t:
+        return node.key, node.val
+      elif t > k:
+        node = node.left
+      else:
+        node = node.right
+        k -= t
+
+  def _kth_elm_tree(self, k: int) -> Tuple[T, int]:
+    if k < 0:
+      k += self.len_elm()
+    assert 0 <= k < self.len_elm()
+    node = self.node
+    while True:
+      t = 0 if node.left is None else node.left.size
+      if t == k:
+        return node.key, node.val
+      elif t > k:
+        node = node.left
+      else:
+        node = node.right
+        k -= t + 1
+
   def add(self, key, val=1) -> None:
+    node = self.node
     if self.node is None:
       self.node = Node(key, val)
       return
-    node, path = self.node, []
+    path = []
     while node is not None:
       path.append(node)
       if key == node.key:
@@ -103,7 +129,7 @@ class ScapegoatTreeMultiSet:
       path[-1].left = Node(key, val)
     else:
       path[-1].right = Node(key, val)
-    if len(path)*self.beta > math.log(self.__len_tree()):
+    if len(path)*self.beta > math.log(self.len_elm()):
       node_size = 1
       while path:
         pnode = path.pop()
@@ -111,7 +137,7 @@ class ScapegoatTreeMultiSet:
         if self.alpha * pnode_size < node_size:
           break
         node_size = pnode_size
-      new_node = self.__rebuild(pnode)
+      new_node = self._rebuild(pnode)
       if not path:
         self.node = new_node
         return
@@ -124,23 +150,26 @@ class ScapegoatTreeMultiSet:
       p.valsize += val
     return
  
-  def __discard(self, key) -> bool:
-    '''Discard node of key from self. / O(logN)'''
-    path, node = [], self.node
-    di, cnt = 1, 0
+  def _discard(self, key: T) -> bool:
+    path = []
+    node = self.node
+    di = 1
+    cnt = 0
     while node is not None:
       if key == node.key:
         break
       elif key < node.key:
         path.append(node)
-        node, di = node.left, 1
+        node = node.left
+        di = 1
       else:
         path.append(node)
-        node, di = node.right,-1
+        node = node.right
+        di = 0
     if node.left is not None and node.right is not None:
       path.append(node)
       lmax = node.left
-      di = 1 if lmax.right is None else -1
+      di = 1 if lmax.right is None else 0
       while lmax.right is not None:
         cnt += 1
         path.append(lmax)
@@ -151,7 +180,7 @@ class ScapegoatTreeMultiSet:
       node = lmax
     cnode = node.right if node.left is None else node.left
     if path:
-      if di == 1:
+      if di:
         path[-1].left = cnode
       else:
         path[-1].right = cnode
@@ -167,9 +196,7 @@ class ScapegoatTreeMultiSet:
       p.valsize -= 1
     return True
 
-  '''Discard key. / O(logN)'''
   def discard(self, key, val=1) -> bool:
-    assert val >= 0
     path = []
     node = self.node
     while node is not None:
@@ -189,14 +216,14 @@ class ScapegoatTreeMultiSet:
         while path:
           path.pop().valsize -= val
     if node.val == 1:
-      self.__discard(key)
+      self._discard(key: T)
     else:
       node.val -= val
       while path:
         path.pop().valsize -= val
     return True
 
-  def count(self, key) -> int:
+  def count(self, key: T) -> int:
     node = self.node
     while node:
       if key < node.key:
@@ -207,12 +234,13 @@ class ScapegoatTreeMultiSet:
         return node.val
     return 0
 
-  def discard_all(self, key) -> None:
-    self.discard(key, self.count(key))
+  def discard_all(self, key: T) -> None:
+    self.discard(key, self.count(key: T))
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
-  def le(self, key):
-    res, node = None, self.node
+  def le(self, key: T) -> Union[T, None]:
+    res = None
+    node = self.node
     while node is not None:
       if key == node.key:
         res = key
@@ -220,194 +248,185 @@ class ScapegoatTreeMultiSet:
       elif key < node.key:
         node = node.left
       else:
-        res, node = node.key, node.right
+        res = node.key
+        node = node.right
     return res
- 
+
   '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
-  def lt(self, key):
-    res, node = None, self.node
+  def lt(self, key: T) -> Union[T, None]:
+    res = None
+    node = self.node
     while node is not None:
       if key == node.key:
         break
       elif key < node.key:
         node = node.left
       else:
-        res, node = node.key, node.right
+        res = node.key
+        node = node.right
     return res
- 
+
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
-  def ge(self, key):
-    res, node = None, self.node
+  def ge(self, key: T) -> Union[T, None]:
+    res = None
+    node = self.node
     while node is not None:
       if key == node.key:
         res = key
         break
       elif key < node.key:
-        res, node = node.key, node.left
+        res = node.key
+        node = node.left
       else:
         node = node.right
     return res
- 
+
   '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
-  def gt(self, key):
-    res, node = None, self.node
+  def gt(self, key: T) -> Union[T, None]:
+    res = None
+    node = self.node
     while node is not None:
       if key == node.key:
         break
       elif key < node.key:
-        res, node = node.key, node.left
+        res = node.key
+        node = node.left
       else:
         node = node.right
     return res
- 
+
   '''Count the number of elements < key. / O(logN)'''
-  def index(self, key) -> int:
-    indx, node = 0, self.node
-    while node:
+  def index(self, key: T) -> int:
+    k = 0
+    node = self.node
+    while node is not None:
       if key == node.key:
         if node.left is not None:
-          indx += node.left.valsize
+          k += node.left.valsize
         break
       elif key < node.key:
         node = node.left
       else:
-        indx += node.val if node.left is None else node.left.valsize + node.val
+        k += node.val if node.left is None else node.left.valsize + node.val
         node = node.right
-    return indx
+    return k
 
   '''Count the number of elements <= key. / O(logN)'''
-  def index_right(self, key) -> int:
-    indx, node = 0, self.node
-    while node:
+  def index_right(self, key: T) -> int:
+    k = 0
+    node = self.node
+    while node is not None:
       if key == node.key:
-        indx += node.val if node.left is None else node.left.valsize + node.val
+        k += node.val if node.left is None else node.left.valsize + node.val
         break
       elif key < node.key:
         node = node.left
       else:
-        indx += node.val if node.left is None else node.left.valsize + node.val
+        k += node.val if node.left is None else node.left.valsize + node.val
         node = node.right
-    return indx
+    return k
 
   '''Count the number of keys < key. / O(logN)'''
-  def index_keys(self, key) -> int:
-    indx, node = 0, self.node
+  def index_keys(self, key: T) -> int:
+    k = 0
+    node = self.node
     while node:
       if key == node.key:
         if node.left is not None:
-          indx += node.left.size
+          k += node.left.size
         break
       elif key < node.key:
         node = node.left
       else:
-        indx += node.val if node.left is None else node.left.size + node.val
+        k += node.val if node.left is None else node.left.size + node.val
         node = node.right
-    return indx
+    return k
 
   '''Count the number of keys <= key. / O(logN)'''
-  def index_right_keys(self, key) -> int:
-    indx, node = 0, self.node
+  def index_right_keys(self, key: T) -> int:
+    k = 0
+    node = self.node
     while node:
       if key == node.key:
-        indx += node.val if node.left is None else node.left.size + node.val
+        k += node.val if node.left is None else node.left.size + node.val
         break
       elif key < node.key:
         node = node.left
       else:
-        indx += node.val if node.left is None else node.left.size + node.val
+        k += node.val if node.left is None else node.left.size + node.val
         node = node.right
-    return indx
+    return k
 
-  '''Return kth elm (key). / O(logN)'''
-  def get_keys(self, k):
-    return self.__kth_elm_tree(k)[0]
-
-  def pop(self, p=-1):
-    '''Return and Remove max element or a[p]. / O(logN)'''
+  def pop(self, p=-1) -> T:
     if p < 0:
       p += self.__len__()
     x = self.__getitem__(p)
     self.discard(x)
     return x
 
-  def popleft(self):
-    '''Return and Remove min element. / O(logN)'''
+  def popleft(self) -> T:
     return self.pop(0)
 
   def items(self):
-    for i in range(self.__len_tree()):
-      yield self.__kth_elm_tree(i)
+    for i in range(self.len_elm()):
+      yield self._kth_elm_tree(i)
 
   def keys(self):
-    for i in range(self.__len_tree()):
-      yield self.__kth_elm_tree(i)[0]
+    for i in range(self.len_elm()):
+      yield self._kth_elm_tree(i)[0]
 
   def values(self):
-    for i in range(self.__len_tree()):
-      yield self.__kth_elm_tree(i)[1]
+    for i in range(self.len_elm()):
+      yield self._kth_elm_tree(i)[1]
 
-  def __getitem__(self, k):
-    return self.__kth_elm_set(k)[0]
+  def show(self) -> None:
+    print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.to_l_items())) + '}')
 
-  def get_key(self, k):
-    return self.__kth_elm_tree(k)[0]
+  def get_elm(self, k: int) -> T:
+    return self._kth_elm_tree(k)[0]
 
-  def show(self, sep=' '):
-    if sys.getrecursionlimit() < self.__len__():
-      sys.setrecursionlimit(self.__len__()+1)
+  def len_elm(self) -> int:
+    return 0 if self.node is None else self.node.size
+
+  def to_l(self) -> List[T]:
+    a = []
+    if self.node is None:
+      return a
     def rec(node):
       if node.left is not None:
         rec(node.left)
-      for _ in range(node.val):
-        print(node.key, end=sep)
+      a.extend([node.key]*node.val)
       if node.right is not None:
         rec(node.right)
-    if self.node is not None:
-      rec(self.node)
+    rec(self.node)
+    return a
 
-  def __kth_elm_set(self, k) -> tuple:
-    if k < 0:
-      k += self.__len__()
-    now = 0
+  def to_l_items(self) -> List[Tuple[T, int]]:
+    a = []
+    if self.node is None:
+      return a
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)
+      a.append((node.key, node.val))
+      if node.right is not None:
+        rec(node.right)
+    rec(self.node)
+    return a
+
+  def __contains__(self, key: T):
     node = self.node
     while node is not None:
-      s = now + node.left.valsize if node.left is not None else now
-      t = s + node.val
-      if s <= k < t:
-        return node.key, node.val
-      elif t <= k:
-        now = t
-        node = node.right
-      else:
-        node = node.left
-    raise IndexError
-
-  def __kth_elm_tree(self, k) -> tuple:
-    if k < 0:
-      k += self.__len_tree()
-    now = 0
-    node = self.node
-    while node is not None:
-      t = now + node.left.size if node.left is not None else now
-      if t == k:
-        return node.key, node.val
-      elif t < k:
-        now = t + 1
-        node = node.right
-      else:
-        node = node.left
-    raise IndexError
-
-  def __contains__(self, x):
-    node = self.node
-    while node:
-      if x < node.key:
-        node = node.left
-      elif x > node.key:
-        node = node.right
-      else:
+      if key == node.key:
         return True
+      elif key < node.key:
+        node = node.left
+      else:
+        node = node.right
     return False
+
+  def __getitem__(self, k):
+    return self._kth_elm(k)[0]
 
   def __iter__(self):
     self.__iter = 0
@@ -416,33 +435,23 @@ class ScapegoatTreeMultiSet:
   def __next__(self):
     if self.__iter == self.__len__():
       raise StopIteration
-    res = self.__kth_elm_set(self.__iter)
+    res = self._kth_elm(self.__iter)
     self.__iter += 1
     return res
 
   def __reversed__(self):
     for i in range(self.__len__()):
-      yield self.__kth_elm_set(-i-1)
-
-  def __len_tree(self):
-    return 0 if self.node is None else self.node.size
+      yield self._kth_elm(-i-1)
 
   def __len__(self):
     return 0 if self.node is None else self.node.valsize
 
   def __bool__(self):
-    return True if self.node is not None else False
+    return self.node is not None
 
   def __str__(self):
-    return '{' + ', '.join(map(lambda x: ', '.join([str(x[0])]*x[1]), self.items())) + '}'
+    return '{' + ', '.join(map(str, self.to_l())) + '}'
 
-  def show_items(self):
-    return '{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.items())) + '}'
-
-  def __str__(self):
-    return '{' + ', '.join(map(lambda x: ', '.join([str(x[0])]*x[1]), self.items())) + '}'
-
-  def len_elm(self):
-    return self.__len_tree()
-
+  def __repr__(self):
+    return 'ScapegoatTreeMultiSet ' + str(self)
 
