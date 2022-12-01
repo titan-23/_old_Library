@@ -1,3 +1,7 @@
+ScapegoatTreeとSplayTreeを修正しました。
+AVLTreeはこれからです。
+
+  
 計算量は償却だったり最悪だったりします。詳しくは各READMEを読んでください。
 
 
