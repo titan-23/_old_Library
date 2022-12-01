@@ -2,7 +2,7 @@
 
 
 import sys
-from typing import Callable, Generic, Tuple, TypeVar, Union, List
+from typing import Callable, Generic, Tuple, TypeVar, Union, List, Iterable
 T = TypeVar("T")
 
 
@@ -23,7 +23,7 @@ class Node:
 
 class SplayTree(Generic[T]):
 
-  def __init__(self, a: List[T]=[], node :Union[Node, None]=None, op: Callable[[T, T], T]=lambda x,y: None, e: T=None) -> None:
+  def __init__(self, a: Iterable[T]=[], node :Union[Node, None]=None, op: Callable[[T, T], T]=lambda x,y: None, e: T=None) -> None:
     self.node = node
     self.op = op
     self.e = e
