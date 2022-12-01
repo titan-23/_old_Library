@@ -1,8 +1,11 @@
 # https://github.com/titanium-22/Library/blob/main/BST/AVLTree/AvlTreeSet.py
 
 
+from typing import Generic, Iterable, Tuple, TypeVar, Union, List
+T = TypeVar("T")
+
+
 class Node:
-  # __slots__ = ('key', 'size', 'left', 'right', 'balance')
   
   def __init__(self, key):
     self.key = key
@@ -17,366 +20,371 @@ class Node:
     return f'key:{self.key, self.size},\n left:{self.left},\n right:{self.right}\n'
 
 
-class AVLTreeSet:
+class AVLTreeSet(Generic[T]):
 
-  # __slots__ = ('node', '__iter')
-
-  '''Make a new AVLTree.'''
-  def __init__(self, a=[]) -> None:  
-    # V: Iterable
-    a = sorted(a)
+  def __init__(self, a: Iterable[T]=[]) -> None:  
     self.node = None
-    self.__len = 0
     if a:
-      aa = [a[0]]
-      for i in range(1, len(a)):
-        if a[i] != aa[-1]:
-          aa.append(a[i])
-      self.__len = len(aa)
-      self.__build(aa)
+      self._build(a)
 
-  def __build(self, a) -> None:
-    def sort(l, r):
-      if l >= r:
-        return None, 0
-      mid = (l + r) // 2
-      root = Node(a[mid])
-      root.left, hl = sort(l, mid)
-      root.right, hr = sort(mid+1, r)
-      root.balance = hl - hr
-      if root.left is not None:
-        root.size += root.left.size
-      if root.right is not None:
-        root.size += root.right.size
-      return root, max(hl, hr)+1
+  def _build(self, a: Iterable[T]) -> None:
+    def sort(l: int, r: int) -> Tuple[Node, int]:
+      mid = (l + r) >> 1
+      node = Node(a[mid])
+      if l != mid:
+        node.left, hl = sort(l, mid)
+        node.size += node.left.size
+      else:
+        hl = 0
+      if mid+1 != r:
+        node.right, hr = sort(mid+1, r)
+        node.size += node.right.size
+      else:
+        hr = 0
+      node.balance = hl - hr
+      return node, max(hl, hr)+1
+    a = sorted(a)
+    aa = [a[0]]
+    for i in range(1, len(a)):
+      if a[i] != aa[-1]:
+        aa.append(a[i])
     self.node = sort(0, len(a))[0]
 
-  def __rotate_L(self, node: Node) -> Node:
+  def _rotate_L(self, node: Node) -> Node:
     u = node.left
     u.size = node.size
     node.size -= 1 if u.left is None else u.left.size + 1
     node.left = u.right
     u.right = node
     if u.balance == 1:
-      u.balance, node.balance = 0, 0
+      u.balance = 0
+      node.balance = 0
     else:
-      u.balance, node.balance = -1, 1
+      u.balance = -1
+      node.balance = 1
     return u
 
-  def __rotate_R(self, node: Node) -> Node:
+  def _rotate_R(self, node: Node) -> Node:
     u = node.right
     u.size = node.size
     node.size -= 1 if u.right is None else u.right.size + 1
     node.right = u.left
     u.left = node
     if u.balance == -1:
-      u.balance, node.balance = 0, 0
+      u.balance = 0
+      node.balance = 0
     else:
-      u.balance, node.balance = 1, -1
+      u.balance = 1
+      node.balance = -1
     return u
 
-  def __update_balance(self, node: Node) -> None:
-    # nodeはnew_node
+  def _update_balance(self, node: Node) -> None:
     if node.balance == 1:
-      node.right.balance, node.left.balance = -1, 0
+      node.right.balance = -1
+      node.left.balance = 0
     elif node.balance == -1:
-      node.right.balance, node.left.balance = 0, 1
+      node.right.balance = 0
+      node.left.balance = 1
     else:
-      node.right.balance, node.left.balance = 0, 0
+      node.right.balance = 0
+      node.left.balance = 0
     node.balance = 0
 
-  def __rotate_LR(self, node: Node) -> Node:
-    #      A           E
-    #     / \         / \
-    #    B   C  ->   B   A
-    #   /\          /\   /\
-    #  D  E        D  F1F2 C
-    #    /\
-    #   F1 F2
-    # # node: A
+  def _rotate_LR(self, node: Node) -> Node:
     B = node.left
     E = B.right
     E.size = node.size
-    ers = 0 if E.right is None else E.right.size
-    node.size -= B.size - ers
-    B.size -= ers + 1
+    if E.right is None:
+      node.size -= B.size
+      B.size -= 1
+    else:
+      node.size -= B.size - E.right.size
+      B.size -= E.right.size + 1
     B.right = E.left
     E.left = B
     node.left = E.right
     E.right = node
-    self.__update_balance(E)
+    self._update_balance(E)
     return E
 
-  def __rotate_RL(self, node: Node) -> Node:
+  def _rotate_RL(self, node: Node) -> Node:
     C = node.right
     D = C.left
     D.size = node.size
-    dls = 0 if D.left is None else D.left.size
-    node.size -= C.size - dls
-    C.size -= dls + 1
+    if D.left is None:
+      node.size -= C.size
+      C.size -= 1
+    else:
+      node.size -= C.size - D.left.size
+      C.size -= D.left.size + 1
     C.left = D.right
     D.right = C
     node.right = D.left
     D.left = node
-    self.__update_balance(D)
+    self._update_balance(D)
     return D
 
-  '''add a key. / O(logN)'''
-  def add(self, key) -> bool:
+  def _kth_elm(self, k: int) -> T:
+    if k < 0:
+      k += self.__len__()
+    assert 0 <= k < self.__len__()
+    node = self.node
+    while True:
+      t = 0 if node.left is None else node.left.size
+      if t == k:
+        return node.key
+      elif t < k:
+        k -= t + 1
+        node = node.right
+      else:
+        node = node.left
+
+  def add(self, key: T) -> bool:
     if self.node is None:
       self.node = Node(key)
       return True
-
     pnode = self.node
     path = []
+    di = 0
     while pnode is not None:
-      if key < pnode.key:
-        path.append((pnode, 1))
-        pnode = pnode.left
-      elif key > pnode.key:
-        path.append((pnode, -1))
-        pnode = pnode.right
-      else:
+      if key == pnode.key:
         return False
-
-    pnode, di = path[-1]
-    if di == 1:
-      pnode.left = Node(key)
+      elif key < pnode.key:
+        path.append(pnode)
+        di <<= 1
+        di |= 1
+        pnode = pnode.left
+      else:
+        path.append(pnode)
+        di <<= 1
+        pnode = pnode.right
+    if di & 1:
+      path[-1].left = Node(key)
     else:
-      pnode.right = Node(key)
-    
+      path[-1].right = Node(key)
+    new_node = None
     while path:
-      new_node = None
-      pnode, di = path.pop()
+      pnode = path.pop()
       pnode.size += 1
-      pnode.balance += di
+      pnode.balance += 1 if di & 1 else -1
+      di >>= 1
       if pnode.balance == 0:
         break
       if pnode.balance == 2:
-        new_node = self.__rotate_LR(pnode) if pnode.left.balance == -1 else self.__rotate_L(pnode)
+        new_node = self._rotate_LR(pnode) if pnode.left.balance == -1 else self._rotate_L(pnode)
         break
       elif pnode.balance == -2:
-        new_node = self.__rotate_RL(pnode) if pnode.right.balance == 1 else self.__rotate_R(pnode)
+        new_node = self._rotate_RL(pnode) if pnode.right.balance == 1 else self._rotate_R(pnode)
         break
-
     if new_node is not None:
       if path:
-        gnode, gdi = path.pop()
+        gnode = path.pop()
         gnode.size += 1
-        if gdi == 1:
+        if di & 1:
           gnode.left = new_node
         else:
           gnode.right = new_node
       else:
         self.node = new_node
-        return
-
-    while path:
-      path.pop()[0].size += 1
-    
+    for p in path:
+      p.size += 1
     return True
 
-  '''Remove key. / O(logN)'''
-  def remove(self, key) -> bool:
+  def remove(self, key: T) -> bool:
     if self.discard(key):
       return True
-    raise KeyError(f'{key} is not exist.')
+    raise KeyError
 
-  '''Discard key. / O(logN)'''
-  def discard(self, key) -> bool:
+  def discard(self, key: T) -> bool:
+    di = 0
     path = []
     node = self.node
     while node is not None:
-      if key < node.key:
-        path.append((node, 1))
-        node = node.left
-      elif key > node.key:
-        path.append((node, -1))
-        node = node.right
-      else:
+      if key == node.key:
         break
+      elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        node = node.right
     else:
       return False
-
     if node.left is not None and node.right is not None:
-      path.append((node, 1))
+      path.append(node)
+      di <<= 1
+      di |= 1
       lmax = node.left
       while lmax.right is not None:
-        path.append((lmax, -1))
+        path.append(lmax)
+        di <<= 1
         lmax = lmax.right
       node.key = lmax.key
       node = lmax
-
     cnode = node.right if node.left is None else node.left
     if path:
-      pnode, di = path[-1]
-      if di == 1:
+      pnode = path[-1]
+      if di & 1:
         pnode.left = cnode
       else:
         pnode.right = cnode
     else:
       self.node = cnode
       return True
-
     while path:
       new_node = None
-      pnode, di = path.pop()
-      pnode.balance -= di
+      pnode = path.pop()
+      pnode.balance -= 1 if di & 1 else -1
+      di >>= 1
       pnode.size -= 1
-
       if pnode.balance == 2:
-        new_node = self.__rotate_LR(pnode) if pnode.left.balance == -1 else self.__rotate_L(pnode)
+        new_node = self._rotate_LR(pnode) if pnode.left.balance == -1 else self._rotate_L(pnode)
       elif pnode.balance == -2:
-        new_node = self.__rotate_RL(pnode) if pnode.right.balance == 1 else self.__rotate_R(pnode)
+        new_node = self._rotate_RL(pnode) if pnode.right.balance == 1 else self._rotate_R(pnode)
       elif pnode.balance != 0:
         break
-
       if new_node is not None:
         if not path:
           self.node = new_node
-          return    
-        gnode, gdir = path[-1]
-        if gdir == 1:
-          gnode.left = new_node
+          return True
+        if di & 1:
+          path[-1].left = new_node
         else:
-          gnode.right = new_node
+          path[-1].right = new_node
         if new_node.balance != 0:
           break
-
-    while path:
-      path.pop()[0].size -= 1
-
+    for p in path:
+      p.size -= 1
     return True
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
-  def le(self, key):
+  def le(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
-      if key < node.key:
-        node = node.left
-      elif key > node.key:
-        res = node.key
-        node = node.right
-      else:
+      if key == node.key:
         res = key
         break
+      elif key < node.key:
+        node = node.left
+      else:
+        res = node.key
+        node = node.right
     return res
 
   '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
-  def lt(self, key):
+  def lt(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
-      if key < node.key:
+      if key == node.key:
+        break
+      elif key < node.key:
         node = node.left
-      elif key > node.key:
+      else:
         res = node.key
         node = node.right
-      else:
-        break
     return res
 
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
-  def ge(self, key):
+  def ge(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
-      if key < node.key:
-        res = node.key
-        node = node.left
-      elif key > node.key:
-        node = node.right
-      else:
+      if key == node.key:
         res = key
         break
+      elif key < node.key:
+        res = node.key
+        node = node.left
+      else:
+        node = node.right
     return res
 
   '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
-  def gt(self, key):
+  def gt(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
-      if key < node.key:
+      if key == node.key:
+        break
+      elif key < node.key:
         res = node.key
         node = node.left
-      elif key > node.key:
-        node = node.right
       else:
-        break
+        node = node.right
     return res
 
   '''Count the number of elements < key. / O(logN)'''
-  def index(self, key) -> int:
-    indx = 0
+  def index(self, key: T) -> int:
+    k = 0
     node = self.node
-    while node:
-      if key < node.key:
-        node = node.left
-      elif key > node.key:
-        indx += 1 if node.left is None else node.left.size + 1
-        node = node.right
-      else:
-        indx += 0 if node.left is None else node.left.size
+    while node is not None:
+      if key == node.key:
+        k += 0 if node.left is None else node.left.size
         break
-    return indx
+      elif key < node.key:
+        node = node.left
+      else:
+        k += 1 if node.left is None else node.left.size + 1
+        node = node.right
+    return k
 
   '''Count the number of elements <= key. / O(logN)'''
-  def index_right(self, key) -> int:
-    indx = 0
+  def index_right(self, key: T) -> int:
+    k = 0
     node = self.node
-    while node:
-      if key < node.key:
-        node = node.left
-      elif key > node.key:
-        indx += 1 if node.left is None else node.left.size + 1
-        node = node.right
-      else:
-        indx += 1 if node.left is None else node.left.size + 1
+    while node is not None:
+      if key == node.key:
+        k += 1 if node.left is None else node.left.size + 1
         break
-    return indx
+      elif key < node.key:
+        node = node.left
+      else:
+        k += 1 if node.left is None else node.left.size + 1
+        node = node.right
+    return k
 
-  '''Return and Remove max element or a[p]. / O(logN)'''
-  def pop(self, p=-1):
-    if p < 0:
-      p += self.__len__()
-    x = self.__kth_elm(p)
+  def pop(self, k: int=-1) -> T:
+    x = self._kth_elm(k)
     self.discard(x)
     return x
 
-  '''Return and Remove min element. / O(logN)'''
-  def popleft(self):
+  def popleft(self) -> T:
     return self.pop(0)
 
-  def __kth_elm(self, k):
-    if k < 0:
-      k += self.__len__()
-    now = 0
+  def clear(self) -> None:
+    self.node = None
+
+  def to_l(self) -> List[T]:
+    a = []
+    if self.node is None:
+      return a
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)  
+      a.append(node.key)
+      if node.right is not None:
+        rec(node.right)
+    rec(self.node)
+    return a
+
+  def __contains__(self, key: T) -> bool:
     node = self.node
     while node is not None:
-      t = now if node.left is None else now + node.left.size
-      if t < k:
-        now = t + 1
-        node = node.right
-      elif t > k:
-        node = node.left
-      else:
-        return node.key
-    raise IndexError(f'k={k}, len={self.__len__()}')
-
-  def __contains__(self, x):
-    node = self.node
-    while node:
-      if x < node.key:
-        node = node.left
-      elif x > node.key:
-        node = node.right
-      else:
+      if key == node.key:
         return True
+      elif key < node.key:
+        node = node.left
+      else:
+        node = node.right
     return False
 
-  def __getitem__(self, x):
-    return self.__kth_elm(x)
+  def __getitem__(self, k: int) -> T:
+    return self._kth_elm(k)
 
   def __iter__(self):
     self.__iter = 0
@@ -399,9 +407,9 @@ class AVLTreeSet:
   def __bool__(self):
     return self.node is not None
 
-  def __repr__(self):
-    return '{' + ', '.join(map(str, self)) + '}'
-
   def __str__(self):
-    return '{' + ', '.join(map(str, self)) + '}'
+    return '{' + ', '.join(map(str, self.to_l())) + '}'
+
+  def __repr__(self):
+    return 'AVLTreeSet ' + str(self)
 
