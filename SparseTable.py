@@ -1,4 +1,4 @@
-
+# https://github.com/titanium-22/Library/blob/main/SparseTable.py
 
 
 from typing import Generic, TypeVar, Iterable, Callable
