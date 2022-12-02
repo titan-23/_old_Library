@@ -1,8 +1,8 @@
-# https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTree.py
+# https://github.com/titanium-22/Library/blob/main/BST/SplayTree/SplayTreeSet.py
 
 
 import sys
-from typing import Callable, Generic, Tuple, TypeVar, Union, List, Iterable
+from typing import Union, Generic, Iterable, List, TypeVar
 T = TypeVar("T")
 
 
@@ -10,27 +10,24 @@ class Node:
 
   def __init__(self, key) -> None:
     self.key = key
-    self.data = key
     self.size = 1
     self.left = None
     self.right = None
 
   def __str__(self) -> str:
     if self.left is None and self.right is None:
-      return f'key:{self.key, self.data, self.size}\n'
-    return f'key:{self.key, self.data, self.size},\n left:{self.left},\n right:{self.right}\n'
+      return f'key:{self.key, self.size}\n'
+    return f'key:{self.key, self.size},\n left:{self.left},\n right:{self.right}\n'
 
 
-class SplayTree(Generic[T]):
+class SplayTreeSet(Generic[T]):
 
-  def __init__(self, a: Iterable[T]=[], node :Union[Node, None]=None, op: Callable[[T, T], T]=lambda x,y: None, e: T=None) -> None:
-    self.node = node
-    self.op = op
-    self.e = e
+  def __init__(self, a: Iterable[T]=[]) -> None:
+    self.node = None
     if a:
-      self._build(list(a))
- 
-  def _build(self, a: List[T]) -> None:
+      self._build(a)
+
+  def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
       node = Node(a[mid])
@@ -40,23 +37,15 @@ class SplayTree(Generic[T]):
         node.right = sort(mid+1, r)
       self._update(node)
       return node
+    aa = sorted(a)
+    a = [aa[0]]
+    for i in range(1, len(aa)):
+      if aa[i] != a[-1]:
+        a.append(aa[i])
     self.node = sort(0, len(a))
 
   def _update(self, node: Node) -> None:
-    if node.left is None:
-      if node.right is None:
-        node.size = 1
-        node.data = node.key
-      else:
-        node.size = 1 + node.right.size
-        node.data = self.op(node.key, node.right.data)
-    else:
-      if node.right is None:
-        node.size = 1 + node.left.size
-        node.data = self.op(node.left.data, node.key)
-      else:
-        node.size = 1 + node.left.size + node.right.size
-        node.data = self.op(self.op(node.left.data, node.key), node.right.data)
+    node.size = 1 + (0 if node.left is None else node.left.size) + (0 if node.right is None else node.right.size)
 
   def _splay(self, path: List[Node], di: int) -> Node:
     for _ in range(len(path)>>1):
@@ -69,12 +58,18 @@ class SplayTree(Generic[T]):
           tmp.right = node
           pnode.left = node.right
           node.right = pnode
+          self._update(pnode)
+          node.size = 1 + (0 if node.left is None else node.left.size) + pnode.size
+          tmp.size = 1 + (0 if tmp.left is None else tmp.left.size) + node.size
         else:
           tmp = node.right
           node.right = tmp.left
           tmp.left = node
           pnode.right = node.left
           node.left = pnode
+          self._update(pnode)
+          node.size = 1 + pnode.size + (0 if node.right is None else node.right.size)
+          tmp.size = 1 + node.size + (0 if tmp.right is None else tmp.right.size)
       else:
         if di & 1:
           tmp = node.left
@@ -88,9 +83,9 @@ class SplayTree(Generic[T]):
           pnode.left = tmp.right
           tmp.left = node
           tmp.right = pnode
-      self._update(pnode)
-      self._update(node)
-      self._update(tmp)
+        self._update(pnode)
+        self._update(node)
+        tmp.size = 1 + node.size + pnode.size
       if not path:
         return tmp
       di >>= 2
@@ -103,13 +98,40 @@ class SplayTree(Generic[T]):
       node = gnode.left
       gnode.left = node.right
       node.right = gnode
+      self._update(gnode)
+      node.size = 1 + (0 if gnode.left is None else gnode.left.size) + gnode.size
     else:
       node = gnode.right
       gnode.right = node.left
       node.left = gnode
-    self._update(gnode)
-    self._update(node)
+      self._update(gnode)
+      node.size = 1 + gnode.size + (0 if gnode.right is None else gnode.right.size)
     return node
+
+  def _set_search_splay(self, key: T) -> None:
+    node = self.node
+    if node is None or node.key == key:
+      return
+    path = []
+    di = 0
+    while True:
+      if node.key == key:
+        break
+      elif key < node.key:
+        if node.left is None:
+          break
+        path.append(node)
+        di <<= 1
+        di |= 1
+        node = node.left
+      else:
+        if node.right is None:
+          break
+        path.append(node)
+        di <<= 1
+        node = node.right
+    if path:
+      self.node = self._splay(path, di)
 
   def _set_kth_elm_splay(self, k: int) -> None:
     if k < 0:
@@ -153,77 +175,172 @@ class SplayTree(Generic[T]):
       node = node.right
     return self._splay(path, 0)
 
-  def merge(self, other: "SplayTree") -> None:
+  def add(self, key: T) -> bool:
     if self.node is None:
-      self.node = other.node
-      return
-    if other.node is None:
-      return
-    self.node = self._get_max_splay(self.node)
-    self.node.right = other.node
-    self._update(self.node)
-
-  def split(self, p: int) -> Tuple["SplayTree", "SplayTree"]:
-    if p >= self.__len__():
-      return self, SplayTree(op=self.op, e=self.e)
-    self._set_kth_elm_splay(p)
-    left = SplayTree(node=self.node.left, op=self.op, e=self.e)
-    self.node.left, right = None, self
-    self._update(right.node)
-    return left, right
-
-  def prod(self, l: int, r: int) -> T:
-    if l >= r:
-      return self.e
-    left, right = self.split(r)
-    if l == 0:
-      res = left.node.data
+      self.node = Node(key)
+      return True
+    self._set_search_splay(key)
+    if self.node.key == key:
+      return False
+    node = Node(key)
+    if key < self.node.key:
+      node.left = self.node.left
+      node.right = self.node
+      self.node.left = None
+      self._update(node.right)
     else:
-      left._set_kth_elm_splay(l-1)
-      res = left.node.right.data
-    if right.node is None:
-      right.node = left.node
+      node.left = self.node
+      node.right = self.node.right
+      self.node.right = None
+      self._update(node.left)
+    self._update(node)
+    self.node = node
+    return True
+
+  def discard(self, key: T) -> bool:
+    if self.node is None: return False
+    self._set_search_splay(key)
+    if self.node.key != key: return False
+    if self.node.left is None:
+      self.node = self.node.right
+    elif self.node.right is None:
+      self.node = self.node.left
     else:
-      right.node.left = left.node
-      self._update(right.node)
-    self.node = right.node
+      node = self._get_min_splay(self.node.right)
+      node.left = self.node.left
+      self._update(node.left)
+      self.node = node
+    return True
+
+  '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
+  def le(self, key: T) -> Union[T, None]:
+    node = self.node
+    path = []
+    di = 0
+    res = None
+    while node is not None:
+      if node.key == key:
+        res = key
+        break
+      elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        res = node.key
+        node = node.right
+    else:
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
     return res
 
-  def all_prod(self) -> T:
-    return self.e if self.node is None else self.node.data
-
-  def insert(self, k: int, key: T) -> None:
-    node = Node(key)
-    if self.node is None:
-      self.node = node
-      return
-    if k >= self.__len__():
-      self._set_kth_elm_splay(self.__len__()-1)
-      node.left = self.node
-      self.node = node
+  '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
+  def lt(self, key: T) -> Union[T, None]:
+    node = self.node
+    path = []
+    di = 0
+    res = None
+    while node is not None:
+      if node.key == key:
+        break
+      elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        res = node.key
+        node = node.right
     else:
-      self._set_kth_elm_splay(k)
-      if self.node.left is not None:
-        node.left = self.node.left
-        self.node.left = None
-        self._update(self.node)
-      node.right = self.node
-      self.node = node
-    self._update(self.node)
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
+    return res
 
-  def append(self, key: T) -> None:
-    node = self._get_max_splay(self.node)
-    self.node = Node(key)
-    self.node.left = node
-    self._update(self.node)
+  '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
+  def ge(self, key: T) -> Union[T, None]:
+    node = self.node
+    path = []
+    di = 0
+    res = None
+    while node is not None:
+      if node.key == key:
+        res = node.key
+        break
+      elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        res = node.key
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        node = node.right
+    else:
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
+    return res
 
-  def appendleft(self, key: T) -> None:
-    node = self._get_min_splay(self.node)
-    self.node = Node(key)
-    self.node.right = node
-    self._update(self.node)
+  '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
+  def gt(self, key: T) -> Union[T, None]:
+    node = self.node
+    path = []
+    di = 0
+    res = None
+    while node is not None:
+      if node.key == key:
+        break
+      elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        res = node.key
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        node = node.right
+    else:
+      if path:
+        path.pop()
+        di >>= 1
+    if path:
+      self.node = self._splay(path, di)
+    return res
 
-  def pop(self, k: int =-1) -> T:
+  '''Count the number of elements < key. / O(logN)'''
+  def index(self, key: T) -> int:
+    if self.node is None: return 0
+    self._set_search_splay(key)
+    res = 0 if self.node.left is None else self.node.left.size
+    if self.node.key < key:
+      res += 1
+    return res
+
+  '''Count the number of elements <= key. / O(logN)'''
+  def index_right(self, key: T) -> int:
+    if self.node is None: return 0
+    self._set_search_splay(key)
+    res = 0 if self.node.left is None else self.node.left.size
+    if self.node.key <= key:
+      res += 1
+    return res
+
+  def pop(self, k: int=-1) -> T:
     if k == -1:
       node = self._get_max_splay(self.node)
       self.node = node.left
@@ -235,9 +352,10 @@ class SplayTree(Generic[T]):
     elif self.node.right is None:
       self.node = self.node.left
     else:
-      node = self._get_max_splay(self.node.left)
-      node.right, self.node = self.node.right, node
-    self._update(self.node)
+      node = self._get_min_splay(self.node.right)
+      node.left = self.node.left
+      self._update(node)
+      self.node = node
     return res
 
   def popleft(self) -> T:
@@ -245,35 +363,22 @@ class SplayTree(Generic[T]):
     self.node = node.right
     return node.key
 
-  def copy(self) -> "SplayTree":
-    return SplayTree(self.to_l(), op=self.op, e=self.e)
-
   def clear(self) -> None:
     self.node = None
 
   def to_l(self) -> List[T]:
-    a = []
-    if self.node is None:
-      return a
-    if sys.getrecursionlimit() < self.node.size:
-      sys.setrecursionlimit(self.node.size+1)
+    if sys.getrecursionlimit() < self.__len__():
+      sys.setrecursionlimit(self.__len__()+1)
     def rec(node):
       if node.left is not None:
-        rec(node.left)  
+        rec(node.left)
       a.append(node.key)
       if node.right is not None:
         rec(node.right)
-    rec(self.node)
+    a = []
+    if self.node is not None:
+      rec(self.node)
     return a
-
-  def __setitem__(self, k: int, key: T):
-    self._set_kth_elm_splay(k)
-    self.node.key = key
-    self._update(self.node)
-
-  def __getitem__(self, k: int) -> T:
-    self._set_kth_elm_splay(k)
-    return self.node.key
 
   def __iter__(self):
     self.__iter = 0
@@ -290,21 +395,23 @@ class SplayTree(Generic[T]):
     for i in range(self.__len__()):
       yield self.__getitem__(-i-1)
 
+  def __contains__(self, key: T):
+    self._set_search_splay(key)
+    return self.node is not None and self.node.key == key
+
+  def __getitem__(self, k) -> T:
+    self._set_kth_elm_splay(k)
+    return self.node.key
+
   def __len__(self):
     return 0 if self.node is None else self.node.size
-
-  def __str__(self):
-    return '[' + ', '.join(map(str, self.to_l())) + ']'
 
   def __bool__(self):
     return self.node is not None
 
+  def __str__(self):
+    return '{' + ', '.join(map(str, self.to_l())) + '}'
+
   def __repr__(self):
-    return 'SplayTree ' + str(self)
-
-
-def op(s, t):
-  return
-
-e = 0
+    return 'SplayTreeSet ' + str(self)
 
