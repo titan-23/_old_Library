@@ -388,24 +388,6 @@ class AVLTreeSet2(Generic[T]):
         node = node.right
     return False
 
-  def __getitem__(self, k: int) -> T:
-    return self._kth_elm(k)
-
-  def __iter__(self):
-    self.__iter = 0
-    return self
-
-  def __next__(self):
-    if self.__iter == self.__len__():
-      raise StopIteration
-    res = self.__getitem__(self.__iter)
-    self.__iter += 1
-    return res
-
-  def __reversed__(self):
-    for i in range(self.__len__()):
-      yield self.__getitem__(-i-1)
-
   def __bool__(self):
     return self.node is not None
 
