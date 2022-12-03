@@ -33,9 +33,10 @@ class SplayTreeSet(Generic[T]):
       node = Node(a[mid])
       if l != mid:
         node.left = sort(l, mid)
+        node.size += node.left.size
       if mid+1 != r:
         node.right = sort(mid+1, r)
-      self._update(node)
+        node.size += node.right.size
       return node
     aa = sorted(a)
     a = [aa[0]]
@@ -414,4 +415,5 @@ class SplayTreeSet(Generic[T]):
 
   def __repr__(self):
     return 'SplayTreeSet ' + str(self)
+
 
