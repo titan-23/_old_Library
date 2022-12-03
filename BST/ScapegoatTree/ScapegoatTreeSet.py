@@ -32,20 +32,23 @@ class ScapegoatTreeSet(Generic[T]):
  
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Tuple[Node, int]:
-      if l >= r:
-        return None, 0
       mid = (l + r) >> 1
       node = Node(a[mid])
-      node.left, sl = sort(l, mid)
-      node.right, sr = sort(mid+1, r)
-      node.size = sl+sr+1
-      return node, sl+sr+1
-    aa = sorted(a)
-    a = [aa[0]]
-    for i in range(1, len(aa)):
-      if aa[i] != a[-1]:
-        a.append(aa[i])
-    self.node = sort(0, len(a))[0]
+      if l != mid:
+        node.left = sort(l, mid)
+        node.size += node.left.size
+      if mid+1 != r:
+        node.right = sort(mid+1, r)
+        node.size += node.right.size
+      return node
+    a = list(a)
+    if not all(a[i] < a[i + 1] for i in range(len(a) - 1)):
+      aa = sorted(a)
+      a = [aa[0]]
+      for i in range(1, len(aa)):
+        if aa[i] != a[-1]:
+          a.append(aa[i])
+    self.node = sort(0, len(a))
  
   def _rebuild(self, node: Node) -> Node:
     def get(node: Node) -> None:
@@ -55,17 +58,19 @@ class ScapegoatTreeSet(Generic[T]):
       if node.right is not None:
         get(node.right)
     def sort(l: int, r: int) -> Tuple[Node, int]:
-      if l >= r:
-        return None, 0
       mid = (l + r) >> 1
       node = a[mid]
-      node.left, sl = sort(l, mid)
-      node.right, sr = sort(mid+1, r)
-      node.size = sl+sr+1
-      return node, sl+sr+1
+      node.size = 1
+      if l != mid:
+        node.left = sort(l, mid)
+        node.size += node.left.size
+      if mid+1 != r:
+        node.right = sort(mid+1, r)
+        node.size += node.right.size
+      return node
     a = []
     get(node)
-    return sort(0, len(a))[0]
+    return sort(0, len(a))
 
   def add(self, key: T) -> bool:
     node = self.node
@@ -343,5 +348,6 @@ class ScapegoatTreeSet(Generic[T]):
     return '{' + ', '.join(map(str, self.to_l())) + '}'
 
   def __repr__(self):
-    return 'SegmentTree ' + str(self)
+    return 'ScapegoatTreeSet ' + str(self)
+
 
