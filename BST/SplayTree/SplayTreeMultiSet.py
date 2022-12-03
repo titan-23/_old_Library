@@ -478,6 +478,9 @@ class SplayTreeMultiSet(Generic[T]):
   def show(self) -> None:
     print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.to_l_items())) + '}')
 
+  def clear(self) -> None:
+    self.node = None
+
   def __iter__(self):
     self.__iter = 0
     return self
@@ -512,4 +515,5 @@ class SplayTreeMultiSet(Generic[T]):
 
   def __repr__(self):
     return 'SplayTreeMultiSet ' + str(self)
+
 
