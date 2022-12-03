@@ -320,27 +320,12 @@ class SplayTreeSet2(Generic[T]):
       rec(self.node)
     return a
 
-  def __iter__(self):
-    self.__iter = 0
-    return self
-
-  def __next__(self):
-    if self.__iter == self.__len__():
-      raise StopIteration
-    res = self.__getitem__(self.__iter)
-    self.__iter += 1
-    return res
-
-  def __reversed__(self):
-    for i in range(self.__len__()):
-      yield self.__getitem__(-i-1)
-
   def __contains__(self, key: T):
     self._set_search_splay(key)
     return self.node is not None and self.node.key == key
 
   def __len__(self):
-    return 0 if self.node is None else self.node.size
+    return self.len
 
   def __bool__(self):
     return self.node is not None
@@ -350,5 +335,4 @@ class SplayTreeSet2(Generic[T]):
 
   def __repr__(self):
     return 'SplayTreeSet2 ' + str(self)
-
 
