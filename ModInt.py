@@ -5,7 +5,7 @@ from typing import Union
 from functools import lru_cache
 
 
-class ModInt:
+class SubModInt:
   
   # mod = 1000000007
   mod = 998244353
@@ -15,92 +15,82 @@ class ModInt:
   def _truediv(self, a: int, b: int) -> int:
     return a * pow(b, self.mod-2, self.mod) % self.mod
 
-  # キャッシュが当たりそうならデコレータをつける
-  # @classmethod
-  # @lru_cache(maxsize=None)
-  def _generate(self, val: int) -> "ModInt":
-    return ModInt(val)
-
   def __init__(self, val: int) -> None:
     self.val = val if 0 <= val and val <= self.mod else val % self.mod
 
-  def __add__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __add__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val + (other if isinstance(other, int) else other.val)
     if val > self.mod: val -= self.mod
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __sub__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __sub__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val - (other if isinstance(other, int) else other.val)
     if val < 0: val += self.mod
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __mul__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __mul__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val * (other if isinstance(other, int) else other.val)
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __truediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __truediv__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self._truediv(self.val, other) if isinstance(other, int) else self._truediv(self.val, other.val)
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __radd__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __radd__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val + (other if isinstance(other, int) else other.val)
     if val > self.mod: val -= self.mod
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __rsub__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __rsub__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val - (other if isinstance(other, int) else other.val)
     if val < 0: val += self.mod
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __rmul__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __rmul__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self.val * (other if isinstance(other, int) else other.val)
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __rtruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
+  def __rtruediv__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
     val = self._truediv(self.val, other) if isinstance(other, int) else self._truediv(self.val, other.val)
-    return self._generate(val)
+    return SubModInt(val)
 
-  def __iadd__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val += other if isinstance(other, int) else other.val
-    if self.val > self.mod:
-      self.val -= self.mod
-    return self
+  def __iadd__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
+    val = self.val + (other if isinstance(other, int) else other.val)
+    if val > self.mod: val -= self.mod
+    return SubModInt(val)
 
-  def __isub__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val -= other if isinstance(other, int) else other.val
-    if self.val < 0:
-      self.val += self.mod
-    return self
+  def __isub__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
+    val = self.val - (other if isinstance(other, int) else other.val)
+    if val < 0: val += self.mod
+    return SubModInt(val)
 
-  def __imul__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val *= other if isinstance(other, int) else other.val
-    return self
+  def __imul__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
+    val = self.val * (other if isinstance(other, int) else other.val)
+    return SubModInt(val)
 
-  def __itruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val = self._truediv(self.val, other) if isinstance(other, int) else self._truediv(self.val, other.val)
-    self.val %= self.mod
-    return self
+  def __itruediv__(self, other: Union[int, "SubModInt"]) -> "SubModInt":
+    val = self._truediv(self.val, other) if isinstance(other, int) else self._truediv(self.val, other.val)
+    return SubModInt(val)
 
-  def __eq__(self, other: Union[int, "ModInt"]):
+  def __eq__(self, other: Union[int, "SubModInt"]):
     return int(self) == int(other)
 
-  def __lt__(self, other: Union[int, "ModInt"]):
+  def __lt__(self, other: Union[int, "SubModInt"]):
     return int(self) < int(other)
 
-  def __le__(self, other: Union[int, "ModInt"]):
+  def __le__(self, other: Union[int, "SubModInt"]):
     return int(self) <= int(other)
 
-  def __gt__(self, other: Union[int, "ModInt"]):
+  def __gt__(self, other: Union[int, "SubModInt"]):
     return int(self) > int(other)
 
-  def __ge__(self, other: Union[int, "ModInt"]):
+  def __ge__(self, other: Union[int, "SubModInt"]):
     return int(self) >= int(other)
 
-  def __ne__(self, other: Union[int, "ModInt"]):
+  def __ne__(self, other: Union[int, "SubModInt"]):
     return int(self) != int(other)
-
+  
   def __int__(self):
-    a = self.mod_div(100, 10)
     return self.val
 
   def __str__(self):
@@ -108,4 +98,9 @@ class ModInt:
 
   def __repr__(self):
     return str(self)
+
+
+@lru_cache(maxsize=None)
+def ModInt(val: int) -> "SubModInt":
+  return SubModInt(val)
 
