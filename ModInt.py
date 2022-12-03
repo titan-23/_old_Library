@@ -15,6 +15,7 @@ class ModInt:
   def _truediv(self, a: int, b: int) -> int:
     return a * pow(b, self.mod-2, self.mod) % self.mod
 
+  # キャッシュが当たりそうならコメントアウトする
   # @classmethod
   # @lru_cache(maxsize=None)
   def _generate(self, val: int) -> "ModInt":
