@@ -12,7 +12,7 @@ class ModInt:
 
   @classmethod
   @lru_cache(maxsize=None)
-  def _rev(self, a: int) -> int:
+  def _inv(self, a: int) -> int:
     return pow(a, self.mod-2, self.mod)
 
   def __init__(self, val: int) -> None:
@@ -33,7 +33,7 @@ class ModInt:
     return ModInt(val)
 
   def __truediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    val = self.val*self._rev(other) if isinstance(other, int) else self.val*self._rev(other.val)
+    val = self.val*self._inv(other) if isinstance(other, int) else self.val*self._inv(other.val)
     return ModInt(val)
 
   def __radd__(self, other: Union[int, "ModInt"]) -> "ModInt":
@@ -51,7 +51,7 @@ class ModInt:
     return ModInt(val)
 
   def __rtruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    val = self.val*self._rev(other) if isinstance(other, int) else self.val*self._rev(other.val)
+    val = self.val*self._inv(other) if isinstance(other, int) else self.val*self._inv(other.val)
     return ModInt(val)
 
   def __iadd__(self, other: Union[int, "ModInt"]) -> "ModInt":
@@ -70,7 +70,7 @@ class ModInt:
     return self
 
   def __itruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val *= self._rev(other) if isinstance(other, int) else self._rev(other.val)
+    self.val *= self._inv(other) if isinstance(other, int) else self._inv(other.val)
     self.val %= self.mod
     return self
 
