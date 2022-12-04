@@ -55,24 +55,22 @@ class ModInt:
     return ModInt(val)
 
   def __iadd__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val += other if isinstance(other, int) else other.val
-    if self.val > self.mod: self.val -= self.mod
-    return self
+    val = self.val + (other if isinstance(other, int) else other.val)
+    if val > self.mod: val -= self.mod
+    return ModInt(val)
 
   def __isub__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val -= other if isinstance(other, int) else other.val
-    if self.val < 0: self.val -= self.mod
-    return self
+    val = self.val - (other if isinstance(other, int) else other.val)
+    if val < 0: val -= self.mod
+    return ModInt(val)
 
   def __imul__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val *= other if isinstance(other, int) else other.val
-    self.val %= self.mod
-    return self
+    val = self.val * (other if isinstance(other, int) else other.val)
+    return ModInt(val)
 
   def __itruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    self.val *= self._inv(other) if isinstance(other, int) else self._inv(other.val)
-    self.val %= self.mod
-    return self
+    val = self.val * (self._inv(other) if isinstance(other, int) else self._inv(other.val))
+    return ModInt(val)
 
   def __eq__(self, other: Union[int, "ModInt"]):
     return int(self) == int(other)
