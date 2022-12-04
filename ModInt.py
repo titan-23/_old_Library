@@ -12,7 +12,7 @@ class ModInt:
 
   @classmethod
   @lru_cache(maxsize=None)
-  def _rev(self, a) -> int:
+  def _rev(self, a: int) -> int:
     return pow(a, self.mod-2, self.mod)
 
   def __init__(self, val: int) -> None:
@@ -100,5 +100,4 @@ class ModInt:
 
   def __repr__(self):
     return str(self)
-
 
