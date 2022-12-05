@@ -1,4 +1,4 @@
-# https://github.com/titanium-22/Library/blob/main/ModInt.py
+# https://github.com/titanium-22/Library/blob/main/Math/ModInt.py
 
 
 from typing import Union
