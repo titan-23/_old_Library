@@ -27,18 +27,18 @@ class SegmentTree(Generic[T]):
         self._data[i] = self._op(self._data[i<<1], self._data[i<<1|1])
 
   '''Change a[p] into x. / O(logN)'''
-  def set(self, key: int, val: T) -> None:
-    assert 0 <= key < self._n
-    key += self._size
-    self._data[key] = val
+  def set(self, k: int, val: T) -> None:
+    assert 0 <= k < self._n
+    k += self._size
+    self._data[k] = val
     for _ in range(self._log):
-      key >>= 1
-      self._data[key] = self._op(self._data[key<<1], self._data[key<<1|1])
+      k >>= 1
+      self._data[k] = self._op(self._data[k<<1], self._data[k<<1|1])
 
-  '''Return a[key]. / O(1)'''
-  def get(self, key: int) -> T:
-    assert 0 <= key < self._n
-    return self._data[key+self._size]
+  '''Return a[k]. / O(1)'''
+  def get(self, k: int) -> T:
+    assert 0 <= k < self._n
+    return self._data[k+self._size]
 
   '''Return op([l, r)). / O(logN)'''
   def prod(self, l: int, r: int) -> T:
@@ -114,11 +114,11 @@ class SegmentTree(Generic[T]):
   def show(self) -> None:
     print('<SegmentTree> [\n' + '\n'.join(['  ' + ' '.join(map(str, [self._data[(1<<i)+j] for j in range(1<<i)])) for i in range(self._log+1)]) + '\n]')
 
-  def __getitem__(self, key: int) -> T:
-    return self.get(key)
+  def __getitem__(self, k: int) -> T:
+    return self.get(k)
 
-  def __setitem__(self, key: int, val: T) -> None:
-    self.set(key, val)
+  def __setitem__(self, k: int, val: T) -> None:
+    self.set(k, val)
 
   def __str__(self) -> str:
     return '[' + ', '.join(map(str, [self.get(i) for i in range(self._n)])) + ']'
@@ -131,4 +131,3 @@ def op(s, t):
   return
  
 e = None
-
