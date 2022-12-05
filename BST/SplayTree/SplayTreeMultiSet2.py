@@ -311,16 +311,14 @@ class SplayTreeMultiSet2(Generic[T]):
       self.node = self._splay(path, di)
     return res
 
-  '''Return and Remove max element or a[p]. / O(logN)'''
   def pop(self) -> T:
-    self._get_max_splay()
+    self.node = self._get_max_splay(self.node)
     res = self.node.key
     self.discard(res)
     return res
 
-  '''Return and Remove min element. / O(logN)'''
   def popleft(self) -> T:
-    self._get_max_splay()
+    self.node = self._get_min_splay(self.node)
     res = self.node.key
     self.discard(res)
     return res
