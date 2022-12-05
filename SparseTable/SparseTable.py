@@ -1,4 +1,4 @@
-# https://github.com/titanium-22/Library/blob/main/SparseTable.py
+# https://github.com/titanium-22/Library/blob/main/SparseTable/SparseTable.py
 
 
 from typing import Generic, TypeVar, Iterable, Callable
@@ -20,11 +20,13 @@ class SparseTable(Generic[T]):
     self.e = e
 
   def prod(self, l: int, r: int) -> T:
+    assert 0 <= l <= r <= self.size
     if l == r: return self.e
     u = (r-l).bit_length()-1
     return self.op(self.data[u][l], self.data[u][r-(1<<u)])
 
   def __getitem__(self, k: int) -> T:
+    assert 0 <= k < self.size
     return self.data[0][k]
 
   def __str__(self):
@@ -32,5 +34,4 @@ class SparseTable(Generic[T]):
 
   def __repr__(self):
     return 'SparseTable ' + str(self)
-
 
