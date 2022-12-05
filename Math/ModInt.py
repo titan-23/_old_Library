@@ -33,7 +33,7 @@ class ModInt:
     return ModInt(val)
 
   def __truediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    val = self.val*self._inv(other) if isinstance(other, int) else self.val*self._inv(other.val)
+    val = self.val * (self._inv(other) if isinstance(other, int) else self._inv(other.val))
     return ModInt(val)
 
   def __radd__(self, other: Union[int, "ModInt"]) -> "ModInt":
@@ -51,7 +51,7 @@ class ModInt:
     return ModInt(val)
 
   def __rtruediv__(self, other: Union[int, "ModInt"]) -> "ModInt":
-    val = self.val*self._inv(other) if isinstance(other, int) else self.val*self._inv(other.val)
+    val = self.val * (self._inv(other) if isinstance(other, int) else self._inv(other.val))
     return ModInt(val)
 
   def __iadd__(self, other: Union[int, "ModInt"]) -> "ModInt":
