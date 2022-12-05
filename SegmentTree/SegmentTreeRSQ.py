@@ -1,11 +1,10 @@
 # https://github.com/titanium-22/Library/blob/main/SegmentTree/SegmentTreeRSQ.py
 
 
-from typing import Generic, Iterable, TypeVar, Callable, Union
+from typing import Generic, Iterable, TypeVar, Union
 T = TypeVar("T")
 
 
-# RangeSumQuery.
 class SegmentTreeRSQ(Generic[T]):
 
   '''Build a new SegmentTree. / O(N)'''
@@ -40,12 +39,6 @@ class SegmentTreeRSQ(Generic[T]):
     assert 0 <= k < self._n
     return self._data[k+self._size]
 
-  def __getitem__(self, k: int):
-    return self.get(k)
-
-  def __setitem__(self, k: int, key):
-    self.set(k, key)
-
   '''Return op([l, r)). / 0 <= l <= r <= n / O(logN)'''
   def prod(self, l: int, r: int):
     assert 0 <= l <= r <= self._n
@@ -67,11 +60,10 @@ class SegmentTreeRSQ(Generic[T]):
   def all_prod(self):
     return self._data[1]
 
-  '''Find the largest index R: f([l, R)) == True. / O(logN)'''
+  '''Find the largest index R s.t. f([l, R)) == True. / O(logN)'''
   def max_right(self, l: int, f=lambda lr: lr):
-    # f(seg.prod(l, r)) == True 区間[l, r)が満たして欲しい条件
-    assert 0 <= l <= self._n
-    assert f(0)
+    # assert 0 <= l <= self._n
+    # assert f(self._e)
     if l == self._n:
       return self._n 
     l += self._size
@@ -92,10 +84,10 @@ class SegmentTreeRSQ(Generic[T]):
         break
     return self._n
 
-  '''Find the smallest index L: f([L, r)) == True. / O(logN)'''
+  '''Find the smallest index L s.t. f([L, r)) == True. / O(logN)'''
   def min_left(self, r: int, f=lambda lr: lr):
-    assert 0 <= r <= self._n 
-    assert f(0)
+    # assert 0 <= r <= self._n 
+    # assert f(self._e)
     if r == 0:
       return 0 
     r += self._size
@@ -116,15 +108,18 @@ class SegmentTreeRSQ(Generic[T]):
         break 
     return 0
 
+  '''Debug. / O(N)'''
+  def show(self) -> None:
+    print('<SegmentTreeRSQ> [\n' + '\n'.join(['  ' + ' '.join(map(str, [self._data[(1<<i)+j] for j in range(1<<i)])) for i in range(self._log+1)]) + '\n]')
+
+  def __getitem__(self, k: int):
+    return self.get(k)
+
+  def __setitem__(self, k: int, key):
+    self.set(k, key)
+
   def __str__(self):
     return '[' + ', '.join(map(str, [self.get(i) for i in range(self._n)])) + ']'
 
-  def show(self):
-    ret = []
-    for i in range(self._log+1):
-      tmp = [' ']
-      for j in range(1<<i):
-        tmp.append(self._data[1<<i+j])
-      ret.append(' '.join(map(str, tmp)))
-    print('<SegmentTreeRSQ> [\n' + '\n'.join(map(str, ret)) + '\n]')
-
+  def __repr__(self):
+    return 'SegmentTreeRSQ ' + str(self)
