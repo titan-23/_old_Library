@@ -1,4 +1,4 @@
-# https://github.com/titanium-22/Library/blob/main/LazyQuadraticDivision.py
+# https://github.com/titanium-22/Library/blob/main/QuadraticDivision/LazyQuadraticDivision.py
 
 
 from functools import reduce
