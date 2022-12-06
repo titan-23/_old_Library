@@ -351,14 +351,14 @@ class AVLTreeSet2(Generic[T]):
 
   def get_min(self) -> T:
     node = self.node
-    while node.right is not None:
-      node = node.right
+    while node.left is not None:
+      node = node.left
     res = node.key
 
   def get_max(self) -> T:
     node = self.node
-    while node.left is not None:
-      node = node.left
+    while node.right is not None:
+      node = node.right
     res = node.key
 
   def clear(self) -> None:
