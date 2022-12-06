@@ -401,6 +401,18 @@ class AVLTreeMultiSet2(Generic[T]):
           break
     return res
 
+  def get_min(self) -> T:
+    node = self.node
+    while node.left is not None:
+      node = node.left
+    res = node.key
+
+  def get_max(self) -> T:
+    node = self.node
+    while node.right is not None:
+      node = node.right
+    res = node.key
+
   def len_elm(self) -> int:
     return self._len_elm
 
