@@ -323,6 +323,14 @@ class SplayTreeMultiSet2(Generic[T]):
     self.discard(res)
     return res
 
+  def get_min(self) -> T:
+    node = self._get_min_splay(self.node)
+    return self.node
+ 
+  def get_max(self) -> T:
+    node = self._get_max_splay(self.node)
+    return self.node
+
   def to_l(self) -> List[T]:
     a = []
     if self.node is None:
