@@ -9,21 +9,21 @@ class ModComb:
     self._factinv = [1, 1]
     self._inv = [0, 1]
     self._limit = limit
-    for i in range(2, self.limit+1):
+    for i in range(2, self._limit+1):
       self._fact.append(self._fact[-1]*i % self._mod)
       self._inv.append((-self._inv[self._mod%i] * (self._mod//i)) % self._mod)
       self._factinv.append(self._factinv[-1] * self._inv[-1] % self._mod)
 
   def ncr(self, n: int, r: int) -> int:
     '''Return (nCr % mod)'''
-    if r < 0 or n < r:
-      return 0
-    if n > self.limit:
-      return self.ncr_2(n, r)
+    if r < 0 or n < r: return 0
     return self._fact[n] * self._factinv[r] * self._factinv[n - r] % self._mod
 
-  def ncr_2(self, n: int, r: int):
-    def div_mod(self, a: int, b: int) -> int:
+  def nhr(self, n: int, r: int) -> int:
+    return self.ncr(n+r-1, n-1)
+
+  def ncr2(self, n: int, r: int) -> int:
+    def div_mod(a: int, b: int) -> int:
       if a%b == 0:
         return a // b
       return a * pow(b, self._mod-2, self._mod) % self._mod
@@ -36,3 +36,4 @@ class ModComb:
     for i in range(1, r+1):
       ret = div_mod(ret, i)
     return ret
+
