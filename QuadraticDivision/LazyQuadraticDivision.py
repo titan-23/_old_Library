@@ -2,14 +2,14 @@
 
 
 from functools import reduce
-from typing import Union, List, Callable, TypeVar, Generic
+from typing import Union, List, Callable, TypeVar, Generic, Iterable
 T = TypeVar("T")
 F = TypeVar("F")
 
 
 class LazyQuadraticDivision(Generic[T, F]):
 
-  def __init__(self, n_or_a: Union[int, List], op, mapping, composition, e):
+  def __init__(self, n_or_a: Union[int, Iterable[T]], op: Callable[[T, T], T], mapping: Callable[[F, T], T], composition: Callable[[F, F], F], e: T):
     if isinstance(n_or_a, int):
       self.n = n_or_a
       a = [e] * self.n
@@ -48,8 +48,11 @@ class LazyQuadraticDivision(Generic[T, F]):
         else:
           _change_data(k1, l, len(self.data[k1]))
 
-      self.bucket_lazy[k1+1:k2] = [f if bl is None else self.composition(f, bl) for bl in self.bucket_lazy[k1+1:k2]]
-      self.bucket_data[k1+1:k2] = [self.mapping(f, bd) for bd in self.bucket_data[k1+1:k2]]
+      for i in range(k1+1, k2):
+        self.bucket_lazy[i] = f if self.bucket_lazy[i] is None else self.composition(f, self.bucket_lazy[i])
+        self.bucket_data[i] = self.mapping(f, self.bucket_data[i])
+      # self.bucket_lazy[k1+1:k2] = [f if bl is None else self.composition(f, bl) for bl in self.bucket_lazy[k1+1:k2]]
+      # self.bucket_data[k1+1:k2] = [self.mapping(f, bd) for bd in self.bucket_data[k1+1:k2]]
 
       if k2 < self.bucket_cnt:
         if r == len(self.data[k2]):
@@ -119,4 +122,3 @@ def composition(f, g):
   return
  
 e = None
-
