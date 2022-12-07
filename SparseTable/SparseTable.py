@@ -10,10 +10,9 @@ class SparseTable(Generic[T]):
   def __init__(self, a: Iterable[T], op: Callable[[T, T], T], e: T=None) -> None:
     a = list(a)
     self.size = len(a)
-    log = self.size.bit_length()
-    self.data = [None] * log
-    self.data[0] = a
-    for i in range(log-1):
+    log = self.size.bit_length()-1
+    self.data = [a] + [None] * log
+    for i in range(log):
       pre = self.data[i]
       l = 1 << i
       self.data[i+1] = [op(pre[j], pre[j+l]) for j in range(len(pre)-l)]
@@ -35,4 +34,3 @@ class SparseTable(Generic[T]):
 
   def __repr__(self):
     return 'SparseTable ' + str(self)
-
