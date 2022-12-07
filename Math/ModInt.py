@@ -13,10 +13,10 @@ class mint:
   @classmethod
   @lru_cache(maxsize=None)
   def _inv(self, a: int) -> int:
-    return pow(a, self.mod-2, self.mod)
+    return pow(a, mint.mod-2, mint.mod)
 
   def __init__(self, val: int) -> None:
-    self.val = val % self.mod
+    self.val = val % mint.mod
 
   def __add__(self, other: Union[int, "mint"]) -> "mint":
     return mint(self.val + (other if isinstance(other, int) else other.val))
