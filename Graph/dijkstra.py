@@ -1,4 +1,4 @@
-https://github.com/titanium-22/Library/tree/main/Graph/dijkstra.py
+# https://github.com/titanium-22/Library/tree/main/Graph/dijkstra.py
 
 
 from typing import List, Tuple
@@ -42,3 +42,4 @@ def dijkstra_path(G: List[List[int]], s: int, t: int) -> Tuple[List[int], List[i
     t = prev[t]
   path.append(t)
   return path[::-1], d
+
