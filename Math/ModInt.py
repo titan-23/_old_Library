@@ -55,22 +55,22 @@ class mint:
     return mint(self.val * (self._inv(other) if isinstance(other, int) else self._inv(other.val)))
 
   def __eq__(self, other: Union[int, "mint"]):
-    return int(self) == int(other)
+    return self.val == int(other)
 
   def __lt__(self, other: Union[int, "mint"]):
-    return int(self) < int(other)
+    return self.val < int(other)
 
   def __le__(self, other: Union[int, "mint"]):
-    return int(self) <= int(other)
+    return self.val <= int(other)
 
   def __gt__(self, other: Union[int, "mint"]):
-    return int(self) > int(other)
+    return self.val > int(other)
 
   def __ge__(self, other: Union[int, "mint"]):
-    return int(self) >= int(other)
+    return self.val >= int(other)
 
   def __ne__(self, other: Union[int, "mint"]):
-    return int(self) != int(other)
+    return self.val != int(other)
   
   def __int__(self):
     return self.val
