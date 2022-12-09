@@ -17,10 +17,10 @@ nをintにすると、n個のeからなる配列でLazyQuadraticDivisionを構�
 ### ```qd.all_apply(f)```
 区間[0, N)にfを適用します。時間計算量O(√N)です。
 
-### ```qd[indx]```
-indx番目を取得できます。時間計算量O(√N)です。
+### ```qd[k]```
+k番目を取得できます。時間計算量O(√N)です。
 
-### ```qd[indx] = key```
+### ```qd[k] = key```
 setitemできます。時間計算量O(√N)です。
 
 ### ```qd.prod(l, r)```
