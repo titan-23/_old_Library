@@ -71,7 +71,13 @@ class mint:
 
   def __ne__(self, other: Union[int, "mint"]):
     return self.val != int(other)
-  
+
+  def __neg__(self):
+    return mint(-self.val + mint.mod)
+
+  def __pos__(self):
+    return mint(self.val)
+
   def __int__(self):
     return self.val
 
@@ -80,4 +86,5 @@ class mint:
 
   def __repr__(self):
     return str(self)
+
 
