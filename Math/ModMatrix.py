@@ -19,7 +19,7 @@ class ModMatrix:
   
   @classmethod
   def identity(self, n: int) -> "ModMatrix":
-    a = self.zeros(n, n)
+    a = [[0]*n for _ in range(n)]
     for i in range(n):
       a[i][i] = 1
     return ModMatrix(a, _exter=False)
@@ -96,7 +96,10 @@ class ModMatrix:
     return ModMatrix(r, _exter=False)
 
   @classmethod
-  def linear_equations(self, A: "ModMatrix", b: "ModMatrix"):
+  def linear_equations(self, A: "ModMatrix", b: "ModMatrix", inplace=False):
+    # A_inv = A.inv(inplace=inplace)
+    # res = A_inv @ b
+    # return res
     pass
 
   def __add__(self, other: Union[int, "ModMatrix"]) -> "ModMatrix":
@@ -183,7 +186,7 @@ class ModMatrix:
 
   def __pow__(self, n: int) -> "ModMatrix":
     assert self.n == self.m
-    res = ModMatrix.identity(n)
+    res = ModMatrix.identity(self.n)
     a = ModMatrix([a[:] for a in self.a], _exter=False)
     while n > 0:
       if n & 1 == 1:
@@ -284,7 +287,7 @@ class ModMatrix:
 
   def __ipow__(self, n: int) -> "ModMatrix":
     assert self.n == self.m
-    res = ModMatrix.identity(n)
+    res = ModMatrix.identity(self.n)
     while n > 0:
       if n & 1 == 1:
         res @= self
@@ -304,6 +307,14 @@ class ModMatrix:
     assert 0 <= n < self.n and 0 <= m < self.m
     self.a[n][m] = key % ModMatrix.mod
 
+  def to_l(self):
+    return [a[:] for a in self.a]
+
+  def show(self):
+    for a in self.a:
+      print(*a)
+    print()
+
   def __iter__(self):
     self.__iter = 0
     return self
@@ -316,5 +327,4 @@ class ModMatrix:
 
   def __str__(self):
     return str(self.a)
-
 
