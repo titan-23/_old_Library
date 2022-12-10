@@ -18,7 +18,6 @@ def dijkstra(G: List[List[int]], s: int) -> List[int]:
         heappush(hq, (d + c, x))
   return dist
 
-
 '''Return (path: from s to t, dist: from s)'''
 def dijkstra_path(G: List[List[int]], s: int, t: int) -> Tuple[List[int], List[int]]:
   prev = [-1] * len(G)
@@ -34,12 +33,11 @@ def dijkstra_path(G: List[List[int]], s: int, t: int) -> Tuple[List[int], List[i
         prev[x] = v
         heappush(hq, (d + c, x))
   if dist[t] == inf:
-    return [], inf
+    return [], dist
   path = []
   d = dist[t]
   while prev[t] != -1:
     path.append(t)
     t = prev[t]
   path.append(t)
-  return path[::-1], d
-
+  return path[::-1], dist
