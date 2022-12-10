@@ -37,14 +37,15 @@ $\mathsf{k}$ 番目の値を $\mathsf{key}$ に変更します。
 _____
 # [QuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/QuadraticDivision.py)
 
-区間の総積取得クエリを時間計算量 $\mathcal{O}(\sqrt{N})$ で処理できるデータ構造です。計算量が $\mathcal{O}(\sqrt{N})$ になった普通のセグ木ともみなせます。  定数倍が軽いのでそこまで遅くはないはずです。  
+区間の総積取得クエリを時間計算量 $\mathcal{O}(\sqrt{N})$ で処理できるデータ構造です。計算量が $\mathcal{O}(\sqrt{N})$ になった普通のセグ木ともみなせます。  
+遅延評価の処理を必要としないため、[LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/QuadraticDivision.py)より定数倍が軽いです。  
 以下、計算量を明示していないものは計算量 $\mathcal{O}(\sqrt{N})$ とします。  
 
 
 ### ```qd = QuadraticDivision(n_or_a: Iterable[T], op: Callable[[T, T], T], e: T)```
 列 $\mathsf{a}$ から $\mathsf{QuadraticDivision}$ を構築します。その他引数はセグ木のアレです。
 $\mathsf{n}$ の型を $\mathsf{int}$ にすると、 $\mathsf{n}$ 個の $\mathsf{e}$ からなる配列で $\mathsf{QuadraticDivision}$ を構築します。  
-遅延評価の処理を必要としないため、[LazyQuadraticDivision](https://github.com/titanium-22/Library/blob/main/QuadraticDivision/QuadraticDivision.py)より定数倍が軽いです。  
+
 計算量 $\mathcal{O}(N)$ です。
 
 ### ```その他メソッド```
