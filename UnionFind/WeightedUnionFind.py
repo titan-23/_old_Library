@@ -28,12 +28,12 @@ class WeightedUnionFind:
     return a
 
   '''Untie x and y, weight[y] = weight[x] + w. / O(α(N))'''
-  def unite(self, x: int, y: int, w: int) -> None:
+  def unite(self, x: int, y: int, w: int) -> int:
     rx = self.root(x)
     ry = self.root(y)
     w += self._weight[x] - self._weight[y]
     if rx == ry:
-      return
+      return rx
     self._G[rx].append(ry)
     self._G[ry].append(rx)
     self._group_numbers -= 1
@@ -43,6 +43,7 @@ class WeightedUnionFind:
     self._parents[rx] += self._parents[ry]
     self._parents[ry] = rx
     self._weight[ry] = w
+    return rx
 
   '''Return xが属する集合の要素数. / O(α(N))'''
   def size(self, x: int) -> int:
@@ -95,5 +96,4 @@ class WeightedUnionFind:
 
   def __str__(self) -> str:
     return '<WeightedUnionFind> [\n' + '\n'.join(f'  {k}: {v}' for k, v in self.all_group_members().items()) + '\n]'
-
 
