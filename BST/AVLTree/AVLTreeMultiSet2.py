@@ -1,6 +1,7 @@
 # https://github.com/titanium-22/Library/blob/main/BST/AVLTree/AvlTreeMultiSet2.py
 
 
+import re
 from typing import Generic, Iterable, Tuple, TypeVar, Union, List
 T = TypeVar("T")
 
@@ -119,7 +120,7 @@ class AVLTreeMultiSet2(Generic[T]):
     self._update_balance(D)
     return D
 
-  def _discard(self, key) -> bool:
+  def _discard(self, key: T) -> bool:
     path = []
     di = 0
     node = self.node
@@ -150,7 +151,7 @@ class AVLTreeMultiSet2(Generic[T]):
       node = lmax
     cnode = node.right if node.left is None else node.left
     if path:
-      if di & 1:
+      if di & 1 == 1:
         path[-1].left = cnode
       else:
         path[-1].right = cnode
@@ -160,7 +161,7 @@ class AVLTreeMultiSet2(Generic[T]):
     while path:
       new_node = None
       pnode = path.pop()
-      pnode.balance -= 1 if di & 1 else -1
+      pnode.balance -= 1 if di & 1 == 1 else -1
       di >>= 1
       if pnode.balance == 2:
         new_node = self._rotate_LR(pnode) if pnode.left.balance < 0 else self._rotate_L(pnode)
@@ -180,7 +181,11 @@ class AVLTreeMultiSet2(Generic[T]):
           break
     return True
 
-  def discard(self, key, val=1) -> bool:
+  def remove(self, key: T, val: int=1) -> None:
+    if not self.discard(key, val):
+      raise KeyError(key)
+
+  def discard(self, key: T, val: int=1) -> bool:
     path = []
     node = self.node
     while node is not None:
@@ -193,7 +198,7 @@ class AVLTreeMultiSet2(Generic[T]):
         node = node.right
     else:
       return False
-    self.lene -= val if val < node.val else node.val
+    self._len -= val if val < node.val else node.val
     if val > node.val:
       val = node.val - 1
       node.val -= val
@@ -204,10 +209,10 @@ class AVLTreeMultiSet2(Generic[T]):
       node.val -= val
     return True
 
-  def discard_all(self, key) -> None:
+  def discard_all(self, key: T) -> None:
     self.discard(key, self.count(key))
 
-  def add(self, key, val=1) -> None:
+  def add(self, key: T, val: int=1) -> None:
     self._len += val
     if self.node is None:
       self._len_elm += 1
@@ -230,14 +235,14 @@ class AVLTreeMultiSet2(Generic[T]):
         di <<= 1
         pnode = pnode.right
     self._len_elm += 1
-    if di & 1:
+    if di & 1 == 1:
       path[-1].left = Node(key, val)
     else:
       path[-1].right = Node(key, val)
     new_node = None
-    while path:
+    for _ in range(len(path)):
       pnode = path.pop()
-      pnode.balance += 1 if di & 1 else -1
+      pnode.balance += 1 if di & 1 == 1 else -1
       di >>= 1
       if pnode.balance == 0:
         break
@@ -245,11 +250,11 @@ class AVLTreeMultiSet2(Generic[T]):
         new_node = self._rotate_LR(pnode) if pnode.left.balance < 0 else self._rotate_L(pnode)
         break
       elif pnode.balance == -2:
-        new_node = self._rotate_RL(pnode) if pnode.right.balance> 0 else self._rotate_R(pnode)
+        new_node = self._rotate_RL(pnode) if pnode.right.balance > 0 else self._rotate_R(pnode)
         break
     if new_node is not None:
       if path:
-        if di & 1:
+        if di & 1 == 1:
           path[-1].left = new_node
         else:
           path[-1].right = new_node
@@ -257,7 +262,7 @@ class AVLTreeMultiSet2(Generic[T]):
         self.node = new_node
     return
 
-  def count(self, key) -> int:
+  def count(self, key: T) -> int:
     node = self.node
     while node is not None:
       if node.key == key:
@@ -350,8 +355,6 @@ class AVLTreeMultiSet2(Generic[T]):
       pnode.balance += 1
       if pnode.balance == 2:
         new_node = self._rotate_LR(pnode) if pnode.left.balance == -1 else self._rotate_L(pnode)
-      elif pnode.balance == -2:
-        new_node = self._rotate_RL(pnode) if pnode.right.balance == 1 else self._rotate_R(pnode)
       elif pnode.balance != 0:
         break
       if new_node is not None:
@@ -385,9 +388,7 @@ class AVLTreeMultiSet2(Generic[T]):
       new_node = None
       pnode = path.pop()
       pnode.balance -= 1
-      if pnode.balance == 2:
-        new_node = self._rotate_LR(pnode) if pnode.left.balance == -1 else self._rotate_L(pnode)
-      elif pnode.balance == -2:
+      if pnode.balance == -2:
         new_node = self._rotate_RL(pnode) if pnode.right.balance == 1 else self._rotate_R(pnode)
       elif pnode.balance != 0:
         break
@@ -418,9 +419,6 @@ class AVLTreeMultiSet2(Generic[T]):
   def show(self) -> None:
     print('{' + ', '.join(map(lambda x: f'{x[0]}: {x[1]}', self.to_l_items())) + '}')
 
-  def get_elm(self, k: int) -> T:
-    return self._kth_elm_tree(k)[0]
-
   def to_l(self) -> List[T]:
     a = []
     if self.node is None:
@@ -447,7 +445,7 @@ class AVLTreeMultiSet2(Generic[T]):
     rec(self.node)
     return a
 
-  def __contains__(self, key):
+  def __contains__(self, key: T):
     node = self.node
     while node:
       if node.key == key:
