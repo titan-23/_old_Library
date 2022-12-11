@@ -193,7 +193,7 @@ class AVLTreeMultiSet2(Generic[T]):
         node = node.right
     else:
       return False
-    self._len -= min(val, node.val)
+    self.lene -= val if val < node.val else node.val
     if val > node.val:
       val = node.val - 1
       node.val -= val
@@ -206,7 +206,6 @@ class AVLTreeMultiSet2(Generic[T]):
 
   def discard_all(self, key) -> None:
     self.discard(key, self.count(key))
-    return
 
   def add(self, key, val=1) -> None:
     self._len += val
@@ -405,13 +404,13 @@ class AVLTreeMultiSet2(Generic[T]):
     node = self.node
     while node.left is not None:
       node = node.left
-    res = node.key
+    return node.key
 
   def get_max(self) -> T:
     node = self.node
     while node.right is not None:
       node = node.right
-    res = node.key
+    return node.key
 
   def len_elm(self) -> int:
     return self._len_elm
@@ -459,15 +458,23 @@ class AVLTreeMultiSet2(Generic[T]):
         node = node.right
     return False
 
+  def __getitem__(self, k):  # 先頭と末尾しか対応していない
+    if k == -1 or k == self._len-1:
+      return self.get_max()
+    elif k == 0:
+      return self.get_min()
+    raise IndexError
+
   def __len__(self):
     return self._len
 
   def __bool__(self):
-    return True if self.node is not None else False
+    return self.node is not None
 
   def __str__(self):
     return '{' + ', '.join(map(str, self.to_l())) + '}'
 
   def __repr__(self):
     return 'AVLTreeMultiSet2 ' + str(self)
+
 
