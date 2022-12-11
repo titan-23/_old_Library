@@ -190,24 +190,8 @@ class AVLTreeMultiSet(Generic[T]):
         node = node.right
         k -= t + 1
 
-  def _discard(self, key) -> bool:
-    path = []
-    di = 0
+  def _discard(self, node: Node, path: List[Node], di: int) -> bool:
     fdi = 0
-    node = self.node
-    while node is not None:
-      if key == node.key:
-        break
-      elif key < node.key:
-        path.append(node)
-        di <<= 1
-        di |= 1
-        node = node.left
-      else:
-        path.append(node)
-        di <<= 1
-        node = node.right
-
     if node.left is not None and node.right is not None:
       path.append(node)
       di <<= 1
@@ -271,26 +255,34 @@ class AVLTreeMultiSet(Generic[T]):
 
   def discard(self, key, val=1) -> bool:
     path = []
+    di = 0
     node = self.node
     while node is not None:
-      path.append(node)
       if key == node.key:
         break
       elif key < node.key:
+        path.append(node)
+        di <<= 1
+        di |= 1
         node = node.left
       else:
+        path.append(node)
+        di <<= 1
         node = node.right
     else:
       return False
+
     if val > node.val:
       val = node.val - 1
       node.val -= val
+      node.valsize -= val
       for p in path:
         p.valsize -= val
     if node.val == 1:
-      self._discard(key)
+      self._discard(node, path, di)
     else:
       node.val -= val
+      node.valsize -= val
       for p in path:
         p.valsize -= val
     return True
@@ -486,12 +478,62 @@ class AVLTreeMultiSet(Generic[T]):
     return k
 
   def pop(self, k: int=-1) -> T:
-    x = self._kth_elm(k)[0]
-    self.discard(x)
+    if k < 0: k += self.node.valsize
+    node = self.node
+    path = []
+    if k == self.node.valsize-1:
+      while node.right is not None:
+        path.append(node)
+        node = node.right
+      x = node.key
+      if node.val == 1:
+        self._discard(node, path, 0)
+      else:
+        node.val -= 1
+        node.valsize -= 1
+        for p in path:
+          p.valsize -= 1
+      return x
+    di = 0
+    while True:
+      t = node.val if node.left is None else node.val + node.left.valsize
+      if t-node.val <= k < t:
+        x = node.key
+        break
+      elif t > k:
+        path.append(node)
+        di <<= 1
+        di |= 1
+        node = node.left
+      else:
+        path.append(node)
+        di <<= 1
+        node = node.right
+        k -= t
+    if node.val == 1:
+      self._discard(node, path, di)
+    else:
+      node.val -= 1
+      node.valsize -= 1
+      for p in path:
+        p.valsize -= 1
     return x
 
   def popleft(self) -> T:
-    return self.pop(0)
+    node = self.node
+    path = []
+    while node.left is not None:
+      path.append(node)
+      node = node.left
+    x = node.key
+    if node.val == 1:
+      self._discard(node, path, (1<<len(path))-1)
+    else:
+      node.val -= 1
+      node.valsize -= 1
+      for p in path:
+        p.valsize -= 1
+    return x
 
   def items(self):
     for i in range(self.len_elm()):
@@ -573,11 +615,12 @@ class AVLTreeMultiSet(Generic[T]):
     return 0 if self.node is None else self.node.valsize
 
   def __bool__(self):
-    return True if self.node is not None else False
+    return self.node is not None
 
   def __str__(self):
     return '{' + ', '.join(map(str, self.to_l())) + '}'
 
   def __repr__(self):
     return 'AVLTreeMultiSet ' + str(self)
+
 
