@@ -26,11 +26,11 @@ class UnionFind:
     return a
 
   '''Untie x and y. / O(α(N))'''
-  def unite(self, x: int, y: int) -> None:
+  def unite(self, x: int, y: int) -> int:
     x = self.root(x)
     y = self.root(y)
     if x == y:
-      return
+      return x
     self._G[x].append(y)
     self._G[y].append(x)
     self._group_numbers -= 1
@@ -38,6 +38,7 @@ class UnionFind:
       x, y = y, x
     self._parents[x] += self._parents[y]
     self._parents[y] = x
+    return x
 
   '''Return xが属する集合の要素数. / O(α(N))'''
   def size(self, x: int) -> int:
@@ -84,3 +85,4 @@ class UnionFind:
 
   def __str__(self) -> str:
     return '<UnionFind> [\n' + '\n'.join(f'  {k}: {v}' for k, v in self.all_group_members().items()) + '\n]'
+
