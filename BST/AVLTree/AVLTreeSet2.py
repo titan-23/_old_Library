@@ -353,13 +353,13 @@ class AVLTreeSet2(Generic[T]):
     node = self.node
     while node.left is not None:
       node = node.left
-    res = node.key
+    return node.key
 
   def get_max(self) -> T:
     node = self.node
     while node.right is not None:
       node = node.right
-    res = node.key
+    return node.key
 
   def clear(self) -> None:
     self.node = None
@@ -376,6 +376,13 @@ class AVLTreeSet2(Generic[T]):
         rec(node.right)
     rec(self.node)
     return a
+
+  def __getitem__(self, k):  # 先頭と末尾しか対応していない
+    if k == -1 or k == self._len-1:
+      return self.get_max()
+    elif k == 0:
+      return self.get_min()
+    raise IndexError
 
   def __contains__(self, key: T) -> bool:
     node = self.node
