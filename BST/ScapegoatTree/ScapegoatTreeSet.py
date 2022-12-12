@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 
 class Node:
-  
+
   def __init__(self, key):
     self.key = key
     self.left = None
@@ -21,15 +21,15 @@ class Node:
 
 
 class ScapegoatTreeSet(Generic[T]):
- 
+
   alpha = 0.75
   beta = math.log2(1/alpha)
- 
+
   def __init__(self, a: Iterable[T]=[]) -> None:
     self.node = None
     if a:
       self._build(a)
- 
+
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Tuple[Node, int]:
       mid = (l + r) >> 1
@@ -53,7 +53,7 @@ class ScapegoatTreeSet(Generic[T]):
         if aa[i] != a[-1]:
           a.append(aa[i])
     self.node = sort(0, len(a))
- 
+
   def _rebuild(self, node: Node) -> Node:
     def get(node: Node) -> None:
       if node.left is not None:
@@ -64,7 +64,7 @@ class ScapegoatTreeSet(Generic[T]):
     def sort(l: int, r: int) -> Tuple[Node, int]:
       mid = (l + r) >> 1
       node = a[mid]
-      node.size = 1  # sizeを最後に更新？
+      node.size = 1
       if l != mid:
         node.left = sort(l, mid)
         node.size += node.left.size
@@ -94,12 +94,12 @@ class ScapegoatTreeSet(Generic[T]):
       path[-1].left = Node(key)
     else:
       path[-1].right = Node(key)
-    if len(path)*self.beta > math.log(self.node.size):
+    if len(path)*ScapegoatTreeSet.beta > math.log(self.node.size):
       node_size = 1
       while path:
         pnode = path.pop()
         pnode_size = pnode.size + 1
-        if self.alpha * pnode_size < node_size:
+        if ScapegoatTreeSet.alpha * pnode_size < node_size:
           break
         node_size = pnode_size
       new_node = self._rebuild(pnode)
@@ -113,7 +113,7 @@ class ScapegoatTreeSet(Generic[T]):
     for p in path:
       p.size += 1
     return True
- 
+
   def discard(self, key: T) -> bool:
     di = 1
     node = self.node
