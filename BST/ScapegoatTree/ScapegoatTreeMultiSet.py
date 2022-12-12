@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 
 class Node:
-  
+
   def __init__(self, key, val: int):
     self.key = key
     self.val = val
@@ -23,19 +23,19 @@ class Node:
 
 
 class ScapegoatTreeMultiSet(Generic[T]):
- 
+
   alpha = 0.75
   beta = math.log2(1/alpha)
- 
+
   def __init__(self, a: Iterable[T]=[]) -> None:
     self.node = None
     if a:
       self._build(a)
 
-  def _rle(self, li: List[T]) -> List[Tuple[T, int]]:
-    now = li[0]
+  def _rle(self, a: List[T]) -> List[Tuple[T, int]]:
+    now = a[0]
     ret = [[now, 1]]
-    for i in li[1:]:
+    for i in a[1:]:
       if i == now:
         ret[-1][1] += 1
         continue
@@ -44,19 +44,21 @@ class ScapegoatTreeMultiSet(Generic[T]):
     return ret
  
   def _build(self, a: Iterable[T]) -> None:
-    def sort(l: int, r: int) -> Tuple[Node, int, int]:
-      if l >= r:
-        return None, 0, 0
+    def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
-      root = Node(a[mid][0], a[mid][1])
-      root.left, sl, vl = sort(l, mid)
-      root.right, sr, vr = sort(mid+1, r)
-      root.size = sl+sr+1
-      root.valsize = vl+vr+a[mid][1]
-      return root, root.size, root.valsize
+      node = Node(a[mid][0], a[mid][1])
+      if l != mid:
+        node.left = sort(l, mid)
+        node.size += node.left.size
+        node.valsize += node.left.valsize
+      if mid+1 != r:
+        node.right = sort(mid+1, r)
+        node.size += node.right.size
+        node.valsize += node.right.valsize
+      return node
     a = self._rle(sorted(a))
-    self.node = sort(0, len(a))[0]
- 
+    self.node = sort(0, len(a))
+
   def _rebuild(self, node: Node) -> Node:
     def get(node: Node) -> None:
       if node.left is not None:
@@ -64,20 +66,30 @@ class ScapegoatTreeMultiSet(Generic[T]):
       a.append(node)
       if node.right is not None:
         get(node.right)
-    def sort(l: int, r: int) -> Tuple[Node, int, int]:
-      if l >= r:
-        return None, 0, 0
+    def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
-      root = a[mid]
-      root.left, sl, vl = sort(l, mid)
-      root.right, sr, vr = sort(mid+1, r)
-      root.size = sl+sr+1
-      root.valsize = vl+vr+root.val
-      return root, root.size, root.valsize
+      node = a[mid]
+      node.size = 1
+      node.valsize = node.val
+      if l != mid:
+        left = sort(l, mid)
+        node.left = left
+        node.size += left.size
+        node.valsize += left.valsize
+      else:
+        node.left = None
+      if mid+1 != r:
+        right = sort(l, mid)
+        node.right = right
+        node.size += right.size
+        node.valsize += right.valsize
+      else:
+        node.right = None
+      return node
     a = []
     get(node)
-    return sort(0, len(a))[0]
- 
+    return sort(0, len(a))
+
   def _kth_elm(self, k: int) -> Tuple[T, int]:
     if k < 0:
       k += self.__len__()
@@ -108,7 +120,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
         node = node.right
         k -= t + 1
 
-  def add(self, key, val=1) -> None:
+  def add(self, key: T, val: int=1) -> None:
     node = self.node
     if self.node is None:
       self.node = Node(key, val)
@@ -129,12 +141,12 @@ class ScapegoatTreeMultiSet(Generic[T]):
       path[-1].left = Node(key, val)
     else:
       path[-1].right = Node(key, val)
-    if len(path)*self.beta > math.log(self.len_elm()):
+    if len(path)*ScapegoatTreeMultiSet.beta > math.log(self.len_elm()):
       node_size = 1
       while path:
         pnode = path.pop()
         pnode_size = pnode.size + 1
-        if self.alpha * pnode_size < node_size:
+        if ScapegoatTreeMultiSet.alpha * pnode_size < node_size:
           break
         node_size = pnode_size
       new_node = self._rebuild(pnode)
@@ -149,7 +161,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
       p.size += 1
       p.valsize += val
     return
- 
+
   def _discard(self, key: T) -> bool:
     path = []
     node = self.node
@@ -196,7 +208,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
       p.valsize -= 1
     return True
 
-  def discard(self, key, val=1) -> bool:
+  def discard(self, key: T, val: int=1) -> bool:
     path = []
     node = self.node
     while node is not None:
@@ -357,10 +369,10 @@ class ScapegoatTreeMultiSet(Generic[T]):
         node = node.right
     return k
 
-  def pop(self, p=-1) -> T:
-    if p < 0:
-      p += self.__len__()
-    x = self.__getitem__(p)
+  def pop(self, k=-1) -> T:
+    if k < 0:
+      k += self.node.valsize
+    x = self.__getitem__(k)
     self.discard(x)
     return x
 
@@ -425,7 +437,7 @@ class ScapegoatTreeMultiSet(Generic[T]):
         node = node.right
     return False
 
-  def __getitem__(self, k):
+  def __getitem__(self, k: int):
     return self._kth_elm(k)[0]
 
   def __iter__(self):
