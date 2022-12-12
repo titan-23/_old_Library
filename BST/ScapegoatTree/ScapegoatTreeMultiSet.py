@@ -8,7 +8,7 @@ T = TypeVar("T")
 
 class Node:
   
-  def __init__(self, key, val):
+  def __init__(self, key, val: int):
     self.key = key
     self.val = val
     self.left = None
