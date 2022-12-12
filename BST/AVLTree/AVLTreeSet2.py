@@ -395,6 +395,9 @@ class AVLTreeSet2(Generic[T]):
         node = node.right
     return False
 
+  def __len__(self):
+    return self.len
+
   def __bool__(self):
     return self.node is not None
 
