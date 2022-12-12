@@ -8,13 +8,14 @@ T = TypeVar("T")
 class FenwickTreeSet(Generic[T]):
 
   # Build a new FenwickTreeSet. / O(len(A) log(len(A)))
-  def __init__(self, _used: Set[T], _a: Iterable[T]=[], _multi=False):
+  def __init__(self, _used: Set[T], _a: Iterable[T]=[], compress=True, _multi=False):
     # used: used values(distinct); a: init values
 
     _used = sorted(_used)
     self._len = 0
     self._size = len(_used)
-    self._to_zaatsu = _used if _used[-1] == self._size-1 else {key: i for i, key in enumerate(_used)}
+    # self._to_zaatsu = _used if _used[-1] == self._size-1 else {key: i for i, key in enumerate(_used)}
+    self._to_zaatsu = {key: i for i, key in enumerate(_used)} if compress else _used
     self._to_origin = _used
     self._cnt = [0] * self._size
     if _a:
