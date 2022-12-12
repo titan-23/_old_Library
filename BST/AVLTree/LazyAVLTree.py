@@ -315,9 +315,8 @@ class LazyAVLTree(Generic[T, F]):
         node = node.right
       else:
         node = node.left
-    while path:
-      node = path.pop()
-      self._update(node)
+    for p in path:
+      self._update(p)
 
   def __str__(self):
     return '[' + ', '.join(map(str, self.to_l())) + ']'
