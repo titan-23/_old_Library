@@ -247,6 +247,10 @@ class LazyAVLTree(Generic[T, F]):
     s.rev ^= 1
     self.node = self._merge_node(self._merge_node(r, s), t)
 
+  def all_reverse(self) -> None:
+    if self.node is None: return
+    self.node.rev ^= 1
+
   def prod(self, l: int, r: int) -> T:
     if l >= r: return self.e
     s, t = self._split_node(self.node, r)
