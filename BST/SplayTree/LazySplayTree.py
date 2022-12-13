@@ -217,6 +217,10 @@ class LazySplayTree(Generic[T, F]):
       self._update(right.node)
     self.node = right.node
 
+  def all_reverse(self) -> None:
+    if self.node is None: return
+    self.node.rev ^= 1
+
   def apply(self, l: int, r: int, f: F) -> None:
     if l >= r: return
     left, right = self.split(r)
