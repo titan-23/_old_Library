@@ -66,8 +66,7 @@ class SegmentTreeRMQ(Generic[T]):
   def max_right(self, l: int, f=lambda lr: lr):
     # assert 0 <= l <= self._n
     # assert f(self._e)
-    if l == self._n:
-      return self._n 
+    if l == self._n: return self._n 
     l += self._size
     tmp = self._e
     while True:
@@ -77,7 +76,8 @@ class SegmentTreeRMQ(Generic[T]):
         while l < self._size:
           l <<= 1
           if f(min(tmp, self._data[l])):
-            tmp = min(tmp, self._data[l])
+            if tmp > self._data[l]:
+              tmp = self._data[l]
             l += 1
         return l - self._size
       tmp = min(tmp, self._data[l])
@@ -90,8 +90,7 @@ class SegmentTreeRMQ(Generic[T]):
   def min_left(self, r: int, f=lambda lr: lr):
     # assert 0 <= r <= self._n 
     # assert f(self._e)
-    if r == 0:
-      return 0 
+    if r == 0: return 0 
     r += self._size
     tmp = self._e
     while True:
@@ -102,7 +101,8 @@ class SegmentTreeRMQ(Generic[T]):
         while r < self._size:
           r = r<<1|1
           if f(min(self._data[r], tmp)):
-            tmp = min(self.dat[r], tmp)
+            if tmp > self._data[r]:
+              tmp = self._data[r]
             r -= 1
         return r + 1 - self._size
       tmp = min(self._data[r], tmp)
