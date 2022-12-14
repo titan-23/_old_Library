@@ -8,8 +8,8 @@ T = TypeVar("T")
 class SegmentTreeRMQ(Generic[T]):
 
   '''Build a new SegmentTree. / O(N)'''
-  def __init__(self, _n_or_a: Union[int, Iterable[T]], _e: T=float('inf')) -> None:
-    self._e = _e
+  def __init__(self, _n_or_a: Union[int, Iterable[T]], e: T=float('inf')) -> None:
+    self._e = e
     if isinstance(_n_or_a, int):
       self._n = _n_or_a
       self._log  = (self._n-1).bit_length()
