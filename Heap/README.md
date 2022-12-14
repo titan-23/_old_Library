@@ -102,7 +102,7 @@ mstの最大の値を返します。 $\mathcal{O}(1)$ です。
 ### ```mst.count(key: T) -> int```
 keyの個数を返します。 $\mathcal{O}(1)$ です。
 
-### ```mst.to_l() -> Limst[T]```
+### ```mst.to_l() -> List[T]```
 keyからなるListを返します。 $\mathcal{O}(NlogN)$ です。
 
 ### ```key in mst / len(mst) / bool(mst) / str(mst)```
