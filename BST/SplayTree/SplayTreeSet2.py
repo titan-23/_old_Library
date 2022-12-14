@@ -296,12 +296,12 @@ class SplayTreeSet2(Generic[T]):
     return node.key
 
   def get_min(self) -> T:
-    node = self._get_min_splay(self.node)
-    return self.node
+    self.node = self._get_min_splay(self.node)
+    return self.node.key
  
   def get_max(self) -> T:
-    node = self._get_max_splay(self.node)
-    return self.node
+    self.node = self._get_max_splay(self.node)
+    return self.node.key
 
   def clear(self) -> None:
     self.node = None
@@ -319,6 +319,13 @@ class SplayTreeSet2(Generic[T]):
     if self.node is not None:
       rec(self.node)
     return a
+
+  def __getitem__(self, k):  # 先頭と末尾しか対応していない
+    if k == -1 or k == self.len-1:
+      return self.get_max()
+    elif k == 0:
+      return self.get_min()
+    raise IndexError
 
   def __contains__(self, key: T):
     self._set_search_splay(key)
