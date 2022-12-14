@@ -7,8 +7,9 @@ class MinMaxSet(Generic[T]):
   # https://github.com/titanium-22/Library/blob/main/Heap/IntervalHeap.py
 
   def __init__(self, a: Iterable[T]=[]):
-    self.data = set(a)
-    self.heap = IntervalHeap(self.data)
+    a = set(a)
+    self.data = a
+    self.heap = IntervalHeap(a)
 
   def add(self, key: T) -> None:
     if key not in self.data:
