@@ -54,9 +54,6 @@ class MinMaxSet(Generic[T]):
   def to_l(self) -> List[T]:
     return sorted(self.data)
 
-  def len_elm(self) -> int:
-    return len(self.data)
-
   def __contains__(self, key: T):
     return key in self.data
 
