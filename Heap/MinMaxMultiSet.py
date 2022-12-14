@@ -5,11 +5,11 @@ T = TypeVar("T")
 
 
 class MinMaxMultiSet(Generic[T]):
+  # https://github.com/titanium-22/Library/blob/main/Heap/IntervalHeap.py
 
   def __init__(self, a: Iterable[T]=[]):
-    # https://github.com/titanium-22/Library/blob/main/Heap/IntervalHeap.py
-    self.heap = IntervalHeap(a)
     self.data = Counter(a)
+    self.heap = IntervalHeap(a)
     self.len = len(a)
 
   def add(self, key: T, val: int=1) -> None:
@@ -29,7 +29,7 @@ class MinMaxMultiSet(Generic[T]):
       self.data[key] -= val
     return True
 
-  def popleft(self):
+  def popleft(self) -> T:
     while True:
       v = self.heap.get_min()
       if v in self.data:
@@ -42,7 +42,7 @@ class MinMaxMultiSet(Generic[T]):
         return v
       self.heap.pop_min()
 
-  def pop(self):
+  def pop(self) -> T:
     while True:
       v = self.heap.get_max()
       if v in self.data:
@@ -55,7 +55,7 @@ class MinMaxMultiSet(Generic[T]):
         return v
       self.heap.pop_max()
 
-  def get_min(self):
+  def get_min(self) -> T:
     while True:
       v = self.heap.get_min()
       if v in self.data:
@@ -63,7 +63,7 @@ class MinMaxMultiSet(Generic[T]):
       else:
         self.heap.pop_min()
 
-  def get_max(self):
+  def get_max(self) -> T:
     while True:
       v = self.heap.get_max()
       if v in self.data:
@@ -95,5 +95,4 @@ class MinMaxMultiSet(Generic[T]):
 
   def __repr__(self):
     return 'MinMaxMultiSet' + str(self)
-
 
