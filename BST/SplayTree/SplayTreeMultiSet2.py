@@ -324,12 +324,12 @@ class SplayTreeMultiSet2(Generic[T]):
     return res
 
   def get_min(self) -> T:
-    node = self._get_min_splay(self.node)
-    return self.node
+    self.node = self._get_min_splay(self.node)
+    return self.node.key
  
   def get_max(self) -> T:
-    node = self._get_max_splay(self.node)
-    return self.node
+    self.node = self._get_max_splay(self.node)
+    return self.node.key
 
   def to_l(self) -> List[T]:
     a = []
@@ -367,12 +367,19 @@ class SplayTreeMultiSet2(Generic[T]):
   def clear(self) -> None:
     self.node = None
 
+  def __getitem__(self, k):  # 先s頭と末尾しか対応していない
+    if k == -1 or k == self._len-1:
+      return self.get_max()
+    elif k == 0:
+      return self.get_min()
+    raise IndexError
+
   def __contains__(self, key: T) -> bool:
     self._set_search_splay(key)
     return self.node is not None and self.node.key == key
 
   def __len__(self):
-    return self.len
+    return self._len
 
   def __bool__(self):
     return self.node is not None
