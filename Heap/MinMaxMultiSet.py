@@ -8,6 +8,7 @@ class MinMaxMultiSet(Generic[T]):
   # https://github.com/titanium-22/Library/blob/main/Heap/IntervalHeap.py
 
   def __init__(self, a: Iterable[T]=[]):
+    a = list(a)
     self.data = Counter(a)
     self.heap = IntervalHeap(a)
     self.len = len(a)
