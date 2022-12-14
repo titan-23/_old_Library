@@ -377,7 +377,7 @@ class AVLTreeSet2(Generic[T]):
     return a
 
   def __getitem__(self, k):  # 先頭と末尾しか対応していない
-    if k == -1 or k == self._len-1:
+    if k == -1 or k == self.len-1:
       return self.get_max()
     elif k == 0:
       return self.get_min()
