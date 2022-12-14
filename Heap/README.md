@@ -38,6 +38,9 @@ _____
 ### ```st = MinMaxSet(a: Iterable[T]=[])```
 Iterable aからMinMaxSetを構築します。 $\mathcal{O}(N)$ です。
 
+### ```st.data: Set[T]```
+内部データを管理しているsetです。
+
 ### ```st.add(key: T) -> None```
 keyが既に存在していれば、何もしません。そうでなければkeyを1つ追加します。
 $\mathcal{O}(logN)$ です。
@@ -73,6 +76,9 @@ _____
 
 ### ```mst = MinMaxMultiSet(a: Iterable[T]=[])```
 Iterable aからMinMaxMultiSetを構築します。 $\mathcal{O}(N)$ です。
+
+### ```st.data: Counter```
+内部データを管理しているCounterです。
 
 ### ```mst.add(key: T, val: int=1) -> None```
 keyをval個追加します。$\mathcal{O}(logN)$ です。
