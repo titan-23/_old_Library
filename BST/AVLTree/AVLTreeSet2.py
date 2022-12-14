@@ -147,11 +147,10 @@ class AVLTreeSet2(Generic[T]):
         break
     if new_node is not None:
       if path:
-        gnode = path.pop()
         if di & 1:
-          gnode.left = new_node
+          path[-1].left = new_node
         else:
-          gnode.right = new_node
+          path[-1].right = new_node
       else:
         self.node = new_node
     self.len += 1
