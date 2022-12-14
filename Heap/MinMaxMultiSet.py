@@ -71,6 +71,9 @@ class MinMaxMultiSet(Generic[T]):
       else:
         self.heap.pop_max()
 
+  def count(self, key: T) -> int:
+    return self.data[key]
+
   def to_l(self) -> List[T]:
     return sorted(self.data.elements())
 
