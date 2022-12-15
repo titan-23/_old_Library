@@ -43,7 +43,7 @@ class TreapSet:
       if mid+1 != r:
         node.right = sort(mid+1, r)
       return node
-    a = sorted(set(a))
+    # a = sorted(set(a))
     self.len = len(a)
     pri_d = 0xFFFFFFFF // self.len
     self.node = sort(0, self.len)
@@ -218,6 +218,23 @@ class TreapSet:
         node = node.right
     return res
 
+  def gtlte(self, key):
+    gt = None
+    lt = None
+    e = False
+    node = self.node
+    while node is not None:
+      if key == node.key:
+        e = True
+        break
+      elif key < node.key:
+        gt = node.key
+        node = node.left
+      else:
+        lt = node.key
+        node = node.right
+    return gt, lt, e
+
   def to_l(self):
     a = []
     if self.node is None:
@@ -250,6 +267,5 @@ class TreapSet:
 
   def __repr__(self):
     return 'TreapSet ' + str(self)
-
 
 
