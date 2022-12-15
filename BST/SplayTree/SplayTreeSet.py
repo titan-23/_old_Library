@@ -38,11 +38,13 @@ class SplayTreeSet(Generic[T]):
         node.right = sort(mid+1, r)
         node.size += node.right.size
       return node
-    aa = sorted(a)
-    a = [aa[0]]
-    for i in range(1, len(aa)):
-      if aa[i] != a[-1]:
-        a.append(aa[i])
+    a = list(a)
+    if not all(a[i] < a[i + 1] for i in range(len(a) - 1)):
+      aa = sorted(a)
+      a = [aa[0]]
+      for i in range(1, len(aa)):
+        if aa[i] != a[-1]:
+          a.append(aa[i])
     self.node = sort(0, len(a))
 
   def _update(self, node: Node) -> None:
@@ -100,13 +102,13 @@ class SplayTreeSet(Generic[T]):
       gnode.left = node.right
       node.right = gnode
       self._update(gnode)
-      node.size = 1 + (0 if gnode.left is None else gnode.left.size) + gnode.size
+      node.size = 1 + (0 if node.left is None else node.left.size) + gnode.size
     else:
       node = gnode.right
       gnode.right = node.left
       node.left = gnode
       self._update(gnode)
-      node.size = 1 + gnode.size + (0 if gnode.right is None else gnode.right.size)
+      node.size = 1 + gnode.size + (0 if node.right is None else node.right.size)
     return node
 
   def _set_search_splay(self, key: T) -> None:
