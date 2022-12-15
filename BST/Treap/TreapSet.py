@@ -17,7 +17,7 @@ class Random:
 
 class Node:
 
-  def __init__(self, key, priority=-1):
+  def __init__(self, key, priority: int=-1):
     self.key = key
     self.left = None
     self.right = None
@@ -31,11 +31,18 @@ class Node:
 
 class TreapSet:
 
-  def __init__(self, a: Iterable[T]=[]):
+  def __init__(self, a: Iterable[T]=[], linear_const=False):
     self.node = None
     self.len = 0
+    self.linear_const = linear_const
     if a:
-      self._build(a)
+      a = sorted(set(a))
+      self.len = len(a)
+      if linear_const:
+        for b in a:
+          self.add(b)
+      else:
+        self._build(a)
 
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Node:
@@ -46,12 +53,8 @@ class TreapSet:
       if mid+1 != r:
         node.right = sort(mid+1, r)
       return node
-    a = sorted(set(a))
-    # self.len = len(a)
-    # pri_d = 0xFFFFFFFF // self.len
-    # self.node = sort(0, self.len)
-    for aa in a:
-      self.add(aa)
+    pri_d = 0xFFFFFFFF // self.len
+    self.node = sort(0, self.len)
 
   def _rotate_L(self, node: Node) -> Node:
     u = node.left
