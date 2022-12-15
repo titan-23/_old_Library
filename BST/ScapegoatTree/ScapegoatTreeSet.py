@@ -37,13 +37,9 @@ class ScapegoatTreeSet(Generic[T]):
       if l != mid:
         node.left = sort(l, mid)
         node.size += node.left.size
-      else:
-        node.left = None
       if mid+1 != r:
         node.right = sort(mid+1, r)
         node.size += node.right.size
-      else:
-        node.right = None
       return node
     a = list(a)
     if not all(a[i] < a[i + 1] for i in range(len(a) - 1)):
@@ -68,9 +64,13 @@ class ScapegoatTreeSet(Generic[T]):
       if l != mid:
         node.left = sort(l, mid)
         node.size += node.left.size
+      else:
+        node.left = None
       if mid+1 != r:
         node.right = sort(mid+1, r)
         node.size += node.right.size
+      else:
+        node.right = None
       return node
     a = []
     get(node)
