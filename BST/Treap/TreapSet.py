@@ -1,18 +1,19 @@
+# https://github.com/titanium-22/Library/blob/main/BST/Treap/TreapSet.py
+
 class Random:
+
   _x, _y, _z, _w = 123456789, 362436069, 521288629, 88675123
 
-  def _xor128() -> int:
+  @classmethod
+  def random(self) -> int:
     t = Random._x ^ (Random._x << 11) & 0xFFFFFFFF
     Random._x, Random._y, Random._z = Random._y, Random._z, Random._w
     Random._w = (Random._w ^ (Random._w >> 19)) ^ (t ^ (t >> 8)) & 0xFFFFFFFF
     return Random._w
 
-  @classmethod
-  def random(self) -> int:
-    return Random._xor128()
-
 
 class Node:
+
   def __init__(self, key, priority=-1):
     self.key = key
     self.left = None
@@ -42,8 +43,10 @@ class TreapSet:
       if mid+1 != r:
         node.right = sort(mid+1, r)
       return node
-    pri_d = 0xFFFFFFFF // len(a)
-    self.node = sort(0, len(a))
+    # a = sorted(set(a))
+    self.len = len(a)
+    pri_d = 0xFFFFFFFF // self.len
+    self.node = sort(0, self.len)
 
   def _rotate_L(self, node: Node) -> Node:
     u = node.left
@@ -116,6 +119,7 @@ class TreapSet:
         node = node.right
     else:
       return False
+    self.len -= 1
     while node.left is not None and node.right is not None:
       if node.left.priority < node.right.priority:
         if pnode is None:
@@ -214,6 +218,19 @@ class TreapSet:
         node = node.right
     return res
 
+  def to_l(self):
+    a = []
+    if self.node is None:
+      return a
+    def rec(node):
+      if node.left is not None:
+        rec(node.left)  
+      a.append(node.key)
+      if node.right is not None:
+        rec(node.right)
+    rec(self.node)
+    return a
+
   def __contains__(self, key):
     node = self.node
     while node is not None:
@@ -226,10 +243,13 @@ class TreapSet:
     return False
 
   def __len__(self):
-    pass
+    return self.len
 
   def __str__(self):
-    pass
+    return '{' + ', '.join(map(str, self.to_l())) + '}'
+
+  def __repr__(self):
+    return 'TreapSet ' + str(self)
 
 
 
