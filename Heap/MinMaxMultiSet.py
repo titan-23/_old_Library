@@ -1,6 +1,5 @@
 # https://github.com/titanium-22/Library/blob/main/Heap/MinMaxMultiSet.py
 from typing import Generic, Iterable, TypeVar, List
-from collections import Counter
 T = TypeVar("T")
 
 
@@ -9,25 +8,34 @@ class MinMaxMultiSet(Generic[T]):
 
   def __init__(self, a: Iterable[T]=[]):
     a = list(a)
-    self.data = Counter(a)
+    data = {}
+    for x in a:
+      if x in data:
+        data[x] += 1
+      else:
+        data[x] = 1
+    self.data = data
     self.heap = IntervalHeap(a)
     self.len = len(a)
 
   def add(self, key: T, val: int=1) -> None:
     if val == 0: return
     self.heap.add(key)
-    self.data[key] += val
+    if key in self.data:
+      self.data[key] += val
+    else:
+      self.data[key] = val
     self.len += val
 
   def discard(self, key: T, val: int=1) -> bool:
+    if key not in self.data: return False
     cnt = self.data[key]
-    if cnt == 0: return False
-    if val >= cnt:
-      self.len -= cnt
-      del self.data[key]
-    else:
+    if val < cnt:
       self.len -= val
       self.data[key] -= val
+    else:
+      self.len -= cnt
+      del self.data[key]
     return True
 
   def popleft(self) -> T:
@@ -76,7 +84,7 @@ class MinMaxMultiSet(Generic[T]):
     return self.data[key]
 
   def to_l(self) -> List[T]:
-    return sorted(self.data.elements())
+    return sorted(k for k, v in self.data.items() for _ in range(v))
 
   def len_elm(self) -> int:
     return len(self.data)
@@ -95,8 +103,9 @@ class MinMaxMultiSet(Generic[T]):
     return self.len
 
   def __str__(self):
-    return '{' + ', '.join(map(str, sorted(self.data.elements()))) + '}'
+    return '{' + ', '.join(map(str, self.to_l())) + '}'
 
   def __repr__(self):
     return 'MinMaxMultiSet' + str(self)
+
 
