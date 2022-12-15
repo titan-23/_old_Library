@@ -69,15 +69,15 @@ $\mathsf{key}$ からなる $\mathsf{List}$ を返します。 $\mathcal{O}(Nlog
 _____
 # [MinMaxMultiSet](https://github.com/titanium-22/Library/blob/main/Heap/MinMaxMultiSet.py)
 
-内部で $\mathsf{Counter}$ を持ち、データを管理します。  
+内部で $\mathsf{dict}$ を持ち、データを管理します。  
 値の追加/削除/存在判定/最小値取得( $\mathsf{pop}$ )/最大値取得( $\mathsf{pop}$ ) などができます。  
 計算量は償却だったりします。
 
 ### ```mst = MinMaxMultiSet(a: Iterable[T]=[])```
 $\mathsf{Iterable}$ $\mathsf{a}$ から $\mathsf{MinMaxMultiSet}$ を構築します。 $\mathcal{O}(N)$ です。
 
-### ```st.data: Counter```
-内部データを管理している $\mathsf{Counter}$ です。
+### ```st.data: dict```
+内部データを管理している $\mathsf{dict}$ です。
 
 ### ```mst.add(key: T, val: int=1) -> None```
 $\mathsf{key}$ を$\mathsf{val}$ 個追加します。$\mathcal{O}(logN)$ です。
