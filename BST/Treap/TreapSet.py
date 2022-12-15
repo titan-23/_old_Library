@@ -43,7 +43,7 @@ class TreapSet:
       if mid+1 != r:
         node.right = sort(mid+1, r)
       return node
-    # a = sorted(set(a))
+    a = sorted(set(a))
     self.len = len(a)
     pri_d = 0xFFFFFFFF // self.len
     self.node = sort(0, self.len)
