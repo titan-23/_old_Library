@@ -6,6 +6,7 @@
 - [AVLTree](https://github.com/titanium-22/Library/tree/main/BST/AVLTree)
 - [ScapegoatTree](https://github.com/titanium-22/Library/tree/main/BST/ScapegoatTree)
 - [SplayTree](https://github.com/titanium-22/Library/tree/main/BST/SplayTree)
+- [Treap](https://github.com/titanium-22/Library/tree/main/BST/Treap)
 
 _____
 # 列を扱うBinaryTree #
