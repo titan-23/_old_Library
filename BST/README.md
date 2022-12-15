@@ -7,6 +7,12 @@
 - [ScapegoatTree](https://github.com/titanium-22/Library/tree/main/BST/ScapegoatTree)
 - [SplayTree](https://github.com/titanium-22/Library/tree/main/BST/SplayTree)
 - [Treap](https://github.com/titanium-22/Library/tree/main/BST/Treap)
+  
+肌感覚：  
+- 挿入/削除に強いのはTreap？
+- 検索が速いのはAVL、遅いのはTreap？
+- Splayはダークマター
+- Scapegoatは観賞用？遅くはないが特段使う理由もない？
 
 _____
 # 列を扱うBinaryTree #
