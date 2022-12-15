@@ -1,4 +1,7 @@
 # https://github.com/titanium-22/Library/blob/main/BST/Treap/TreapSet.py
+from typing import Generic, Iterable, TypeVar, Union, Tuple, List
+T = TypeVar("T")
+
 
 class Random:
 
@@ -28,14 +31,14 @@ class Node:
 
 class TreapSet:
 
-  def __init__(self, a=[]):
+  def __init__(self, a: Iterable[T]=[]):
     self.node = None
     self.len = 0
     if a:
       self._build(a)
 
-  def _build(self, a):
-    def sort(l, r):
+  def _build(self, a: Iterable[T]) -> None:
+    def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
       node = Node(a[mid], mid*pri_d)
       if l != mid:
@@ -44,9 +47,11 @@ class TreapSet:
         node.right = sort(mid+1, r)
       return node
     a = sorted(set(a))
-    self.len = len(a)
-    pri_d = 0xFFFFFFFF // self.len
-    self.node = sort(0, self.len)
+    # self.len = len(a)
+    # pri_d = 0xFFFFFFFF // self.len
+    # self.node = sort(0, self.len)
+    for aa in a:
+      self.add(aa)
 
   def _rotate_L(self, node: Node) -> Node:
     u = node.left
@@ -60,7 +65,7 @@ class TreapSet:
     u.left = node
     return u
 
-  def add(self, key) -> None:
+  def add(self, key: T) -> None:
     if self.node is None:
       self.node = Node(key)
       self.len += 1
@@ -105,7 +110,7 @@ class TreapSet:
     self.len += 1
     return True
 
-  def discard(self, key) -> bool:
+  def discard(self, key: T) -> bool:
     node = self.node
     pnode = None
     while node is not None:
@@ -161,7 +166,7 @@ class TreapSet:
     return True
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
-  def le(self, key):
+  def le(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
@@ -176,7 +181,7 @@ class TreapSet:
     return res
 
   '''Find the largest element < key, or None if it doesn't exist. / O(logN)'''
-  def lt(self, key):
+  def lt(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
@@ -190,7 +195,7 @@ class TreapSet:
     return res
 
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
-  def ge(self, key):
+  def ge(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
@@ -205,7 +210,7 @@ class TreapSet:
     return res
 
   '''Find the smallest element > key, or None if it doesn't exist. / O(logN)'''
-  def gt(self, key):
+  def gt(self, key: T) -> Union[T, None]:
     res = None
     node = self.node
     while node is not None:
@@ -218,7 +223,7 @@ class TreapSet:
         node = node.right
     return res
 
-  def gtlte(self, key):
+  def gtlte(self, key: T) -> Tuple[Union[T, None], Union[T, None], bool]:
     gt = None
     lt = None
     e = False
@@ -235,7 +240,7 @@ class TreapSet:
         node = node.right
     return gt, lt, e
 
-  def to_l(self):
+  def to_l(self) -> List[T]:
     a = []
     if self.node is None:
       return a
@@ -248,7 +253,54 @@ class TreapSet:
     rec(self.node)
     return a
 
-  def __contains__(self, key):
+  def get_min(self) -> T:
+    node = self.node
+    while node.left is not None:
+      node = node.left
+    return node.key
+
+  def get_max(self) -> T:
+    node = self.node
+    while node.right is not None:
+      node = node.right
+    return node.key
+
+  def popleft(self) -> T:
+    node = self.node
+    pnode = None
+    while node.left is not None:
+      pnode = node
+      node = node.left
+    self.len -= 1
+    res = node.key
+    if pnode is None:
+      self.node = self.node.right
+    else:
+      pnode.left = node.right
+    return res
+
+  def pop(self) -> T:
+    node = self.node
+    pnode = None
+    while node.right is not None:
+      pnode = node
+      node = node.right
+    self.len -= 1
+    res = node.key
+    if pnode is None:
+      self.node = self.node.left
+    else:
+      pnode.right = node.left
+    return res
+
+  def __getitem__(self, k: int) -> T:
+    if k == -1 or k == self.len-1:
+      return self.get_max()
+    elif k == 0:
+      return self.get_min()
+    raise IndexError
+
+  def __contains__(self, key: T):
     node = self.node
     while node is not None:
       if key == node.key:
