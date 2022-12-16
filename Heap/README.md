@@ -42,7 +42,7 @@ $\mathsf{Iterable}$ $\mathsf{a}$ から $\mathsf{MinMaxSet}$ を構築します�
 内部データを管理している $\mathsf{set}$ です。
 
 ### ```st.add(key: T) -> None```
-$\mathsf{key}$ が既に存在していれば、何もしません。そうでなければ$\mathsf{key}$ を1つ追加します。$\mathcal{O}(logN)$ です。
+$\mathsf{key}$ が既に存在していれば、何もしません。そうでなければ $\mathsf{key}$ を1つ追加します。 $\mathcal{O}(logN)$ です。
 
 ### ```st.discard(key: T) -> bool```
 $\mathsf{key}$ が存在すれば、削除して $\mathsf{True}$ を返します。そうでなければ、何も削除せずに $\mathsf{False}$ を返します。 $\mathcal{O}(logN)$ です。
@@ -80,7 +80,7 @@ $\mathsf{Iterable}$ $\mathsf{a}$ から $\mathsf{MinMaxMultiSet}$ を構築し�
 内部データを管理している $\mathsf{dict}$ です。
 
 ### ```mst.add(key: T, val: int=1) -> None```
-$\mathsf{key}$ を$\mathsf{val}$ 個追加します。$\mathcal{O}(logN)$ です。
+$\mathsf{key}$ を $\mathsf{val}$ 個追加します。 $\mathcal{O}(logN)$ です。
 
 ### ```mst.discard(key: T, val: int=1) -> bool```
 $\mathsf{key}$ が存在しなければ何も削除せずに $\mathsf{False}$ を返します。
