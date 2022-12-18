@@ -31,29 +31,24 @@ class Node:
 
 class TreapSet:
 
-  def __init__(self, a: Iterable[T]=[], linear_const=False):
+  def __init__(self, a: Iterable[T]=[]):
     self.node = None
     self.len = 0
-    self.linear_const = linear_const
     if a:
       a = sorted(set(a))
       self.len = len(a)
-      if linear_const:
-        for b in a:
-          self.add(b)
-      else:
-        self._build(a)
+      self._build(a)
 
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
-      node = Node(a[mid], mid*pri_d)
+      node = Node(a[mid], r[mid])
       if l != mid:
         node.left = sort(l, mid)
       if mid+1 != r:
         node.right = sort(mid+1, r)
       return node
-    pri_d = 0xFFFFFFFF // self.len
+    r = sorted(Random.random() for _ in range(self.len))
     self.node = sort(0, self.len)
 
   def _rotate_L(self, node: Node) -> Node:
@@ -322,5 +317,4 @@ class TreapSet:
 
   def __repr__(self):
     return 'TreapSet ' + str(self)
-
 
