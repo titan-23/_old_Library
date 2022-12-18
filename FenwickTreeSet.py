@@ -1,6 +1,4 @@
 # https://github.com/titanium-22/Library/blob/main/FenwickTreeSet.py
-
-
 from typing import Iterable, Set, TypeVar, Generic, Union, Tuple
 T = TypeVar("T")
 
@@ -12,33 +10,35 @@ class FenwickTreeSet(Generic[T]):
     # used: used values(distinct); a: init values
 
     _used = sorted(_used)
-    self._len = 0
     self._size = len(_used)
-    # self._to_zaatsu = _used if _used[-1] == self._size-1 else {key: i for i, key in enumerate(_used)}
+    self._len = 0
     self._to_zaatsu = {key: i for i, key in enumerate(_used)} if compress else _used
     self._to_origin = _used
-    self._cnt = [0] * self._size
+    self._cnt = [0]*self._size if _multi else ProtoBitSet(self._size)
     if _a:
       a_ = [0] * self._size
-      for v in _a:
-        i = self._to_zaatsu[v]
-        if _multi:
-          self._len += 1
+      if _multi:
+        self._len = len(_a)
+        for v in _a:
+          i = self._to_zaatsu[v]
           a_[i] += 1
           self._cnt[i] += 1
-        elif a_[i] == 0:
-          self._len += 1
-          a_[i] = 1
-          self._cnt[i] = 1
+      else:
+        for v in _a:
+          i = self._to_zaatsu[v]
+          if i in self._cnt:
+            self._len += 1
+            a_[i] = 1
+            self._cnt.add(i)
       self._fw = FenwickTree(a_)
     else:
       self._fw = FenwickTree(self._size)
 
   def add(self, key: T) -> bool:
     i = self._to_zaatsu[key]
-    if self._cnt[i] == 0:
+    if i not in self._cnt:
       self._len += 1
-      self._cnt[i] = 1
+      self._cnt.add(i)
       self._fw.add(i, 1)
       return True
     return False
@@ -49,20 +49,17 @@ class FenwickTreeSet(Generic[T]):
 
   def discard(self, key: T) -> bool:
     i = self._to_zaatsu[key]
-    if self._cnt[i] == 0: return False
-    self._len -= 1
-    self._cnt[i] = 0
-    self._fw.add(i, -1)
-    return True
-
-  def count(self, key: T) -> int:
-    return self._cnt[self._to_zaatsu[key]]
+    if i in self._cnt:
+      self._len -= 1
+      self._cnt.discard(i)
+      self._fw.add(i, -1)
+      return True
+    return False
 
   '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
   def le(self, key: T) -> Union[T, None]:
     i = self._to_zaatsu[key]
-    if self._cnt[i]:
-      return key
+    if i in self._cnt: return key
     pref = self._fw.pref(i - 1) - 1
     return None if pref < 0 else self.__getitem__(pref)
 
@@ -74,8 +71,7 @@ class FenwickTreeSet(Generic[T]):
   '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
   def ge(self, key: T) -> Union[T, None]:
     i = self._to_zaatsu[key]
-    if self._cnt[i] > 0:
-      return key
+    if i in self._cnt: return key
     pref = self._fw.pref(i)
     return None if pref >= self._len else self.__getitem__(pref)
 
@@ -93,8 +89,7 @@ class FenwickTreeSet(Generic[T]):
     return self._fw.pref(self._to_zaatsu[key])
 
   def pop(self, k: int=-1) -> T:
-    if k < 0:
-      k += self._len
+    if k < 0: k += self._len
     self._len -= 1
     i = 0
     acc = 0
@@ -107,15 +102,14 @@ class FenwickTreeSet(Generic[T]):
         else:
           self._fw._tree[i+s] -= 1
       s >>= 1
-    self._cnt[i] -= 1
+    self._cnt.discard(i)
     return self._to_origin[i]
 
   def popleft(self) -> T:
     return self.pop(0)
 
   def __getitem__(self, k):
-    if k < 0:
-      k += self._len
+    if k < 0: k += self._len
     return self._to_origin[self._fw.bisect_right(k)]
 
   def __repr__(self):
@@ -151,8 +145,8 @@ class FenwickTreeSet(Generic[T]):
 
 class FenwickTreeMultiSet(FenwickTreeSet, Generic[T]):
 
-  def __init__(self, used: Set[T], a: Iterable[T]=[]) -> None:
-    super().__init__(used, a, _multi=True)
+  def __init__(self, used: Set[T], a: Iterable[T]=[], compress=True) -> None:
+    super().__init__(used, a, compress=compress, _multi=True)
 
   def add(self, key: T, num: int=1) -> None:
     if num <= 0: return
@@ -174,6 +168,44 @@ class FenwickTreeMultiSet(FenwickTreeSet, Generic[T]):
 
   def discard_all(self, key: T) -> bool:
     return self.discard(key, num=self.count(key))
+
+  def count(self, key: T) -> int:
+    return self._cnt[self._to_zaatsu[key]]
+
+  '''Find the largest element <= key, or None if it doesn't exist. / O(logN)'''
+  def le(self, key: T) -> Union[T, None]:
+    i = self._to_zaatsu[key]
+    if self._cnt[i] > 0: return key
+    pref = self._fw.pref(i - 1) - 1
+    return None if pref < 0 else self.__getitem__(pref)
+
+  '''Find the smallest element >= key, or None if it doesn't exist. / O(logN)'''
+  def ge(self, key: T) -> Union[T, None]:
+    i = self._to_zaatsu[key]
+    if self._cnt[i] > 0: return key
+    pref = self._fw.pref(i)
+    return None if pref >= self._len else self.__getitem__(pref)
+
+  def pop(self, k: int=-1) -> T:
+    if k < 0:
+      k += self._len
+    self._len -= 1
+    i = 0
+    acc = 0
+    s = self._fw._s
+    while s:
+      if i+s <= self._size:
+        if acc + self._fw._tree[i+s] <= k:
+          acc += self._fw._tree[i+s]
+          i += s
+        else:
+          self._fw._tree[i+s] -= 1
+      s >>= 1
+    self._cnt[i] -= 1
+    return self._to_origin[i]
+
+  def popleft(self) -> T:
+    return self.pop(0)
 
   def items(self) -> Iterable[Tuple[T, int]]:
     _iter = 0
