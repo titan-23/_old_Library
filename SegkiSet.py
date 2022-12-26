@@ -1,24 +1,30 @@
-from typing import Union
+from typing import Union, Iterable
 
 class SegkiSet:
 
   # 0以上u未満の整数が載る集合
   # セグ木的な構造、各Nodeはその子孫のOR値を保持(ORではなくSUMならBITと同じ感じ)
   # 
-  # insert, delete, contains, predecessor, successorがO(logu)で可能
-  # 空間はO(u)
-  # k番目の値の取得、イテレートはO(u)(実装していない)
-  # 
+  # 空間: O(u)
+  # add, discard, predecessor, successor: O(logu)
+  # contains, len: O(1)
+  # iteration: (nlogu)
+  # kth element: O(klogu)
 
-  def __init__(self, u: int):
+  def __init__(self, u: int, a: Iterable[int]=[]):
     self.log = (u-1).bit_length()
     self.size = 1 << self.log
     self.u = u
+    # self.data = ProtoBitSet(self.size << 1)
     self.data = bytearray(self.size << 1)
+    self.len = 0
+    for _a in a:
+      self.add(_a)
 
   def add(self, k: int) -> bool:
     k += self.size
     if self.data[k]: return False
+    self.len += 1
     self.data[k] = 1
     while k > 1:
       k >>= 1
@@ -29,6 +35,7 @@ class SegkiSet:
   def discard(self, k: int) -> bool:
     k += self.size
     if self.data[k] == 0: return False
+    self.len -= 1
     self.data[k] = 0
     while k > 1:
       if k & 1:
@@ -38,9 +45,6 @@ class SegkiSet:
       k >>= 1
       self.data[k] = 0
     return True
-
-  def __contains__(self, k: int):
-    return self.data[k + self.size] == 1
 
   def get_min(self) -> Union[int, None]:
     if self.data[1] == 0: return None
@@ -83,7 +87,7 @@ class SegkiSet:
     x = k
     k += self.size
     while k > 1:
-      if k&1 == 0 and self.data[k+1]:
+      if k & 1 == 0 and self.data[k+1]:
         k >>= 1
         break
       k >>= 1
@@ -103,10 +107,37 @@ class SegkiSet:
     if self.data[k+self.size]: return k
     return self.gt(k)
 
-  def show(self):
+  def debug(self):
     print('\n'.join(' '.join(map(str, (self.data[(1<<i)+j] for j in range(1<<i)))) for i in range(self.log+1)))
 
-  def __str__(self):
-    return '{' + ', '.join(map(str, (i for i in range(self.u) if self.data[i+self.size]))) + '}'
+  def __contains__(self, k: int):
+    return self.data[k + self.size] == 1
 
+  def __getitem__(self, k):   # kは先頭か末尾にすることを推奨
+    if k < 0: k += self.len
+    if k == 0:
+      return self.get_min()
+    if k == self.len-1:
+      return self.get_max()
+    if k < self.len>>1:
+      key = self.get_min()
+      for _ in range(k):
+        key = self.gt(key)
+    else:
+      key = self.get_max()
+      for _ in range(self.len-k-1):
+        key = self.lt(key)
+    return key
+
+  def __len__(self):
+    return self.len
+
+  def __iter__(self):
+    key = self.get_min()
+    while key is not None:
+      yield key
+      key = self.gt(key)
+
+  def __str__(self):
+    return '{' + ', '.join(map(str, self)) + '}'
 
