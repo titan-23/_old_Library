@@ -20,7 +20,7 @@ class Node:
 
 class SplayTreeOp(Generic[T]):
 
-  def __init__(self, a: Iterable[T]=[], node :Union[Node, None]=None, op: Callable[[T, T], T]=lambda x,y: None, e: T=None) -> None:
+  def __init__(self, a: Iterable[T]=[], op: Callable[[T, T], T]=lambda x,y: None, e: T=None, node :Union[Node, None]=None) -> None:
     self.node = node
     self.op = op
     self.e = e
