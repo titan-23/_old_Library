@@ -11,7 +11,7 @@ class FenwickTreeRAQ:
 
   '''Add x to a[p]. / O(logN)'''
   def add(self, k: int, x: int) -> None:
-    self.bit0.add(k, x)
+    self.add_range(k, k+1, x)
 
   '''Add x to range( [l, r) ). / O(logN)'''
   def add_range(self, l: int, r: int, x: int) -> None:
@@ -35,4 +35,5 @@ class FenwickTreeRAQ:
 
   def __repr__(self):
     return 'FenwickTreeRAQ' + str(self)
+
 
