@@ -77,19 +77,19 @@ class FenwickTree:
 
   @classmethod
   def inversion_num(self, a: List[int], compress: bool=False) -> int:
-    ans = len(a)
+    ans = 0
     if compress:
       a_ = sorted(set(a))
       z = {e: i for i, e in enumerate(a_)}
       fw = FenwickTree(len(a_))
       for i, e in enumerate(a):
-        fw.add(z[e], 1)
         ans += i - fw.pref(z[e])
+        fw.add(z[e], 1)
     else:
-      fw = FenwickTree(ans)
+      fw = FenwickTree(len(a))
       for i, e in enumerate(a):
-        fw.add(e, 1)
         ans += i - fw.pref(e)
+        fw.add(e, 1)
     return ans
 
   def __str__(self):
