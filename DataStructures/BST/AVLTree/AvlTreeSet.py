@@ -1,6 +1,3 @@
-# https://github.com/titanium-22/Library/blob/main/BST/AVLTree/AvlTreeSet.py
-
-
 from typing import Generic, Iterable, Tuple, TypeVar, Union, List
 T = TypeVar("T")
 
