@@ -3,7 +3,7 @@ from typing import List
 
 class FenwickTree2D:
  
-  '''Build a new FenwickTree2D.'''
+  '''Build a new FenwickTree2D. / O(HW)'''
   def __init__(self, h: int, w: int, a: List[List[int]]=[]):
     self._h = h + 1
     self._w = w + 1
@@ -22,8 +22,9 @@ class FenwickTree2D:
     w += 1
     while h < self._h:
       j = w
+      bit_h = self._bit[h]
       while j < self._w:
-        self._bit[h][j] += x
+        bit_h[j] += x
         j += j & -j
       h += h & -h
  
@@ -32,8 +33,9 @@ class FenwickTree2D:
     ret = 0
     while h > 0:
       j = w
+      bit_h = self._bit[h]
       while j > 0:
-        ret += self._bit[h][j]
+        ret += bit_h[j]
         j -= j & -j
       h -= h & -h
     return ret
@@ -48,13 +50,10 @@ class FenwickTree2D:
   def __str__(self):
     ret = []
     for i in range(self._h-1):
-      tmp = []
-      for j in range(self._w-1):
-        tmp.append(self.sum(i, j, i+1, j+1))
-      ret.append(', '.join(map(str, tmp)))
+      ret.append(', '.join(map(str, ((self.sum(i, j, i+1, j+1)) for j in range(self._w-1)))))
     return '[ ' + '\n  '.join(map(str, ret)) + ' ]'
 
   def __repr__(self):
-    return 'FenwickTree2D' + str(self)
+    return 'FenwickTree2D\n' + str(self)
 
 
