@@ -20,7 +20,6 @@ class FenwickTree:
   '''Return sum([0, r)) of a. / O(logN)'''
   def pref(self, r: int) -> int:
     assert r <= self._size
-    r += 1
     ret = 0
     while r > 0:
       ret += self._tree[r]
@@ -35,7 +34,7 @@ class FenwickTree:
   '''Return sum([l, r)] of a. / O(logN)'''
   def sum(self, l: int, r: int) -> int:
     assert 0 <= l <= r <= self._size
-    return self.pref(r - 1) - self.pref(l - 1)
+    return self.pref(r) - self.pref(l)
 
   def __getitem__(self, k: int) -> int:
     return self.sum(k, k+1)
@@ -71,7 +70,7 @@ class FenwickTree:
     return i
 
   def show(self) -> None:
-    print('[' + ', '.join(map(str, (self.pref(i) for i in range(self._size)))) + ']')
+    print('[' + ', '.join(map(str, (self.pref(i) for i in range(self._size+1)))) + ']')
 
   def to_l(self) -> List[int]:
     return [self.__getitem__(i) for i in range(self._size)]
@@ -94,8 +93,10 @@ class FenwickTree:
     return ans
 
   def __str__(self):
-    return '[' + ', '.join(map(str, (self.__getitem__(i) for i in range(self._size)))) + ']'
+    sub = [self.pref(i) for i in range(self._size+1)]
+    return '[' + ', '.join(map(str, (sub[i+1]-sub[i] for i in range(self._size)))) + ']'
 
   def __repr__(self):
     return 'FenwickTree' + str(self)
+
 
