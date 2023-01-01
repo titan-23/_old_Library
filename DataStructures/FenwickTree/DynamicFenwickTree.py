@@ -16,7 +16,6 @@ class DynamicFenwickTree:
  
   '''Return sum([0, r)) of a. / O(logN)'''
   def pref(self, r: int) -> int:
-    r += 1
     ret = 0
     while r > 0:
       if r in self._tree:
@@ -25,7 +24,7 @@ class DynamicFenwickTree:
     return ret
  
   def sum(self, l, r):
-    return self.pref(r-1) - self.pref(l-1)
+    return self.pref(r) - self.pref(l)
  
   '''bisect_left(acc)'''
   def bisect_left(self, w: int) -> int:
