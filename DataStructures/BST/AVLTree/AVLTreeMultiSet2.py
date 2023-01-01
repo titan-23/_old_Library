@@ -1,7 +1,3 @@
-# https://github.com/titanium-22/Library/blob/main/BST/AVLTree/AvlTreeMultiSet2.py
-
-
-import re
 from typing import Generic, Iterable, Tuple, TypeVar, Union, List
 T = TypeVar("T")
 
