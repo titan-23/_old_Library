@@ -216,23 +216,6 @@ class TreapSet:
         node = node.right
     return res
 
-  def gtlte(self, key: T) -> Tuple[Union[T, None], Union[T, None], bool]:
-    gt = None
-    lt = None
-    e = False
-    node = self.node
-    while node is not None:
-      if key == node.key:
-        e = True
-        break
-      elif key < node.key:
-        gt = node.key
-        node = node.left
-      else:
-        lt = node.key
-        node = node.right
-    return gt, lt, e
-
   def to_l(self) -> List[T]:
     a = []
     if self.node is None:
