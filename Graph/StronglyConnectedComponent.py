@@ -33,12 +33,13 @@ def get_scc(G: List[List[int]]) -> List[List[int]]:
   for s in dfsid:
     if not visited[s]: continue
     todo = [s]
+    visited[s] = 0
     for v in todo:
-      visited[v] = 0
       for x in rG[v]:
         if not visited[x]: continue
         visited[x] = 0
         todo.append(x)
     res.append(todo)
+  # 閉路検出: len(res) == n
   return res
 
