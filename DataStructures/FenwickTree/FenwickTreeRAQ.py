@@ -1,19 +1,21 @@
-from typing import List
+from typing import List, Iterable
 
 
 class FenwickTreeRAQ:
 
   '''Build a new FenwickTreeRAQ.'''
-  def __init__(self, n: int):
+  def __init__(self, n: int, a: Iterable[int]=[]):
     self._n = n
     self.bit0 = FenwickTree(n+1)
     self.bit1 = FenwickTree(n+1)
+    for i, a_ in enumerate(a):
+      self.add(i, a_)
 
-  '''Add x to a[p]. / O(logN)'''
+  '''Add x to a[k]. / O(logN)'''
   def add(self, k: int, x: int) -> None:
     self.add_range(k, k+1, x)
 
-  '''Add x to range( [l, r) ). / O(logN)'''
+  '''Add x to [l, r). / O(logN)'''
   def add_range(self, l: int, r: int, x: int) -> None:
     self.bit0.add(l, -x*l)
     self.bit0.add(r, x*r)
