@@ -54,7 +54,7 @@ class TreapMultiSet:
   def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> Node:
       mid = (l + r) >> 1
-      node = Node(a[mid], r[mid])
+      node = Node(a[mid][0], a[mid][1], rand[mid])
       if l != mid:
         node.left = sort(l, mid)
       if mid+1 != r:
@@ -64,8 +64,8 @@ class TreapMultiSet:
     self._len = len(a)
     a = self._rle(a)
     self._len_elm = len(a)
-    r = sorted(Random.random() for _ in range(self.len))
-    self.node = sort(0, len(a))[0]
+    rand = sorted(Random.random() for _ in range(self.len))
+    self.node = sort(0, len(a))
 
   def _rotate_L(self, node: Node) -> Node:
     u = node.left
