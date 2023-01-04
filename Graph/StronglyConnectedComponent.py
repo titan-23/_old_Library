@@ -1,9 +1,7 @@
 from typing import List
 
 '''Strongly Connected Components. / O(N+M)'''
-# コンセプト：
-# - 非再帰
-# - グラフGは単純でなくてもよい
+# コンセプト: 非再帰/グラフGは単純でなくてもよい
 def get_scc(G: List[List[int]]) -> List[List[int]]:
   n = len(G)
   rG = [[] for _ in range(n)]
@@ -11,7 +9,7 @@ def get_scc(G: List[List[int]]) -> List[List[int]]:
     for x in G[v]:
       rG[x].append(v)
   visited = [0] * n
-  toposo = [None] * n
+  dfsid = [0] * n
   now = n
   for s in range(n):
     if visited[s]: continue
@@ -30,9 +28,9 @@ def get_scc(G: List[List[int]]) -> List[List[int]]:
         if visited[v] == 1: continue
         visited[v] = 1
         now -= 1
-        toposo[now] = v
+        dfsid[now] = v
   res = []
-  for s in toposo:
+  for s in dfsid:
     if not visited[s]: continue
     todo = [s]
     for v in todo:
