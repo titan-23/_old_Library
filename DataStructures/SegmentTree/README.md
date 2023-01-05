@@ -12,8 +12,8 @@ ACLのsegtreeを大々的に参考にしてます。
 非再帰です。
 
 ### ```seg = SegmentTree(n_or_a: Union[int, Iterable[T]], op: Callable[[T, T], T], e: T)```
-第1引数n_or_aがintのとき、eを初期値として長さnのSegmentTreeを構築します。  
-第1引数n_or_aがIterableのとき、aからSegmentTreeを構築します。  
+第1引数n_or_aがn: intのとき、eを初期値として長さnのSegmentTreeを構築します。  
+第1引数n_or_aがa: Iterable[T]のとき、aからSegmentTreeを構築します。  
 いずれも時間計算量O(N)です。
 
 ### ```seg.set(k: int, val: T) -> None / seg[k] = val```
