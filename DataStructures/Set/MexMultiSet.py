@@ -3,7 +3,7 @@ from typing import Iterable
 class MexMultiSet:
 
   # MEX差分計算クラス
-  # 色々怪しい？# 
+  # 色々怪しい？
   # - add(x: int) xを追加する / O(logN)
   # - discard(x: int) xを削除する / O(logN)
   # - contains(x) 存在判定 / O(logN) この機能いる？？
