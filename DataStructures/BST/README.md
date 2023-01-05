@@ -3,16 +3,16 @@
 
 計算量は償却だったり最悪だったりします。詳しくは各READMEを読んでください。  
 以下の木があります。  
-- [AVLTree](https://github.com/titanium-22/Library/tree/main/BST/AVLTree)
-- [ScapegoatTree](https://github.com/titanium-22/Library/tree/main/BST/ScapegoatTree)
-- [SplayTree](https://github.com/titanium-22/Library/tree/main/BST/SplayTree)
-- [Treap](https://github.com/titanium-22/Library/tree/main/BST/Treap)
+- [AVLTree](https://github.com/titanium-22/Library/tree/main/DataStructures/BST/AVLTree)
+- [ScapegoatTree](https://github.com/titanium-22/Library/tree/main/DataStructures/BST/ScapegoatTree)
+- [SplayTree](https://github.com/titanium-22/Library/tree/main/DataStructures/BST/SplayTree)
+- [Treap](https://github.com/titanium-22/Library/tree/main/DataStructures/BST/Treap)
   
 肌感覚：  
 - 挿入/削除に強いのはTreap？
 - 検索が速いのはAVL、遅いのはTreap？
-- Splayは分からん　列を持つときは速いイメージ
-- Scapegoatは観賞用？遅くはないが特段使う理由もない？
+- Splayは分からん　キャッシュは効く　列を持つときは速いイメージ
+- Scapegoatは観賞用？遅くはないが特段使う理由もない？挿入が無いときは速いかも
 
 _____
 # 列を扱うBinaryTree #
