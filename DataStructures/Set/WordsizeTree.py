@@ -1,8 +1,26 @@
+# WordsizeTreeSet / WordsizeTreeMultiSet
+# 
+# 0以上u未満の整数を管理できるset/multiset
+# 32分木をList[List[int]]で実装している
+# 空間O(u)であることに注意
+# 
+# 以下のだいたいの操作がO(logu)で可能
+# add / discard / contains /
+# ge / gt / le / lt / 
+# get_min / get_max / popleft / pop /
+# clear / 
+# len / iter / str / repr /
+# 
+# multisetは追加で
+# count / keys / values / items /
+# の機能がある
+# データの個数はHashテーブルを用いて空間O(n)で管理している
+
 from typing import Union, Iterable
 
 class WordsizeTreeSet:
 
-  def __init__(self, u: int, a=[]):
+  def __init__(self, u: int, a: Iterable[int]=[]):
     self.u = u
     self.data = []
     self.len = 0
