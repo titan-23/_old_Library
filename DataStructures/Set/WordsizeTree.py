@@ -53,16 +53,16 @@ class WordsizeTreeSet:
       m = self.data[d][x>>5] & ((~0) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) + 1
+        x = (x >> 5) + 1
       else:
-        x = (x>>5<<5) + (m&-m).bit_length() - 1
+        x = (x >> 5 << 5) + (m & -m).bit_length() - 1
         if d == 0: break
         x <<= 5
         d -= 1
     return x
 
   def gt(self, x: int) -> Union[int, None]:
-    return self.ge(x+1)
+    return self.ge(x + 1)
 
   def le(self, x: int) -> Union[int, None]:
     d = 0
@@ -71,9 +71,9 @@ class WordsizeTreeSet:
       m = self.data[d][x>>5] & ~((~1) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) - 1
+        x = (x >> 5) - 1
       else:
-        x = (x>>5<<5) + m.bit_length()-1
+        x = (x >> 5 << 5) + m.bit_length() - 1
         if d == 0: break
         x <<= 5
         x += 31
@@ -81,13 +81,13 @@ class WordsizeTreeSet:
     return x
 
   def lt(self, x: int) -> Union[int, None]:
-    return self.le(x-1)
+    return self.le(x - 1)
 
   def get_min(self) -> Union[int, None]:
     return self.ge(0)
 
   def get_max(self) -> Union[int, None]:
-    return self.le(self.u-1)
+    return self.le(self.u - 1)
 
   def popleft(self) -> int:
     v = self.get_min()
@@ -125,9 +125,9 @@ class WordsizeTreeSet:
 
 class WordsizeTreeMultiSet:
 
-  def __init__(self, n: int, a: Iterable[int]=[]):
+  def __init__(self, u: int, a: Iterable[int]=[]):
     self.len = 0
-    self.set = WordsizeTreeSet(n, a)
+    self.set = WordsizeTreeSet(u, a)
     cnt = {}
     for a_ in a:
       self.len += 1
@@ -168,16 +168,16 @@ class WordsizeTreeMultiSet:
       m = ssd[d][x>>5] & ((~0) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) + 1
+        x = (x >> 5) + 1
       else:
-        x = (x>>5<<5) + (m&-m).bit_length()-1
+        x = (x >> 5 << 5) + (m & -m).bit_length() - 1
         if d == 0: break
         x <<= 5
         d -= 1
     return x
 
   def gt(self, x: int) -> Union[int, None]:
-    return self.ge(x+1)
+    return self.ge(x + 1)
 
   def le(self, x: int) -> Union[int, None]:
     d = 0
@@ -187,9 +187,9 @@ class WordsizeTreeMultiSet:
       m = ssd[d][x>>5] & ~((~1) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) - 1
+        x = (x >> 5) - 1
       else:
-        x = (x>>5<<5) + m.bit_length()-1
+        x = (x >> 5 << 5) + m.bit_length() - 1
         if d == 0: break
         x <<= 5
         x += 31
@@ -197,25 +197,25 @@ class WordsizeTreeMultiSet:
     return x
 
   def lt(self, x: int) -> Union[int, None]:
-    return self.le(x-1)
+    return self.le(x - 1)
 
   def get_min(self) -> Union[int, None]:
     return self.ge(0)
 
   def get_max(self) -> Union[int, None]:
-    return self.le(self.set.u-1)
+    return self.le(self.set.u - 1)
 
   def popleft(self) -> int:
     d = 0
     x = 0
     ssd = self.set.data
     while True:
-      m = [d][x>>5] & ((~0) << (x&31))
+      m = ssd[d][x>>5] & ((~0) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) + 1
+        x = (x >> 5) + 1
       else:
-        x = (x>>5<<5) + (m&-m).bit_length()-1
+        x = (x >> 5 << 5) + (m & -m).bit_length() - 1
         if d == 0: break
         x <<= 5
         d -= 1
@@ -225,14 +225,14 @@ class WordsizeTreeMultiSet:
   def pop(self) -> int:
     d = 0
     ssd = self.set.data
-    x = self.set.u-1
+    x = self.set.u - 1
     while True:
       m = ssd[d][x>>5] & ~((~1) << (x&31))
       if m == 0:
         d += 1
-        x = (x>>5) - 1
+        x = (x >> 5) - 1
       else:
-        x = (x>>5<<5) + m.bit_length()-1
+        x = (x >> 5 << 5) + m.bit_length() - 1
         if d == 0: break
         x <<= 5
         x += 31
@@ -282,5 +282,3 @@ class WordsizeTreeMultiSet:
 
   def __repr__(self):
     return 'WordsizeTreeMultiSet(' + str(self) + ')'
-
-
