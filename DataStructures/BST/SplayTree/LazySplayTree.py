@@ -1,12 +1,12 @@
 import sys
-from typing import Generic, List, TypeVar, Tuple, Callable, Iterable
+from typing import Generic, List, TypeVar, Tuple, Callable, Iterable, Any
 T = TypeVar("T")
 F = TypeVar("F")
 
 
 class Node:
 
-  def __init__(self, key) -> None:
+  def __init__(self, key: Any) -> None:
     self.key = key
     self.data = key
     self.lazy = None
@@ -23,7 +23,7 @@ class Node:
 
 class LazySplayTree(Generic[T, F]):
 
-  def __init__(self, a: Iterable[T]=[], op: Callable[[T, T], T]=lambda x,y:None, mapping: Callable[[F, T], T]=None, composition: Callable[[F, F], F]=None, e: T=None, node: Node=None) -> None:
+  def __init__(self, a: Iterable[T]=[], op: Callable[[T, T], T]=lambda x,y: None, mapping: Callable[[F, T], T]=None, composition: Callable[[F, F], F]=None, e: T=None, node: Node=None) -> None:
     self.node = node
     self.op = op
     self.mapping = mapping
@@ -190,7 +190,7 @@ class LazySplayTree(Generic[T, F]):
     self.node.right = other.node
     self._update(self.node)
 
-  def split(self, k) -> Tuple["LazySplayTree", "LazySplayTree"]:
+  def split(self, k: int) -> Tuple["LazySplayTree", "LazySplayTree"]:
     if k >= self.__len__():
       return self, LazySplayTree(op=self.op, mapping=self.mapping, composition=self.composition, e=self.e)
     self._set_kth_elm_splay(k)
@@ -295,7 +295,7 @@ class LazySplayTree(Generic[T, F]):
     self.node.right = node
     self._update(self.node)
 
-  def pop(self, k: int =-1) -> T:
+  def pop(self, k: int=-1) -> T:
     if k == -1:
       node = self._get_max_splay(self.node)
       self._propagate(node)
@@ -389,5 +389,4 @@ def composition(f, g):
   return
 
 e = None
-
 
