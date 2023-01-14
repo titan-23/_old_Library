@@ -266,6 +266,7 @@ class LazyAVLTree(Generic[T, F]):
     if self.node is None:
       return a
     def rec(node):
+      self._propagate(node)
       if node.left is not None:
         rec(node.left)
       a.append(node.key)
