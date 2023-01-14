@@ -333,6 +333,7 @@ class LazySplayTree(Generic[T, F]):
     if sys.getrecursionlimit() < self.node.size:
       sys.setrecursionlimit(self.node.size+1)
     def rec(node):
+      self._propagate(node)
       if node.left is not None:
         rec(node.left)  
       a.append(node.key)
