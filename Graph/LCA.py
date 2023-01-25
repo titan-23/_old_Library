@@ -3,14 +3,14 @@ from typing import List
 
 class LCA:
 
-  def __init__(self, _G: List[List[int]], _root: int=0):
+  def __init__(self, _G: List[List[int]], root: int):
     self._n = len(_G)
     bit = self._n.bit_length()+1
     self._msk = (1<<bit)-1
     path = [-1] * (2*self._n-1)
     depth = [-1] * (2*self._n-1)
     nodeid = [-1] * self._n
-    todo = [(_root, -1<<bit)]
+    todo = [(root, -1<<bit)]
     nowt = -1
     while todo:
       v, pd = todo.pop()
