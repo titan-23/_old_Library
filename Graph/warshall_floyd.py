@@ -1,22 +1,26 @@
 from typing import List
 inf = float('inf')
 
-'''Return min cost s.t. cost[a][b] -> a to b. / O(|V|^3)'''
+'''Return min dist s.t. dist[a][b] -> a to b. / O(|n|^3)'''
 def warshall_floyd(G: List[List[int]]) -> List[List[int]]:
-  v = len(G)
-  cost = [[inf]*v for _ in range(v)]
-  for x in range(v):
-    cost[x][x] = 0
-    for xx, cc in G[x]:
-      cost[x][xx] = cc
+  n = len(G)
+  # dist = [dijkstra(G, s) for s in range(n)]
+  dist = [[inf]*n for _ in range(n)]
+  for v in range(n):
+    dist[v][v] = 0
+    for x, c in G[v]:
+      dist[x][x] = c
   for k in range(v):
     for i in range(v):
+      if dist[i][k] == inf: continue
       for j in range(v):
-        if cost[i][j] > cost[i][k] + cost[k][j]:
-          cost[i][j] = cost[i][k] + cost[k][j]
+        if dist[i][j] > dist[i][k] + dist[k][j]:
+          dist[i][j] = dist[i][k] + dist[k][j]
+        # elif dist[i][j] == dist[i][k] + dist[k][j]:
+        #   dist[i][j] = dist[i][k] + dist[k][j]
   '''
   for i in range(v):
-    if cost[i][i] < 0:
+    if dist[i][i] < 0:
       return 'NEGATIVE CYCLE'
   '''
-  return cost
+  return dist
