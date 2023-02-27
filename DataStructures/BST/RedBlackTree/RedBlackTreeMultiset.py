@@ -336,8 +336,15 @@ class RedBlackTreeMultiset(Generic[T]):
 
   def discard(self, key: T, cnt: int=1) -> bool:
     assert cnt >= 0
-    node = self.find(key)
-    if not node:
+    node = self.node
+    while node:
+      if key == node.key:
+        break
+      elif key < node.key:
+        node = node.left
+      else:
+        node = node.right
+    else:
       return False
     if node.cnt > cnt:
       node.cnt -= cnt
@@ -359,9 +366,11 @@ class RedBlackTreeMultiset(Generic[T]):
     return self.min_node.key
 
   def get_max_iter(self) -> Node:
+    assert self.node, 'IndexError: get_max_iter from empty RedBlackTreeMultiset'
     return self.max_node
 
   def get_min_iter(self) -> Node:
+    assert self.node, 'IndexError: get_min_iter from empty RedBlackTreeMultiset'
     return self.min_node
 
   def le(self, key: T) -> Optional[T]:
@@ -470,6 +479,12 @@ class RedBlackTreeMultiset(Generic[T]):
       node.cnt -= 1
       self.len -= 1
     return node.key
+
+  def clear(self) -> None:
+    self.node = RedBlackTreeMultiset.NIL
+    self.len = 0
+    self.min_node = None
+    self.max_node = None
 
   def __iter__(self):
     self.it = self.min_node
