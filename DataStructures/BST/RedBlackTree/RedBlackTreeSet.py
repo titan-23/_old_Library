@@ -219,11 +219,11 @@ class RedBlackTreeSet(Generic[T]):
     else:
       pnode.right = z
     z.col = 1
-    while z.par.col == 1:
+    while z.par.col:
       g = z.par.par
       if z.par is g.left:
         y = g.right
-        if y.col == 1:
+        if y.col:
           z.par.col = 0
           y.col = 0
           g.col = 1
@@ -238,7 +238,7 @@ class RedBlackTreeSet(Generic[T]):
           break
       else:
         y = g.left
-        if y.col == 1:
+        if y.col:
           z.par.col = 0
           y.col = 0
           g.col = 1
@@ -282,22 +282,22 @@ class RedBlackTreeSet(Generic[T]):
       y.left = node.left
       y.left.par = y
       y.col = node.col
-    if y_col == 1:
+    if y_col:
       return True
-    while x is not self.node and x.col == 0:
+    while x is not self.node and not x.col:
       if x is x.par.left:
         y = x.par
         w = y.right
-        if w.col == 1:
+        if w.col:
           w.col = 0
           y.col = 1
           self._rotate_left(y)
           w = y.right
-        if w.left.col == 0 and w.right.col == 0:
+        if not (w.left.col or w.right.col):
           w.col = 1
           x = y
         else:
-          if w.right.col == 0:
+          if not w.right.col:
             w.left.col = 0
             w.col = 1
             self._rotate_right(w)
@@ -310,16 +310,16 @@ class RedBlackTreeSet(Generic[T]):
       else:
         y = x.par
         w = y.left
-        if w.col == 1:
+        if w.col:
           w.col = 0
           y.col = 1
           self._rotate_right(y)
           w = y.left
-        if w.right.col == 0 and w.left.col == 0:
+        if not (w.right.col or w.left.col):
           w.col = 1
           x = y
         else:
-          if w.left.col == 0:
+          if not w.left.col:
             w.right.col = 0
             w.col = 1
             self._rotate_left(w)
@@ -332,8 +332,15 @@ class RedBlackTreeSet(Generic[T]):
     x.col = 0
 
   def discard(self, key: T) -> bool:
-    node = self.find(key)
-    if node is None:
+    node = self.node
+    while node:
+      if key == node.key:
+        break
+      elif key < node.key:
+        node = node.left
+      else:
+        node = node.right
+    else:
       return False
     self.discard_iter(node)
     return True
@@ -452,6 +459,12 @@ class RedBlackTreeSet(Generic[T]):
     node = self.min_node
     self.discard_iter(node)
     return node.key
+
+  def clear(self) -> None:
+    self.node = RedBlackTreeSet.NIL
+    self.len = 0
+    self.min_node = None
+    self.max_node = None
 
   def __iter__(self):
     self.it = self.min_node
