@@ -1,56 +1,68 @@
-from typing import List, Union
+from typing import List, Union, Iterable, Optional
 
+class FenwickTree():
 
-class FenwickTree:
-
-  '''Build a new FenwickTree. / O(N)'''
-  def __init__(self, _n_or_a: Union[List[int], int]):
+  def __init__(self, _n_or_a: Union[Iterable[int], int]):
     if isinstance(_n_or_a, int):
       self._size = _n_or_a
-      self._tree = [0] * (self._size+1)
+      self._tree = [0] * (self._size + 1)
     else:
-      a = list(_n_or_a)
+      a = _n_or_a if isinstance(_n_or_a, list) else list(_n_or_a)
       self._size = len(a)
       self._tree = [0] + a
       for i in range(1, self._size):
         if i + (i & -i) <= self._size:
           self._tree[i + (i & -i)] += self._tree[i]
-    self._s = 1 << (self._size-1).bit_length()
+    self._s = 1 << (self._size - 1).bit_length()
 
-  '''Return sum([0, r)) of a. / O(logN)'''
   def pref(self, r: int) -> int:
-    assert r <= self._size
+    '''Return sum(a[0, r)) / O(logN)'''
+    assert 0 <= r <= self._size, \
+        f'IndexError: FenwickTree.pref({r}), n={self._size}'
     ret = 0
     while r > 0:
       ret += self._tree[r]
       r -= r & -r
     return ret
 
-  '''Return sum([l, n)) of a. / O(logN)'''
   def suff(self, l: int) -> int:
-    assert 0 <= l < self._size
+    '''Return sum(a[l, n)). / O(logN)'''
+    assert 0 <= l < self._size, \
+        f'IndexError: FenwickTree.suff({l}), n={self._size}'
     return self.pref(self._size) - self.pref(l)
 
-  '''Return sum([l, r)] of a. / O(logN)'''
   def sum(self, l: int, r: int) -> int:
-    assert 0 <= l <= r <= self._size
+    '''Return sum(a[l, r)]. / O(logN)'''
+    assert 0 <= l <= r <= self._size, \
+        f'IndexError: FenwickTree.sum({l}, {r}), n={self._size}'
     return self.pref(r) - self.pref(l)
 
   def __getitem__(self, k: int) -> int:
-    return self.sum(k, k+1)
+    assert -self._size <= k < self._size, \
+        f'IndexError: FenwickTree.__getitem__({k}), n={self._size}'
+    if k < 0: k += self._size
+    return self.pref(k+1) - self.pref(k)
 
-  '''Add x to a[k]. / O(logN)'''
   def add(self, k: int, x: int) -> None:
-    assert 0 <= k < self._size
+    '''Add x to a[k]. / O(logN)'''
+    assert 0 <= k < self._size, \
+        f'IndexError: FenwickTree.add({k}, {x}), n={self._size}'
     k += 1
     while k <= self._size:
       self._tree[k] += x
       k += k & -k
 
-  '''bisect_left(acc)'''
-  def bisect_left(self, w: int) -> int:
-    i = 0
-    s = self._s
+  def __setitem__(self, k: int, x: int):
+    '''Update A[k] to x. / O(logN)'''
+    assert -self._size <= k < self._size, \
+        f'IndexError: FenwickTree.__setitem__({k}, {x}), n={self._size}'
+    if k < 0: k += self._size
+    pre = self.__getitem__(k)
+    self.add(k, x - pre)
+
+  def bisect_left(self, w: int) -> Optional[int]:
+    '''bisect_left(acc) / O(logN)'''
+    i, s = 0, self._s
     while s:
       if i + s <= self._size and self._tree[i + s] < w:
         w -= self._tree[i + s]
@@ -58,10 +70,9 @@ class FenwickTree:
       s >>= 1
     return i if w else None
 
-  '''bisect_right(acc)'''
   def bisect_right(self, w: int) -> int:
-    i = 0
-    s = self._s
+    '''bisect_right(acc) / O(logN)'''
+    i, s = 0, self._s
     while s:
       if i + s <= self._size and self._tree[i + s] <= w:
         w -= self._tree[i + s]
@@ -70,33 +81,33 @@ class FenwickTree:
     return i
 
   def show(self) -> None:
+    '''for debug'''
     print('[' + ', '.join(map(str, (self.pref(i) for i in range(self._size+1)))) + ']')
 
-  def to_l(self) -> List[int]:
-    return [self.__getitem__(i) for i in range(self._size)]
+  def tolist(self) -> List[int]:
+    sub = [self.pref(i) for i in range(self._size+1)]
+    return [sub[i+1]-sub[i] for i in range(self._size)]
 
-  @classmethod
-  def inversion_num(self, a: List[int], compress: bool=False) -> int:
-    ans = 0
+  @staticmethod
+  def get_inversion_num(a: List[int], compress: bool=False) -> int:
+    inv = 0
     if compress:
       a_ = sorted(set(a))
       z = {e: i for i, e in enumerate(a_)}
       fw = FenwickTree(len(a_))
       for i, e in enumerate(a):
-        ans += i - fw.pref(z[e])
+        inv += i - fw.pref(z[e])
         fw.add(z[e], 1)
     else:
       fw = FenwickTree(len(a))
       for i, e in enumerate(a):
-        ans += i - fw.pref(e)
+        inv += i - fw.pref(e)
         fw.add(e, 1)
-    return ans
+    return inv
 
   def __str__(self):
-    sub = [self.pref(i) for i in range(self._size+1)]
-    return '[' + ', '.join(map(str, (sub[i+1]-sub[i] for i in range(self._size)))) + ']'
+    return '[' + ', '.join(map(str, self.tolist())) + ']'
 
   def __repr__(self):
-    return 'FenwickTree' + str(self)
-
+    return f'FenwickTree({self})'
 
