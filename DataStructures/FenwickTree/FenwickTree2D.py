@@ -1,7 +1,7 @@
 from typing import List
 
-class FenwickTree2D:
- 
+class FenwickTree2D():
+
   '''Build a new FenwickTree2D. / O(HW)'''
   def __init__(self, h: int, w: int, a: List[List[int]]=[]):
     self._h = h + 1
@@ -15,7 +15,7 @@ class FenwickTree2D:
     for i in range(self._h-1):
       for j in range(self._w-1):
         self.add(i, j, a[i][j])
- 
+
   '''Add x to a[h][w]. / O(logH * logW)'''
   def add(self, h: int, w: int, x) -> None:
     h += 1
@@ -27,7 +27,7 @@ class FenwickTree2D:
         bit_h[j] += x
         j += j & -j
       h += h & -h
- 
+
   def set(self, h: int, w: int, x) -> None:
     self.add(h, w, x-self.get(h, w))
 
@@ -42,7 +42,7 @@ class FenwickTree2D:
         j -= j & -j
       h -= h & -h
     return ret
- 
+
   '''Retrun sum([h1, h2) * [w1, w2)) of a. / O(logH * logW)'''
   def sum(self, h1: int, w1: int, h2: int, w2: int):
     assert h1 <= h2 and w1 <= w2
