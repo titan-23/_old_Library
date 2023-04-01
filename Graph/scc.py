@@ -1,7 +1,6 @@
 from typing import List
 
 '''Strongly Connected Components. / O(N+M)'''
-# コンセプト: 非再帰/グラフGは単純でなくてもよい
 def get_scc(G: List[List[int]]) -> List[List[int]]:
   n = len(G)
   rG = [[] for _ in range(n)]
