@@ -45,3 +45,26 @@ class Mo():
         delete(nr)
       out(rli & msk)
 
+  def runrun(self, add_left: Callable[[int], None], add_right: Callable[[int], None], \
+          delete_left: Callable[[int], None], delete_right: Callable[[int], None], out: Callable[[int], None]) -> None:
+    assert self.cnt == self.q
+    bucket, bit, msk = self.bucket, self.bit, self.msk
+    for i, b in enumerate(bucket):
+      b.sort(reverse=i & 1)
+    nl, nr = 0, 0
+    for rli in chain(*bucket):
+      r, l = rli >> bit >> bit, rli >> bit & msk
+      while nl > l:
+        nl -= 1
+        add_left(nl)
+      while nr < r:
+        add_right(nr)
+        nr += 1
+      while nl < l:
+        delete_left(nl)
+        nl += 1
+      while nr > r:
+        nr -= 1
+        delete_right(nr)
+      out(rli & msk)
+
