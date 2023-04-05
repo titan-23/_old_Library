@@ -1,417 +1,431 @@
-import sys
 from array import array
-from typing import Generic, List, TypeVar, Tuple, Callable, Iterable, Union
-T = TypeVar("T")
-F = TypeVar("F")
+from typing import Generic, List, TypeVar, Tuple, Callable, Iterable, Optional, Union
+from __pypy__ import newlist_hint
+T = TypeVar('T')
+F = TypeVar('F')
+
+class MonoidData(Generic[T, F]):
+
+  def __init__(self, op: Optional[Callable[[T, T], T]]=None, \
+              mapping: Optional[Callable[[F, T], T]]=None, \
+              composition: Optional[Callable[[F, F], F]]=None, \
+              e: T=None, id: F=None):
+    self.op = (lambda s, t: e) if op is None else op
+    self.mapping = (lambda f, s: e) if op is None else mapping
+    self.composition = (lambda f, g: id) if op is None else composition
+    self.e = e
+    self.id = id
+    self.keydata: List[T] = [e, e]
+    self.lazy: List[F] = [id]
+    self.size: array[int] = array('I', bytes(4))
+    self.child: array[int] = array('I', bytes(8))
+    self.rev: array[int] = array('B', bytes(1))
+    self.end: int = 1
+
+  def reserve(self, n: int) -> None:
+    if n <= 0: return
+    self.keydata += [self.e] * (2 * n)
+    self.lazy += [self.id] * n
+    self.size += array('I', [1] * n)
+    self.child += array('I', bytes(8 * n))
+    self.rev += array('B', bytes(n))
 
 class LazySplayTree(Generic[T, F]):
 
-  key = [None]
-  data = [None]
-  lazy = [None]
-  size = array('I', [0])
-  left = array('I', [0])
-  right = array('I', [0])
-  rev = array('i', [0])
-  end = 1
-
-  @staticmethod
-  def reserve(n):
-    d1 = [0] * n
-    d2 = [None] * n
-    a = array('I', d1)
-    LazySplayTree.key += d2
-    LazySplayTree.data += d2
-    LazySplayTree.lazy += d2
-    LazySplayTree.size += array('I', [1] * n)
-    LazySplayTree.left += a
-    LazySplayTree.right += a
-    LazySplayTree.rev += array('i', d1)
-
-  def __init__(self, a: Iterable[T]=[], op: Callable[[T, T], T]=lambda x,y: None, mapping: Callable[[F, T], T]=None, composition: Callable[[F, F], F]=None, e: T=None, node: int=0):
-    self.node = node
-    self.op = op
-    self.mapping = mapping
-    self.composition = composition
-    self.e = e
-    a = list(a)
+  def __init__(self, monoiddata: 'MonoidData', n_or_a: Union[int, Iterable[T]]=0, _node: int=0):
+    self.monoiddata = monoiddata
+    self.node = _node
+    if isinstance(n_or_a, int):
+      a = [monoiddata.e for _ in range(n_or_a)]
+    elif not hasattr(n_or_a, '__len__'):
+      a = list(n_or_a)
+    else:
+      a = n_or_a
     if a:
       self._build(a)
 
-  def _build(self, a: List[T]) -> None:
+  def _build(self, a: Iterable[T]) -> None:
     def sort(l: int, r: int) -> int:
       mid = (l + r) >> 1
       if l != mid:
-        LazySplayTree.left[mid] = sort(l, mid)
-      if mid+1 != r:
-        LazySplayTree.right[mid] = sort(mid+1, r)
+        child[mid<<1] = sort(l, mid)
+      if mid + 1 != r:
+        child[mid<<1|1] = sort(mid+1, r)
       self._update(mid)
       return mid
     n = len(a)
-    key, data = LazySplayTree.key, LazySplayTree.data
-    end = LazySplayTree.end
-    LazySplayTree.end += n
-    LazySplayTree.reserve(n)
-    for i in range(n):
-      key[end+i] = a[i]
-      data[end+i] = a[i]
+    keydata, child = self.monoiddata.keydata, self.monoiddata.child
+    end = self.monoiddata.end
+    self.monoiddata.reserve(n+end-len(keydata)//2+1)
+    self.monoiddata.end += n
+    for i, e in enumerate(a):
+      keydata[end+i<<1] = e
+      keydata[end+i<<1|1] = e
     self.node = sort(end, n+end)
 
+  def _make_node(self, key: T) -> int:
+    monoiddata = self.monoiddata
+    if monoiddata.end >= len(monoiddata.size):
+      monoiddata.keydata.append(key)
+      monoiddata.keydata.append(key)
+      monoiddata.lazy.append(monoiddata.id)
+      monoiddata.size.append(1)
+      monoiddata.child.append(0)
+      monoiddata.child.append(0)
+      monoiddata.rev.append(0)
+    else:
+      monoiddata.keydata[monoiddata.end<<1] = key
+      monoiddata.keydata[monoiddata.end<<1|1] = key
+    monoiddata.end += 1
+    return monoiddata.end - 1
+
   def _propagate(self, node: int) -> None:
-    if LazySplayTree.rev[node]:
-      LazySplayTree.left[node], LazySplayTree.right[node] = LazySplayTree.right[node], LazySplayTree.left[node]
-      lnode, rnode = LazySplayTree.left[node], LazySplayTree.right[node]
-      if lnode != 0:
-        LazySplayTree.rev[lnode] ^= 1
-      if rnode != 0:
-        LazySplayTree.rev[rnode] ^= 1
-      LazySplayTree.rev[node] = 0
-    lnode, rnode = LazySplayTree.left[node], LazySplayTree.right[node]
-    lazy = LazySplayTree.lazy[node]
-    if lazy is not None:
-      if lnode != 0:
-        LazySplayTree.data[lnode] = self.mapping(lazy, LazySplayTree.data[lnode])
-        LazySplayTree.key[lnode] = self.mapping(lazy, LazySplayTree.key[lnode])
-        LazySplayTree.lazy[lnode] = lazy if LazySplayTree.lazy[lnode] is None else self.composition(lazy, LazySplayTree.lazy[lnode])
-      if rnode != 0:
-        LazySplayTree.data[rnode] = self.mapping(lazy, LazySplayTree.data[rnode])
-        LazySplayTree.key[rnode] = self.mapping(lazy, LazySplayTree.key[rnode])
-        LazySplayTree.lazy[rnode] = lazy if LazySplayTree.lazy[rnode] is None else self.composition(lazy, LazySplayTree.lazy[rnode])
-      LazySplayTree.lazy[node] = None
+    monoiddata = self.monoiddata
+    rev, child = monoiddata.rev, monoiddata.child
+    if rev[node]:
+      child[node<<1], child[node<<1|1] = child[node<<1|1], child[node<<1]
+      rev[node] = 0
+      rev[child[node<<1]] ^= 1
+      rev[child[node<<1|1]] ^= 1
+    nlazy = monoiddata.lazy[node]
+    if nlazy == monoiddata.id:
+      return
+    lnode, rnode = child[node<<1], child[node<<1|1]
+    keydata, lazy = monoiddata.keydata, monoiddata.lazy
+    lazy[node] = monoiddata.id
+    if lnode:
+      lazy[lnode] = monoiddata.composition(nlazy, lazy[lnode])
+      lnode <<= 1
+      keydata[lnode] = monoiddata.mapping(nlazy, keydata[lnode])
+      keydata[lnode|1] = monoiddata.mapping(nlazy, keydata[lnode|1])
+    if rnode:
+      lazy[rnode] = monoiddata.composition(nlazy, lazy[rnode])
+      rnode <<= 1
+      keydata[rnode] = monoiddata.mapping(nlazy, keydata[rnode])
+      keydata[rnode|1] = monoiddata.mapping(nlazy, keydata[rnode|1])
 
   def _update(self, node: int) -> None:
-    lnode, rnode = LazySplayTree.left[node], LazySplayTree.right[node]
-    LazySplayTree.size[node] = 1 + LazySplayTree.size[lnode] + LazySplayTree.size[rnode]
-    if lnode == 0:
-      if rnode == 0:
-        LazySplayTree.data[node] = LazySplayTree.key[node]
-      else:
-        LazySplayTree.data[node] = self.op(LazySplayTree.key[node], LazySplayTree.data[rnode])
-    else:
-      if rnode == 0:
-        LazySplayTree.data[node] = self.op(LazySplayTree.data[lnode], LazySplayTree.key[node])
-      else:
-        LazySplayTree.data[node] = self.op(self.op(LazySplayTree.data[lnode], LazySplayTree.key[node]), LazySplayTree.data[rnode])
+    monoiddata = self.monoiddata
+    size, keydata, child = monoiddata.size, monoiddata.keydata, monoiddata.child
+    lnode, rnode = child[node<<1], child[node<<1|1]
+    size[node] = 1 + size[lnode] + size[rnode]
+    keydata[node<<1|1] = monoiddata.op(monoiddata.op(keydata[lnode<<1|1], keydata[node<<1]), keydata[rnode<<1|1])
 
-  def _splay(self, path: List[int], di: int) -> int:
-    left, right = LazySplayTree.left, LazySplayTree.right
+  def _update_triple(self, x: int, y: int, z: int) -> None:
+    monoiddata = self.monoiddata
+    size, keydata, child = monoiddata.size, monoiddata.keydata, monoiddata.child
+    lx, rx = child[x<<1], child[x<<1|1]
+    ly, ry = child[y<<1], child[y<<1|1]
+    size[z] = size[x]
+    size[x] = 1 + size[lx] + size[rx]
+    size[y] = 1 + size[ly] + size[ry]
+    keydata[z<<1|1] = keydata[x<<1|1]
+    keydata[x<<1|1] = monoiddata.op(monoiddata.op(keydata[lx<<1|1], keydata[x<<1]), keydata[rx<<1|1])
+    keydata[y<<1|1] = monoiddata.op(monoiddata.op(keydata[ly<<1|1], keydata[y<<1]), keydata[ry<<1|1])
+
+  def _update_double(self, x: int, y: int) -> None:
+    monoiddata = self.monoiddata
+    size, keydata, child = monoiddata.size, monoiddata.keydata, monoiddata.child
+    lx, rx = child[x<<1], child[x<<1|1]
+    size[y] = size[x]
+    size[x] = 1 + size[lx] + size[rx]
+    keydata[y<<1|1] = keydata[x<<1|1]
+    keydata[x<<1|1] = monoiddata.op(monoiddata.op(keydata[lx<<1|1], keydata[x<<1]), keydata[rx<<1|1])
+
+  def _splay(self, path: List[int], d: int) -> None:
+    child = self.monoiddata.child
+    g = d & 1
     while len(path) > 1:
-      node = path.pop()
       pnode = path.pop()
-      if di & 1:
-        tmp = left[node]
-        left[node] = right[tmp]
-        if di >> 1 & 1:
-          right[tmp] = node
-          left[pnode] = right[node]
-          right[node] = pnode
-        else:
-          right[pnode] = left[tmp]
-          right[tmp] = node
-          left[tmp] = pnode
-      else:
-        tmp = right[node]
-        right[node] = left[tmp]
-        if di >> 1 & 1:
-          left[pnode] = right[tmp]
-          left[tmp] = node
-          right[tmp] = pnode
-        else:
-          left[tmp] = node
-          right[pnode] = left[node]
-          left[node] = pnode
-      self._update(pnode)
-      self._update(node)
-      self._update(tmp)
+      gnode = path.pop()
+      f = d >> 1 & 1
+      node = child[pnode<<1|g^1]
+      nnode = (pnode if g == f else node) << 1 | f
+      child[pnode<<1|g^1] = child[node<<1|g]
+      child[node<<1|g] = pnode
+      child[gnode<<1|f^1] = child[nnode]
+      child[nnode] = gnode
+      self._update_triple(gnode, pnode, node)
       if not path:
-        return tmp
-      di >>= 2
-      if di & 1:
-        left[path[-1]] = tmp
-      else:
-        right[path[-1]] = tmp
-    gnode = path[0]
-    if di & 1:
-      node = left[gnode]
-      left[gnode] = right[node]
-      right[node] = gnode
-    else:
-      node = right[gnode]
-      right[gnode] = left[node]
-      left[node] = gnode
-    self._update(gnode)
-    self._update(node)
-    return node
+        return
+      d >>= 2
+      g = d & 1
+      child[path[-1]<<1|g^1] = node
+    pnode = path.pop()
+    node = child[pnode<<1|g^1]
+    child[pnode<<1|g^1] = child[node<<1|g]
+    child[node<<1|g] = pnode
+    self._update_double(pnode, node)
 
-  def _set_kth_elm_splay(self, k: int) -> None:
-    size = LazySplayTree.size
-    node = self.node
+  def _kth_elm_splay(self, node: int, k: int) -> int:
+    size, child = self.monoiddata.size, self.monoiddata.child
     if k < 0: k += size[node]
-    left, right = LazySplayTree.left, LazySplayTree.right
-    di = 0
+    d = 0
     path = []
     while True:
       self._propagate(node)
-      t = size[left[node]]
+      t = size[child[node<<1]]
       if t == k:
         if path:
-          self.node = self._splay(path, di)
-        return
-      elif t > k:
-        path.append(node)
-        di <<= 1
-        di |= 1
-        node = left[node]
-      else:
-        path.append(node)
-        di <<= 1
-        node = right[node]
+          self._splay(path, d)
+        return node
+      d = d << 1 | (t > k)
+      path.append(node)
+      node = child[node<<1|(t<k)]
+      if t < k:
         k -= t + 1
 
-  def _get_min_splay(self, node: int) -> Union[int, None]:
-    if node == 0: return None
+  def _left_splay(self, node: int) -> int:
+    if not node: return 0
     self._propagate(node)
-    left = LazySplayTree.left
-    if left[node] == 0: return node
+    child = self.monoiddata.child
+    if not child[node<<1]: return node
     path = []
-    while left[node] != 0:
+    while child[node<<1]:
       path.append(node)
-      node = left[node]
+      node = child[node<<1]
       self._propagate(node)
-    return self._splay(path, (1<<len(path))-1)
+    self._splay(path, (1<<len(path))-1)
+    return node
 
-  def _get_max_splay(self, node: int) -> Union[int, None]:
-    if node == 0: return None
+  def _right_splay(self, node: int) -> int:
+    if not node: return 0
     self._propagate(node)
-    right = LazySplayTree.right
-    if right[node] == 0: return node
+    child = self.monoiddata.child
+    if not child[node<<1|1]: return node
     path = []
-    while right[node] != 0:
+    while child[node<<1|1]:
       path.append(node)
-      node = right[node]
+      node = child[node<<1|1]
       self._propagate(node)
-    return self._splay(path, 0)
+    self._splay(path, 0)
+    return node
 
-  def merge(self, other: "LazySplayTree") -> None:
-    if self.node == 0:
+  def reserve(self, n: int) -> None:
+    self.monoiddata.reserve(n)
+
+  def merge(self, other: 'LazySplayTree') -> None:
+    assert self.monoiddata is other.monoiddata
+    if not other.node: return
+    if not self.node:
       self.node = other.node
       return
-    if other.node == 0:
-      return
-    self.node = self._get_max_splay(self.node)
-    LazySplayTree.right[self.node] = other.node
+    self.node = self._right_splay(self.node)
+    self.monoiddata.child[self.node<<1|1] = other.node
     self._update(self.node)
 
-  def split(self, k: int) -> Tuple["LazySplayTree", "LazySplayTree"]:
-    if k >= LazySplayTree.size[self.node]:
-      return self, LazySplayTree(op=self.op, mapping=self.mapping, composition=self.composition, e=self.e)
-    self._set_kth_elm_splay(k)
-    left = LazySplayTree(op=self.op, mapping=self.mapping, composition=self.composition, e=self.e, node=LazySplayTree.left[self.node])
-    LazySplayTree.left[self.node], right = 0, self
-    self._update(right.node)
-    return left, right
+  def split(self, k: int) -> Tuple['LazySplayTree', 'LazySplayTree']:
+    assert -len(self) < k <= len(self), \
+        f'IndexError: LazySplayTree.split({k}), len={len(self)}'
+    if k < 0: k += len(self)
+    if k >= self.monoiddata.size[self.node]:
+      return self, LazySplayTree(monoiddata=self.monoiddata, _node=0)
+    self.node = self._kth_elm_splay(self.node, k)
+    left = LazySplayTree(monoiddata=self.monoiddata, _node=self.monoiddata.child[self.node<<1])
+    self.monoiddata.child[self.node<<1] = 0
+    self._update(self.node)
+    return left, self
+
+  def _internal_split(self, k: int) -> Tuple[int, int]:
+    if k >= self.monoiddata.size[self.node]:
+      return self.node, 0
+    self.node = self._kth_elm_splay(self.node, k)
+    left = self.monoiddata.child[self.node<<1]
+    self.monoiddata.child[self.node<<1] = 0
+    self._update(self.node)
+    return left, self.node
 
   def reverse(self, l: int, r: int) -> None:
-    if l >= r: return
-    left, right = self.split(r)
-    if l == 0:
-      LazySplayTree.rev[left.node] ^= 1
+    assert 0 <= l <= r <= len(self), \
+        f'IndexError: LazySplayTree.reverse({l}, {r}), len={len(self)}'
+    if l == r: return
+    monoiddata = self.monoiddata
+    left, right = self._internal_split(r)
+    if l:
+      left = self._kth_elm_splay(left, l-1)
+    monoiddata.rev[monoiddata.child[left<<1|1] if l else left] ^= 1
+    if right:
+      monoiddata.child[right<<1] = left
+      self._update(right)
+      self.node = right
     else:
-      left._set_kth_elm_splay(l-1)
-      LazySplayTree.rev[LazySplayTree.right[left.node]] ^= 1
-    if right.node == 0:
-      right.node = left.node
-    else:
-      LazySplayTree.left[right.node] = left.node
-      self._update(right.node)
-    self.node = right.node
+      self.node = left
 
   def all_reverse(self) -> None:
-    if self.node == 0: return
-    LazySplayTree.rev[self.node] ^= 1
+    self.monoiddata.rev[self.node] ^= 1
 
   def apply(self, l: int, r: int, f: F) -> None:
-    if l >= r: return
-    left, right = self.split(r)
-    if l == 0:
-      lnode = left.node
-      LazySplayTree.key[lnode] = self.mapping(f, LazySplayTree.key[lnode])
-      LazySplayTree.data[lnode] = self.mapping(f, LazySplayTree.data[lnode])
-      LazySplayTree.lazy[lnode] = f if LazySplayTree.lazy[lnode] is None else self.composition(f, LazySplayTree.lazy[lnode])
+    assert 0 <= l <= r <= len(self), \
+        f'IndexError: LazySplayTree.apply({l}, {r}), len={len(self)}'
+    monoiddata = self.monoiddata
+    left, right = self._internal_split(r)
+    keydata, lazy = monoiddata.keydata, monoiddata.lazy
+    if l:
+      left = self._kth_elm_splay(left, l-1)
+    node = monoiddata.child[left<<1|1] if l else left
+    keydata[node<<1] = monoiddata.mapping(f, keydata[node<<1])
+    keydata[node<<1|1] = monoiddata.mapping(f, keydata[node<<1|1])
+    lazy[node] = monoiddata.composition(f, lazy[node])
+    if l:
+      self._update(left)
+    if right:
+      monoiddata.child[right<<1] = left
+      self._update(right)
+      self.node = right
     else:
-      left._set_kth_elm_splay(l-1)
-      lnode = left.node
-      node = LazySplayTree.right[lnode]
-      LazySplayTree.key[node] = self.mapping(f, LazySplayTree.key[node])
-      LazySplayTree.data[node] = self.mapping(f, LazySplayTree.data[node])
-      LazySplayTree.lazy[node] = f if LazySplayTree.lazy[node] is None else self.composition(f, LazySplayTree.lazy[node])
-      self._update(lnode)
-    if right.node == 0:
-      right.node = lnode
-    else:
-      LazySplayTree.left[right.node] = lnode
-      self._update(right.node)
-    self.node = right.node
+      self.node = left
 
   def all_apply(self, f: F) -> None:
-    LazySplayTree.key[self.node] = self.mapping(f, LazySplayTree.key[self.node])
-    LazySplayTree.data[self.node] = self.mapping(f, LazySplayTree.data[self.node])
-    LazySplayTree.lazy[self.node] = f if LazySplayTree.lazy[self.node] is None else self.composition(f, LazySplayTree.lazy[self.node])
+    if not self.node: return
+    monoiddata, node = self.monoiddata, self.node
+    monoiddata.keydata[node<<1] = monoiddata.mapping(f, monoiddata.keydata[node<<1])
+    monoiddata.keydata[node<<1|1] = monoiddata.mapping(f, monoiddata.keydata[node<<1|1])
+    monoiddata.lazy[node] = monoiddata.composition(f, monoiddata.lazy[node])
 
   def prod(self, l: int, r: int) -> T:
-    if l >= r: return self.e
-    left, right = self.split(r)
-    if l == 0:
-      res = LazySplayTree.data[left.node]
+    assert 0 <= l <= r <= len(self), \
+        f'IndexError: LazySplayTree.prod({l}, {r}), len={len(self)}'
+    monoiddata = self.monoiddata
+    left, right = self._internal_split(r)
+    if l:
+      left = self._kth_elm_splay(left, l-1)
+    res = monoiddata.keydata[(monoiddata.child[left<<1|1] if l else left)<<1|1]
+    if right:
+      monoiddata.child[right<<1] = left
+      self._update(right)
+      self.node = right
     else:
-      left._set_kth_elm_splay(l-1)
-      res = LazySplayTree.data[LazySplayTree.right[left.node]]
-    if right.node == 0:
-      right.node = left.node
-    else:
-      LazySplayTree.left[right.node] = left.node
-      self._update(right.node)
-    self.node = right.node
+      self.node = left
     return res
 
   def all_prod(self) -> T:
-    return self.e if self.node == 0 else LazySplayTree.data[self.node]
-
-  def _make_node(self, key: T) -> int:
-    end = LazySplayTree.end
-    if end >= len(LazySplayTree.key):
-      LazySplayTree.key.append(key)
-      LazySplayTree.data.append(key)
-      LazySplayTree.lazy.append(None)
-      LazySplayTree.size.append(1)
-      LazySplayTree.left.append(0)
-      LazySplayTree.right.append(0)
-      LazySplayTree.rev.append(0)
-    else:
-      LazySplayTree.key[end] = key
-      LazySplayTree.data[end] = key
-    LazySplayTree.end += 1
-    return end
+    return self.monoiddata.keydata[self.node<<1|1]
 
   def insert(self, k: int, key: T) -> None:
+    assert -len(self) <= k <= len(self), \
+        f'IndexError: LazySplayTree.insert({k}, {key}), len={len(self)}'
+    if k < 0: k += len(self)
+    monoiddata = self.monoiddata
     node = self._make_node(key)
-    if self.node == 0:
+    if not self.node:
       self.node = node
       return
-    if k >= LazySplayTree.size[self.node]:
-      self._set_kth_elm_splay(LazySplayTree.size[self.node]-1)
-      LazySplayTree.left[node] = self.node
-      self.node = node
+    child = monoiddata.child
+    if k >= monoiddata.size[self.node]:
+      child[node<<1] = self._right_splay(self.node)
     else:
-      self._set_kth_elm_splay(k)
-      if LazySplayTree.left[self.node] != 0:
-        LazySplayTree.left[node] = LazySplayTree.left[self.node]
-        LazySplayTree.left[self.node] = 0
+      self.node = self._kth_elm_splay(self.node, k)
+      if child[self.node<<1]:
+        child[node<<1] = child[self.node<<1]
+        child[self.node<<1] = 0
         self._update(self.node)
-      LazySplayTree.right[node] = self.node
-      self.node = node
-    self._update(self.node)
+      child[node<<1|1] = self.node
+    self._update(node)
+    self.node = node
 
   def append(self, key: T) -> None:
-    if self.node == 0:
-      self.node = self._make_node(key)
-      return
-    node = self._get_max_splay(self.node)
+    monoiddata = self.monoiddata
+    node = self._right_splay(self.node)
     self.node = self._make_node(key)
-    LazySplayTree.left[self.node] = node
+    monoiddata.child[self.node<<1] = node
     self._update(self.node)
 
   def appendleft(self, key: T) -> None:
-    if self.node == 0:
-      self.node = self._make_node(key)
-      return
-    node = self._get_min_splay(self.node)
+    node = self._left_splay(self.node)
     self.node = self._make_node(key)
-    LazySplayTree.right[self.node] = node
+    self.monoiddata.child[self.node<<1|1] = node
     self._update(self.node)
 
   def pop(self, k: int=-1) -> T:
+    assert -len(self) <= k < len(self), \
+        f'IndexError: LazySplayTree.pop({k})'
+    monoiddata = self.monoiddata
     if k == -1:
-      node = self._get_max_splay(self.node)
+      node = self._right_splay(self.node)
       self._propagate(node)
-      self.node = LazySplayTree.left[node]
-      return LazySplayTree.key[node]
-    self._set_kth_elm_splay(k)
-    res = LazySplayTree.key[self.node]
-    if LazySplayTree.left[self.node] == 0:
-      self.node = LazySplayTree.right[self.node]
-    elif LazySplayTree.right[self.node] == 0:
-      self.node = LazySplayTree.left[self.node]
+      self.node = monoiddata.child[node<<1]
+      return monoiddata.keydata[node<<1]
+    self.node = self._kth_elm_splay(self.node, k)
+    res = monoiddata.keydata[self.node<<1]
+    if not monoiddata.child[self.node<<1]:
+      self.node = monoiddata.child[self.node<<1|1]
+    elif not monoiddata.child[self.node<<1|1]:
+      self.node = monoiddata.child[self.node<<1]
     else:
-      node = self._get_max_splay(LazySplayTree.left[self.node])
-      LazySplayTree.right[node] = LazySplayTree.right[self.node]
+      node = self._right_splay(monoiddata.child[self.node<<1])
+      monoiddata.child[node<<1|1] = monoiddata.child[self.node<<1|1]
       self.node = node
       self._update(self.node)
     return res
 
   def popleft(self) -> T:
-    node = self._get_min_splay(self.node)
-    self._propagate(node)
-    self.node = LazySplayTree.right[node]
-    return LazySplayTree.key[node]
+    assert self, f'IndexError: LazySplayTree.popleft()'
+    node = self._left_splay(self.node)
+    self.node = self.monoiddata.child[node<<1|1]
+    return self.monoiddata.keydata[node<<1]
 
-  def to_l(self) -> List[T]:
-    a = []
-    if self.node == 0:
-      return a
-    if sys.getrecursionlimit() < LazySplayTree.size[self.node]:
-      sys.setrecursionlimit(LazySplayTree.size[self.node]+1)
-    left, right, key = LazySplayTree.left, LazySplayTree.right, LazySplayTree.key
-    def rec(node):
-      self._propagate(node)
-      if left[node] != 0:
-        rec(left[node])  
-      a.append(key[node])
-      if right[node] != 0:
-        rec(right[node])
-    rec(self.node)
-    return a
+  def rotate(self, x: int) -> None:
+    # 「末尾をを削除し先頭に挿入」をx回
+    n = self.monoiddata.size[self.node]
+    l, self = self.split(n-(x%n))
+    self.merge(l)
+
+  def tolist(self) -> List[T]:
+    node = self.node
+    child, keydata = self.monoiddata.child, self.monoiddata.keydata
+    stack = newlist_hint(len(self))
+    result = newlist_hint(len(self))
+    while stack or node:
+      if node:
+        self._propagate(node)
+        stack.append(node)
+        node = child[node<<1]
+      else:
+        node = stack.pop()
+        result.append(keydata[node<<1])
+        node = child[node<<1|1]
+    return result
 
   def clear(self) -> None:
     self.node = 0
 
   def __setitem__(self, k: int, key: T):
-    self._set_kth_elm_splay(k)
-    LazySplayTree.key[self.node] = key
+    assert -len(self) <= k < len(self), f'IndexError: LazyAVLTree.__setitem__({k})'
+    self.node = self._kth_elm_splay(self.node, k)
+    self.monoiddata.keydata[self.node<<1] = key
     self._update(self.node)
 
   def __getitem__(self, k: int) -> T:
-    if k < 0 or k >= LazySplayTree.size[self.node]: raise IndexError
-    self._set_kth_elm_splay(k)
-    return LazySplayTree.key[self.node]
+    assert -len(self) <= k < len(self), f'IndexError: LazyAVLTree.__getitem__({k})'
+    self.node = self._kth_elm_splay(self.node, k)
+    return self.monoiddata.keydata[self.node<<1]
 
   def __iter__(self):
     self.__iter = 0
     return self
 
   def __next__(self):
-    if self.__iter == LazySplayTree.size[self.node]:
+    if self.__iter == self.monoiddata.size[self.node]:
       raise StopIteration
     res = self.__getitem__(self.__iter)
     self.__iter += 1
     return res
 
   def __reversed__(self):
-    for i in range(LazySplayTree.size[self.node]):
+    for i in range(len(self)):
       yield self.__getitem__(-i-1)
 
   def __len__(self):
-    return LazySplayTree.size[self.node]
+    return self.monoiddata.size[self.node]
 
   def __str__(self):
-    return '[' + ', '.join(map(str, self.to_l())) + ']'
+    return str(self.tolist())
 
   def __bool__(self):
     return self.node != 0
 
   def __repr__(self):
-    return 'LazySplayTree' + str(self)
-
+    return f'LazySplayTree({self.tolist()})'
 
 def op(s, t):
   return
@@ -421,4 +435,7 @@ def mapping(f, s):
 
 def composition(f, g):
   return
+
+e = None
+id = None
 
