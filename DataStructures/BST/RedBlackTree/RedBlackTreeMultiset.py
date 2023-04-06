@@ -1,5 +1,6 @@
-from typing import Iterable, Optional, TypeVar, Generic, Union, List
-T = TypeVar("T")
+from typing import Iterable, Optional, TypeVar, Generic, Union, List, Tuple
+from __pypy__ import newlist_hint
+T = TypeVar('T')
 
 class RedBlackTreeMultiset(Generic[T]):
 
@@ -108,34 +109,47 @@ class RedBlackTreeMultiset(Generic[T]):
     self.len = 0
     self.min_node = None
     self.max_node = None
-    if not hasattr(a, '__getitem__'):
+    if not (hasattr(a, '__getitem__') and hasattr(a, '__len__')):
       a = list(a)
     if a:
       self._build(a)
 
+  def _rle(self, a: List[T]) -> Tuple[List[T], List[int]]:
+    x = newlist_hint(len(a))
+    y = newlist_hint(len(a))
+    x.append(a[0])
+    y.append(1)
+    for i, e in enumerate(a):
+      if i == 0:
+        continue
+      if e == x[-1]:
+        y[-1] += 1
+        continue
+      x.append(e)
+      y.append(1)
+    return x, y
+
   def _build(self, a: List[T]) -> None:
     def sort(l: int, r: int, d: int):
       mid = (l + r) >> 1
-      node = Node(a[mid])
-      if d:
+      node = Node(x[mid], y[mid])
+      if (not flag and d&1) or (flag and d > 1 and not d&1):
         node.col = 1
       if l != mid:
-        node.left = sort(l, mid, d^1)
+        node.left = sort(l, mid, d+1)
         node.left.par = node
       if mid+1 != r:
-        node.right = sort(mid+1, r, d^1)
+        node.right = sort(mid+1, r, d+1)
         node.right.par = node
       return node
-    if not all(a[i] < a[i+1] for i in range(len(a)-1)):
-      a.sort()
+    if not all(a[i] <= a[i+1] for i in range(len(a)-1)):
+      a = sorted(a)
+    flag = len(a).bit_length() & 1
+    x, y = self._rle(a)
     Node = RedBlackTreeMultiset.Node
-    lim = (1 << (len(a).bit_length() - 1)) - 1
-    if lim > 0:
-      self.node = sort(0, lim, 0)
-      self.min_node = self.node._min()
-      self.max_node = self.node._max()
-    for i in range(lim, len(a)):
-      self.add(a[i])
+    self.node = sort(0, len(x), 0)
+    self.min_node = self.node._min()
+    self.max_node = self.node._max()
     self.len = len(a)
 
   def _rotate_left(self, node: Node) -> None:
@@ -365,12 +379,10 @@ class RedBlackTreeMultiset(Generic[T]):
     assert self.node, 'IndexError: get_min from empty RedBlackTreeMultiset'
     return self.min_node.key
 
-  def get_max_iter(self) -> Node:
-    assert self.node, 'IndexError: get_max_iter from empty RedBlackTreeMultiset'
+  def get_max_iter(self) -> Optional[Node]:
     return self.max_node
 
-  def get_min_iter(self) -> Node:
-    assert self.node, 'IndexError: get_min_iter from empty RedBlackTreeMultiset'
+  def get_min_iter(self) -> Optional[Node]:
     return self.min_node
 
   def le(self, key: T) -> Optional[T]:
@@ -447,18 +459,19 @@ class RedBlackTreeMultiset(Generic[T]):
     return None
 
   def tolist(self) -> List[T]:
-    a = []
-    if not self.node:
-      return a
-    def rec(node):
-      if node.left:
-        rec(node.left)
-      for _ in range(node.cnt):
-        a.append(node.key)
-      if node.right:
-        rec(node.right)
-    rec(self.node)
-    return a
+    node = self.node
+    stack = newlist_hint(len(self))
+    res = newlist_hint(len(self))
+    while stack or node:
+      if node:
+        stack.append(node)
+        node = node.left
+      else:
+        node = stack.pop()
+        for _ in range(node.cnt):
+          res.append(node.key)
+        node = node.right
+    return res
 
   def pop_max(self) -> T:
     assert self.node, 'IndexError: pop_max() from empty RedBlackTreeMultiset'
@@ -521,5 +534,5 @@ class RedBlackTreeMultiset(Generic[T]):
     return '{' + ', '.join(map(str, self.tolist())) + '}'
 
   def __repr__(self):
-    return f'RedBlackTreeMultiset({self})'
+    return 'RedBlackTreeMultiset([' + ', '.join(map(str, self.tolist())) + '])'
 
