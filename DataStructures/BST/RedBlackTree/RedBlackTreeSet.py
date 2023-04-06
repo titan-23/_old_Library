@@ -1,5 +1,6 @@
 from typing import Iterable, Optional, TypeVar, Generic, Union, List
-T = TypeVar("T")
+from __pypy__ import newlist_hint
+T = TypeVar('T')
 
 class RedBlackTreeSet(Generic[T]):
 
@@ -106,7 +107,7 @@ class RedBlackTreeSet(Generic[T]):
     self.len = 0
     self.min_node = None
     self.max_node = None
-    if not hasattr(a, '__getitem__'):
+    if not (hasattr(a, '__getitem__') and hasattr(a, '__len__')):
       a = list(a)
     if a:
       self._build(a)
@@ -115,25 +116,22 @@ class RedBlackTreeSet(Generic[T]):
     def sort(l: int, r: int, d: int):
       mid = (l + r) >> 1
       node = Node(a[mid])
-      if d:
+      if (not flag and d&1) or (flag and d > 1 and not d&1):
         node.col = 1
       if l != mid:
-        node.left = sort(l, mid, d^1)
+        node.left = sort(l, mid, d+1)
         node.left.par = node
       if mid+1 != r:
-        node.right = sort(mid+1, r, d^1)
+        node.right = sort(mid+1, r, d+1)
         node.right.par = node
       return node
     if not all(a[i] < a[i+1] for i in range(len(a)-1)):
       a = sorted(set(a))
     Node = RedBlackTreeSet.Node
-    lim = (1 << (len(a).bit_length() - 1)) - 1
-    if lim > 0:
-      self.node = sort(0, lim, 0)
-      self.min_node = self.node._min()
-      self.max_node = self.node._max()
-    for i in range(lim, len(a)):
-      self.add(a[i])
+    flag = len(a).bit_length() & 1
+    self.node = sort(0, len(a), 0)
+    self.min_node = self.node._min()
+    self.max_node = self.node._max()
     self.len = len(a)
 
   def _rotate_left(self, node: Node) -> None:
@@ -356,10 +354,10 @@ class RedBlackTreeSet(Generic[T]):
     assert self.node, 'IndexError: get_min from empty RedBlackTreeSet'
     return self.min_node.key
 
-  def get_max_iter(self) -> Node:
+  def get_max_iter(self) -> Optional[Node]:
     return self.max_node
 
-  def get_min_iter(self) -> Node:
+  def get_min_iter(self) -> Optional[Node]:
     return self.min_node
 
   def le(self, key: T) -> Optional[T]:
@@ -436,26 +434,27 @@ class RedBlackTreeSet(Generic[T]):
     return None
 
   def tolist(self) -> List[T]:
-    a = []
-    if not self.node:
-      return a
-    def rec(node):
-      if node.left:
-        rec(node.left)  
-      a.append(node.key)
-      if node.right:
-        rec(node.right)
-    rec(self.node)
-    return a
+    node = self.node
+    stack = newlist_hint(len(self))
+    res = newlist_hint(len(self))
+    while stack or node:
+      if node:
+        stack.append(node)
+        node = node.left
+      else:
+        node = stack.pop()
+        res.append(node.key)
+        node = node.right
+    return res
 
   def pop_max(self) -> T:
-    assert self.node, 'IndexError: pop_max from empty RedBlackTreeSet'
+    assert self.node, 'IndexError: pop_max() from empty RedBlackTreeSet'
     node = self.max_node
     self.discard_iter(node)
     return node.key
 
   def pop_min(self) -> T:
-    assert self.node, 'IndexError: pop_min from empty RedBlackTreeSet'
+    assert self.node, 'IndexError: pop_min() from empty RedBlackTreeSet'
     node = self.min_node
     self.discard_iter(node)
     return node.key
@@ -498,7 +497,7 @@ class RedBlackTreeSet(Generic[T]):
     return self.len
 
   def __str__(self):
-    return '{' + ', '.join(map(str, self.tolist())) + '}'
+    return '{' + str(self.tolist()) + '}'
 
   def __repr__(self):
     return f'RedBlackTreeSet({self})'
